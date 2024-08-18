@@ -22,9 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
 
-      - name: Configure Pages
-        uses: actions/configure-pages@v5
-
       - name: Clone the source repo
         uses: actions/checkout@v4
 
@@ -35,12 +32,15 @@ jobs:
           channel: stable
           flutter-version: 3.24.0
 
+      - name: Configure Pages
+        uses: actions/configure-pages@v5
+
       - name: Build the web artifact
         run: |
           flutter doctor -v
           flutter pub get
           flutter test
-          flutter build web --base-href / --release
+          flutter build web --base-href /github-pages/ --release
 
       # https://stackoverflow.com/a/73450467
       - name: Upload the web artifact
