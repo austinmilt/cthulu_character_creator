@@ -30,7 +30,7 @@ jobs:
           flutter doctor -v
           flutter pub get
           flutter test
-          flutter build web --base-href github-pages --release
+          flutter build web --base-href /github-pages/ --release
 
       # https://stackoverflow.com/a/73450467
       - name: Upload the web artifact
