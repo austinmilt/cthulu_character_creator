@@ -24,6 +24,7 @@ jobs:
         with:
           channel: stable
           flutter-version-file: pubspec.yaml # use the same flutter version as in the source repo
+          architecture: x64
 
       - name: Build the web artifact
         run: |
