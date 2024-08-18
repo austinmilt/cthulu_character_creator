@@ -36,7 +36,7 @@ jobs:
       - name: Upload the web artifact
         uses: actions/upload-artifact@master
         with:
-          name: page
+          name: github-pages
           path: build/web
 
   # https://github.com/actions/deploy-pages
@@ -53,12 +53,6 @@ jobs:
       id-token: write   # to verify the deployment originates from an appropriate source
 
     steps:
-      - name: Download web artifact
-        uses: actions/download-artifact@master
-        with:
-          name: page
-          path: .
-
       - name: Configure Pages
         uses: actions/configure-pages@v4
 
