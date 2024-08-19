@@ -1,19 +1,4 @@
 
-# name: Gh-Pages
-
-# on:
-#   push:
-#     branches: [ main ]
-
-# jobs:
-#   build:
-#     runs-on: ubuntu-latest
-
-#     steps:
-#       - uses: actions/checkout@v2 # Only works with v2
-#       - uses: subosito/flutter-action@v1
-#       - uses: bluefireteam/flutter-gh-pages@v7
-
 name: Publish main branch to GitHub Pages
 
 on:
@@ -50,7 +35,7 @@ jobs:
           flutter config --enable-web
           flutter pub get
           flutter test
-          flutter build web --release --web-renderer=auto --base-href /
+          flutter build web --release --web-renderer=auto --base-href /${{ github.event.repository.name }}/
     
       - name: Configure Pages
         uses: actions/configure-pages@v4
