@@ -50,7 +50,7 @@ jobs:
           flutter config --enable-web
           flutter pub get
           flutter test
-          flutter build web --base-href /${{ github.event.repository.name }}/ --release
+          flutter build web --release --web-renderer=auto --base-href /${{ github.event.repository.name }}/
     
       - name: Configure Pages
         uses: actions/configure-pages@v4
