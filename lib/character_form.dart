@@ -135,19 +135,19 @@ class _TopCenterScrollableContainer extends StatelessWidget {
   Widget build(BuildContext context) {
     return Align(
       alignment: Alignment.topCenter,
-      child: Container(
-        constraints: (maxWidth == null) ? null : BoxConstraints(maxWidth: maxWidth!),
-        padding: padding,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Flexible(
-              child: SingleChildScrollView(
-                child: child,
-              ),
-            )
-          ],
+      child: SingleChildScrollView(
+        child: Container(
+          constraints: (maxWidth == null) ? null : BoxConstraints(maxWidth: maxWidth!),
+          padding: padding,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Flexible(
+                child: child ?? const SizedBox(),
+              )
+            ],
+          ),
         ),
       ),
     );
@@ -157,19 +157,16 @@ class _TopCenterScrollableContainer extends StatelessWidget {
 Widget _section(Widget? child) {
   return Padding(
     padding: const EdgeInsets.only(bottom: 20),
-    child: Container(
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
-        boxShadow: const [
-          BoxShadow(
-            color: Colors.grey,
-            blurRadius: 2,
-          )
-        ],
+    // PhysicalModel applies a shadow based on elevation
+    child: PhysicalModel(
+      color: Colors.white,
+      elevation: 1,
+      shape: BoxShape.rectangle,
+      borderRadius: BorderRadius.circular(10),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        child: child,
       ),
-      padding: const EdgeInsets.all(20),
-      child: child,
     ),
   );
 }
