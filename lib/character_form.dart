@@ -132,17 +132,23 @@ class _TopCenterScrollableContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Container(
-          padding: padding,
-          constraints: (maxWidth == null) ? null : BoxConstraints.loose(Size.fromWidth(maxWidth!)),
-          child: SingleChildScrollView(
-            child: child,
-          ),
-        )
-      ],
+    return Align(
+      alignment: Alignment.topCenter,
+      child: Container(
+        constraints: (maxWidth == null) ? null : BoxConstraints(maxWidth: maxWidth!),
+        padding: padding,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Flexible(
+              child: SingleChildScrollView(
+                child: child,
+              ),
+            )
+          ],
+        ),
+      ),
     );
   }
 }
