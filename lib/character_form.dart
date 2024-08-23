@@ -47,6 +47,7 @@ Happy to guide you through and help you build your character._
             _section(FormBuilderTextField(
               name: 'email',
               decoration: const InputDecoration(labelText: 'Email'),
+              keyboardType: TextInputType.emailAddress,
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
                 FormBuilderValidators.email(),
