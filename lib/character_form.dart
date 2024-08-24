@@ -1,3 +1,5 @@
+import 'package:cthulu_character_creator/skill.dart';
+import 'package:cthulu_character_creator/skill_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -99,6 +101,63 @@ the other Investigators to prevent redundancy._
                   validator: FormBuilderValidators.compose([
                     FormBuilderValidators.required(),
                   ]),
+                ),
+              ],
+            )),
+            _section(Column(
+              children: [
+                _md("""
+You will select **[8] Occupational Skills** that relate to your chosen occupation 
+as well as **[4] Personal Interest Skills** to boost. 
+
+Each skill has a default value (listed in parentheses). For your **Occupational 
+Skills**, you will assign new values to them to override the default. 
+For **Personal Interest Skills**, you will boost those by 20%.
+"""),
+                SkillSelector(
+                  skills: [
+                    Skill("Accounting", 05),
+                    Skill("Anthropology", 01),
+                    Skill("Appraise", 05),
+                    Skill("Archaeology", 01),
+                    Skill("Art/Craft", 05),
+                    Skill("Charm", 15),
+                    Skill("Climb", 20),
+                    Skill("Disguise", 05),
+                    Skill("Drive Auto", 20),
+                    Skill("Elec. Repair", 10),
+                    Skill("Fast Talk", 05),
+                    Skill("Fighting [Brawl]", 25),
+                    Skill("Firearms [Handgun]", 20),
+                    Skill("Firearms [Rifle/Shotgun]", 25),
+                    Skill("First Aid", 30),
+                    Skill("History", 05),
+                    Skill("Intimidate", 15),
+                    Skill("Jump", 20),
+                    Skill("Language (Other)", 01),
+                    Skill("Law", 05),
+                    Skill("Library Use", 20),
+                    Skill("Listen", 20),
+                    Skill("Locksmith", 01),
+                    Skill("Mech. Repair", 10),
+                    Skill("Medicine", 01),
+                    Skill("Natural World", 10),
+                    Skill("Navigate", 10),
+                    Skill("Occult", 05),
+                    Skill("Operate Heavy Machinery", 01),
+                    Skill("Persuade", 10),
+                    Skill("Psychology", 10),
+                    Skill("Psychoanalysis", 01),
+                    Skill("Ride", 05),
+                    Skill("Science", 01),
+                    Skill("Sleight of Hand", 10),
+                    Skill("Spot Hidden", 25),
+                    Skill("Stealth", 20),
+                    Skill("Survival", 10),
+                    Skill("Swim", 20),
+                    Skill("Throw", 20),
+                    Skill("Track", 10),
+                  ],
                 ),
               ],
             )),
