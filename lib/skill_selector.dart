@@ -181,7 +181,7 @@ class _OccupationalSkillSlotState extends State<_OccupationalSkillSlot> {
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
         return (widget.skill == null)
-            ? _SkillSlot(label: "_______${widget.percentageModifier}%_______")
+            ? _SkillSlot(label: "      ${widget.percentageModifier}%      ")
             : _SkillChip(
                 value: widget.skill!,
                 percentageModifer: _getModifier(widget.skill!),
@@ -225,7 +225,7 @@ class _PersonalInterestSkillSlotState extends State<_PersonalInterestSkillSlot> 
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
         return (widget.skill == null)
-            ? _SkillSlot(label: "_______+${widget.percentageModifier}%_______")
+            ? _SkillSlot(label: "      +${widget.percentageModifier}%      ")
             : _SkillChip(
                 value: widget.skill!,
                 percentageModifer: widget.percentageModifier,
@@ -319,9 +319,10 @@ class _SkillSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(),
-      ),
+          borderRadius: BorderRadius.circular(6),
+          border: Border.all(),
+          // TODO fill from theme
+          color: Colors.grey.shade300),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Text(label),
     );
