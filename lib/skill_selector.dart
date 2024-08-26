@@ -49,105 +49,69 @@ class _SkillSelectorState extends State<SkillSelector> {
   }
 
   Widget _occupationalSlot(String bucket, int percentageModifier) {
-    return _OccupationalSkillSlot(
-      percentageModifier: percentageModifier,
-      onPickOut: (skill) => _onPickOut(bucket, skill),
-      onDropIn: (skill) => _onDropIn(bucket, skill),
-      skill: _bucketMap[bucket]?.firstOrNull,
-      onCancelMove: _onCancelMove,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: _OccupationalSkillSlot(
+        percentageModifier: percentageModifier,
+        onPickOut: (skill) => _onPickOut(bucket, skill),
+        onDropIn: (skill) => _onDropIn(bucket, skill),
+        skill: _bucketMap[bucket]?.firstOrNull,
+        onCancelMove: _onCancelMove,
+      ),
     );
   }
 
   Widget _personalSlot(String bucket) {
-    return _PersonalInterestSkillSlot(
-      percentageModifier: 20,
-      onPickOut: (skill) => _onPickOut(bucket, skill),
-      onDropIn: (skill) => _onDropIn(bucket, skill),
-      skill: _bucketMap[bucket]?.firstOrNull,
-      onCancelMove: _onCancelMove,
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4),
+      child: _PersonalInterestSkillSlot(
+        percentageModifier: 20,
+        onPickOut: (skill) => _onPickOut(bucket, skill),
+        onDropIn: (skill) => _onDropIn(bucket, skill),
+        skill: _bucketMap[bucket]?.firstOrNull,
+        onCancelMove: _onCancelMove,
+      ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: [
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 12),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
+    return ConstrainedBox(
+      constraints: BoxConstraints.loose(const Size.fromHeight(600)),
+      child: Row(
+        children: [
+          Expanded(
+            child: ListView(
+              padding: const EdgeInsets.only(right: 4),
               children: [
-                const Text("Occupational Skills"),
-                const SizedBox(height: 8),
-                Wrap(
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _occupationalSlot('o70', 70),
-                    _occupationalSlot('o60-1', 60),
-                    _occupationalSlot('o60-2', 60),
-                    _occupationalSlot('o50-1', 50),
-                    _occupationalSlot('o50-2', 50),
-                    _occupationalSlot('o50-3', 50),
-                    _occupationalSlot('o40-1', 40),
-                    _occupationalSlot('o40-2', 40),
-                  ],
-                ),
+                _occupationalSlot('o70', 70),
+                _occupationalSlot('o60-1', 60),
+                _occupationalSlot('o60-2', 60),
+                _occupationalSlot('o50-1', 50),
+                _occupationalSlot('o50-2', 50),
+                _occupationalSlot('o50-3', 50),
+                _occupationalSlot('o40-1', 40),
+                _occupationalSlot('o40-2', 40),
+                _personalSlot('p20-1'),
+                _personalSlot('p20-2'),
+                _personalSlot('p20-3'),
+                _personalSlot('p20-4'),
               ],
             ),
           ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 12),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Personal Interest Skills"),
-                const SizedBox(height: 8),
-                Wrap(
-                  alignment: WrapAlignment.start,
-                  runAlignment: WrapAlignment.start,
-                  spacing: 10,
-                  runSpacing: 10,
-                  children: [
-                    _personalSlot('p20-1'),
-                    _personalSlot('p20-2'),
-                    _personalSlot('p20-3'),
-                    _personalSlot('p20-4'),
-                  ],
-                ),
-              ],
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.only(left: 4),
+              child: _UnclaimedSkills(
+                onDropIn: (skill) => _onDropIn('u', skill),
+                onPickOut: (skill) => _onPickOut('u', skill),
+                onCancelMove: _onCancelMove,
+                skills: _bucketMap['u'] ?? [],
+              ),
             ),
           ),
-        ),
-        SizedBox(
-          width: double.infinity,
-          child: Padding(
-            padding: const EdgeInsets.only(left: 8, right: 8, top: 8, bottom: 12),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Text("Unclaimed Skills"),
-                const SizedBox(height: 8),
-                _UnclaimedSkills(
-                  onDropIn: (skill) => _onDropIn('u', skill),
-                  onPickOut: (skill) => _onPickOut('u', skill),
-                  onCancelMove: _onCancelMove,
-                  skills: _bucketMap['u'] ?? [],
-                ),
-              ],
-            ),
-          ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 }
@@ -181,7 +145,7 @@ class _OccupationalSkillSlotState extends State<_OccupationalSkillSlot> {
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
         return (widget.skill == null)
-            ? _SkillSlot(label: "      ${widget.percentageModifier}%      ")
+            ? _SkillSlot(label: "${widget.percentageModifier}%")
             : _SkillChip(
                 value: widget.skill!,
                 percentageModifer: _getModifier(widget.skill!),
@@ -225,7 +189,7 @@ class _PersonalInterestSkillSlotState extends State<_PersonalInterestSkillSlot> 
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
         return (widget.skill == null)
-            ? _SkillSlot(label: "      +${widget.percentageModifier}%      ")
+            ? _SkillSlot(label: "+${widget.percentageModifier}%")
             : _SkillChip(
                 value: widget.skill!,
                 percentageModifer: widget.percentageModifier,
@@ -259,19 +223,11 @@ class _UnclaimedSkills extends StatelessWidget {
 
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
-        return SizedBox(
-          width: double.infinity,
-          child: Wrap(
-            alignment: WrapAlignment.start,
-            runAlignment: WrapAlignment.start,
-            spacing: 10,
-            runSpacing: 10,
-            children: skills
-                .map((s) => _SkillChip(
-                      value: s,
-                      onNotAccepted: onCancelMove,
-                    ))
-                .toList(),
+        return ListView.builder(
+          itemCount: skills.length,
+          itemBuilder: (context, index) => Padding(
+            padding: const EdgeInsets.symmetric(vertical: 4),
+            child: _SkillChip(value: skills[index], onNotAccepted: onCancelMove),
           ),
         );
       },
@@ -290,9 +246,19 @@ class _UnclaimedSkills extends StatelessWidget {
 class _SkillChip extends LongPressDraggable<Skill> {
   _SkillChip({required Skill value, int percentageModifer = 0, required this.onNotAccepted})
       : super(
-            child: Chip(
-                label:
-                    Text("${value.name} (${(value.basePercentage + percentageModifer).toString().padLeft(2, '0')}%)")),
+            child: Container(
+              decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(8)),
+              padding: const EdgeInsets.all(8),
+              child: Row(
+                children: [
+                  Flexible(
+                    child: Text(
+                      "${value.name} (${(value.basePercentage + percentageModifer).toString().padLeft(2, '0')}%)",
+                    ),
+                  ),
+                ],
+              ),
+            ),
             data: value,
             feedback: Material(
                 child: Chip(label: Text("${value.name} (${(value.basePercentage).toString().padLeft(2, '0')}%)"))),
@@ -324,7 +290,10 @@ class _SkillSlot extends StatelessWidget {
           // TODO fill from theme
           color: Colors.grey.shade300),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
-      child: Text(label),
+      child: Text(
+        label,
+        textAlign: TextAlign.center,
+      ),
     );
   }
 }

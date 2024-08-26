@@ -114,6 +114,7 @@ Each skill has a default value (listed in parentheses). For your **Occupational
 Skills**, you will assign new values to them to override the default. 
 For **Personal Interest Skills**, you will boost those by 20%.
 """),
+                const SizedBox(height: 12),
                 SkillSelector(
                   skills: [
                     Skill("Accounting", 05),
