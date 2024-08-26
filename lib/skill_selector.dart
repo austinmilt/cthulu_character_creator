@@ -223,11 +223,15 @@ class _UnclaimedSkills extends StatelessWidget {
 
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
-        return ListView.builder(
-          itemCount: skills.length,
-          itemBuilder: (context, index) => Padding(
-            padding: const EdgeInsets.symmetric(vertical: 4),
-            child: _SkillChip(value: skills[index], onNotAccepted: onCancelMove),
+        return Scrollbar(
+          thumbVisibility: true,
+          trackVisibility: true,
+          child: ListView.builder(
+            itemCount: skills.length,
+            itemBuilder: (context, index) => Padding(
+              padding: const EdgeInsets.only(top: 4, bottom: 4, right: 30),
+              child: _SkillChip(value: skills[index], onNotAccepted: onCancelMove),
+            ),
           ),
         );
       },
