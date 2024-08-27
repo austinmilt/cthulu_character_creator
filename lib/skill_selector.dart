@@ -3,9 +3,10 @@ import 'package:flutter/material.dart';
 import 'skill.dart';
 
 class SkillSelector extends StatefulWidget {
-  const SkillSelector({super.key, required this.skills});
+  const SkillSelector({super.key, required this.options, required this.onChange});
 
-  final List<Skill> skills;
+  final List<Skill> options;
+  final void Function(List<Skill> updated, bool complete) onChange;
 
   @override
   State<SkillSelector> createState() => _SkillSelectorState();
@@ -15,11 +16,13 @@ class _SkillSelectorState extends State<SkillSelector> {
   Skill? _pickedOutSkill;
   String? _pickedOutBucket;
   final Map<String, List<Skill>> _bucketMap = {};
+  final Map<String, bool> _bucketComplete = {};
 
   @override
   void initState() {
     super.initState();
-    _bucketMap['u'] = List.from(widget.skills);
+    _bucketMap['u'] = List.from(widget.options);
+    _bucketComplete['u'] = true;
   }
 
   void _onPickOut(String bucket, Skill skill) {
@@ -27,34 +30,59 @@ class _SkillSelectorState extends State<SkillSelector> {
       _pickedOutBucket = bucket;
       _pickedOutSkill = skill;
       _bucketMap[bucket]?.remove(skill);
+      // TODO make smarter than just assuming if it's not from the pool of
+      //  moves then it must be required
+      if (bucket != 'u') {
+        _bucketComplete[bucket] = false;
+      }
     });
+    // dont need to do _onCompletionUpdate here because this is only a temporary
+    // state where the skill is being held by the user, so wont be part of the
+    // state when the form is finally submitted (i.e. only submission state is
+    // all "dropped-in")
   }
 
   void _onCancelMove() {
-    setState(() {
-      if ((_pickedOutBucket != null) && (_pickedOutSkill != null)) {
-        _bucketMap[_pickedOutBucket]!.add(_pickedOutSkill!);
-        _pickedOutBucket = null;
-        _pickedOutSkill = null;
-      }
-    });
+    if ((_pickedOutBucket != null) && (_pickedOutSkill != null)) {
+      _onDropIn(_pickedOutBucket!, _pickedOutSkill!);
+    }
   }
 
   void _onDropIn(String bucket, Skill skill) {
     setState(() {
       _bucketMap.putIfAbsent(bucket, () => []).add(skill);
+      // TODO make smarter than just assuming if it's not from the pool of
+      //  moves then it must be required
+      _bucketComplete[bucket] = true;
       _pickedOutSkill = null;
       _pickedOutBucket = null;
     });
+    _onCompletionUpdate();
+  }
+
+  void _onCompletionUpdate() {
+    final bool complete = _bucketComplete.values.firstWhere((v) => v == false, orElse: () => true);
+    final List<Skill> allSkills = [];
+    _bucketMap.values.forEach(allSkills.addAll);
+    widget.onChange(allSkills, complete);
   }
 
   Widget _occupationalSlot(String bucket, int percentageModifier) {
+    // initialize the bucket as being incomplete, but dont overwrite its state
+    // on rerenders
+    _bucketComplete.putIfAbsent(bucket, () => false);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: _OccupationalSkillSlot(
-        percentageModifier: percentageModifier,
-        onPickOut: (skill) => _onPickOut(bucket, skill),
-        onDropIn: (skill) => _onDropIn(bucket, skill),
+      child: _SpecialtySkillSlot(
+        emptyLabel: "$percentageModifier%",
+        onPickOut: (skill) {
+          skill.percentageModifier = 0;
+          _onPickOut(bucket, skill);
+        },
+        onDropIn: (skill) {
+          skill.percentageModifier = percentageModifier - skill.basePercentage;
+          _onDropIn(bucket, skill);
+        },
         skill: _bucketMap[bucket]?.firstOrNull,
         onCancelMove: _onCancelMove,
       ),
@@ -62,12 +90,21 @@ class _SkillSelectorState extends State<SkillSelector> {
   }
 
   Widget _personalSlot(String bucket) {
+    // initialize the bucket as being incomplete, but dont overwrite its state
+    // on rerenders
+    _bucketComplete.putIfAbsent(bucket, () => false);
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
-      child: _PersonalInterestSkillSlot(
-        percentageModifier: 20,
-        onPickOut: (skill) => _onPickOut(bucket, skill),
-        onDropIn: (skill) => _onDropIn(bucket, skill),
+      child: _SpecialtySkillSlot(
+        emptyLabel: "+20%",
+        onPickOut: (skill) {
+          skill.percentageModifier = 0;
+          _onPickOut(bucket, skill);
+        },
+        onDropIn: (skill) {
+          skill.percentageModifier = 20;
+          _onDropIn(bucket, skill);
+        },
         skill: _bucketMap[bucket]?.firstOrNull,
         onCancelMove: _onCancelMove,
       ),
@@ -116,83 +153,34 @@ class _SkillSelectorState extends State<SkillSelector> {
   }
 }
 
-class _OccupationalSkillSlot extends StatefulWidget {
-  const _OccupationalSkillSlot({
-    required this.percentageModifier,
+class _SpecialtySkillSlot extends StatefulWidget {
+  const _SpecialtySkillSlot({
+    required this.emptyLabel,
     required this.onPickOut,
     required this.onDropIn,
+    required this.onCancelMove,
     this.skill,
-    required this.onCancelMove,
   });
 
+  final String emptyLabel;
   final void Function(Skill) onPickOut;
   final void Function(Skill) onDropIn;
   final void Function() onCancelMove;
   final Skill? skill;
-  final int percentageModifier;
 
   @override
-  State<_OccupationalSkillSlot> createState() => _OccupationalSkillSlotState();
+  State<_SpecialtySkillSlot> createState() => _SpecialtySkillSlotState();
 }
 
-class _OccupationalSkillSlotState extends State<_OccupationalSkillSlot> {
-  int _getModifier(Skill skill) {
-    return widget.percentageModifier - skill.basePercentage;
-  }
-
+class _SpecialtySkillSlotState extends State<_SpecialtySkillSlot> {
   @override
   Widget build(BuildContext context) {
     return DragTarget<Skill>(
       builder: (context, candidateData, rejectedData) {
         return (widget.skill == null)
-            ? _SkillSlot(label: "${widget.percentageModifier}%")
+            ? _SkillSlot(label: widget.emptyLabel)
             : _SkillChip(
                 value: widget.skill!,
-                percentageModifer: _getModifier(widget.skill!),
-                onNotAccepted: widget.onCancelMove,
-              );
-      },
-      onAcceptWithDetails: (details) {
-        widget.onDropIn(details.data);
-      },
-      onMove: (details) {
-        if (details.data == widget.skill) {
-          widget.onPickOut(details.data);
-        }
-      },
-    );
-  }
-}
-
-class _PersonalInterestSkillSlot extends StatefulWidget {
-  const _PersonalInterestSkillSlot({
-    required this.percentageModifier,
-    required this.onPickOut,
-    required this.onDropIn,
-    required this.skill,
-    required this.onCancelMove,
-  });
-
-  final void Function(Skill) onPickOut;
-  final void Function(Skill) onDropIn;
-  final void Function() onCancelMove;
-  final Skill? skill;
-  final int percentageModifier;
-
-  @override
-  State<_PersonalInterestSkillSlot> createState() => _PersonalInterestSkillSlotState();
-}
-
-class _PersonalInterestSkillSlotState extends State<_PersonalInterestSkillSlot> {
-  @override
-  Widget build(BuildContext context) {
-    return DragTarget<Skill>(
-      builder: (context, candidateData, rejectedData) {
-        return (widget.skill == null)
-            ? _SkillSlot(label: "+${widget.percentageModifier}%")
-            : _SkillChip(
-                value: widget.skill!,
-                percentageModifer: widget.percentageModifier,
                 onNotAccepted: widget.onCancelMove,
               );
       },
@@ -209,13 +197,19 @@ class _PersonalInterestSkillSlotState extends State<_PersonalInterestSkillSlot> 
 }
 
 class _UnclaimedSkills extends StatelessWidget {
-  const _UnclaimedSkills(
-      {required this.onPickOut, required this.onDropIn, required this.skills, required this.onCancelMove});
+  _UnclaimedSkills({
+    required this.onPickOut,
+    required this.onDropIn,
+    required this.skills,
+    required this.onCancelMove,
+  });
 
   final void Function(Skill) onPickOut;
   final void Function(Skill) onDropIn;
   final void Function() onCancelMove;
   final List<Skill> skills;
+
+  final ScrollController _scrollController = ScrollController();
 
   @override
   Widget build(BuildContext context) {
@@ -226,7 +220,9 @@ class _UnclaimedSkills extends StatelessWidget {
         return Scrollbar(
           thumbVisibility: true,
           trackVisibility: true,
+          controller: _scrollController,
           child: ListView.builder(
+            controller: _scrollController,
             itemCount: skills.length,
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 4, right: 30),
@@ -248,7 +244,7 @@ class _UnclaimedSkills extends StatelessWidget {
 }
 
 class _SkillChip extends LongPressDraggable<Skill> {
-  _SkillChip({required Skill value, int percentageModifer = 0, required this.onNotAccepted})
+  _SkillChip({required Skill value, required this.onNotAccepted})
       : super(
             child: Container(
               decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(8)),
@@ -257,7 +253,7 @@ class _SkillChip extends LongPressDraggable<Skill> {
                 children: [
                   Flexible(
                     child: Text(
-                      "${value.name} (${(value.basePercentage + percentageModifer).toString().padLeft(2, '0')}%)",
+                      "${value.name} (${(value.basePercentage + value.percentageModifier).toString().padLeft(2, '0')}%)",
                     ),
                   ),
                 ],

@@ -5,6 +5,8 @@ class Skill {
 
   final String name;
   final int basePercentage;
+  int percentageModifier = 0;
+  // TODO can I replace this with checks for (identical(this, other))?
   final int _id = _rand.nextInt(1000000);
 
   @override
