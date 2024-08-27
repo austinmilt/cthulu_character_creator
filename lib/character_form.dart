@@ -210,17 +210,24 @@ class _TopCenterScrollableContainer extends StatelessWidget {
     return Align(
       alignment: Alignment.topCenter,
       child: SingleChildScrollView(
-        child: Container(
-          constraints: (maxWidth == null) ? null : BoxConstraints(maxWidth: maxWidth!),
-          padding: padding,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Flexible(
-                child: child ?? const SizedBox(),
-              )
-            ],
+        // wrapping the main Container (below) in a Center makes it so the Center
+        // takes up the full width of the view while enforcing a max width on
+        // the main Container. This makes the page's scrollbar (from the
+        // SingleChildScrollView) stick to the right side of the page rather than
+        // being butted up against the main Container, which is annoying on mobile
+        child: Center(
+          child: Container(
+            constraints: (maxWidth == null) ? null : BoxConstraints(maxWidth: maxWidth!),
+            padding: padding,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Flexible(
+                  child: child ?? const SizedBox(),
+                )
+              ],
+            ),
           ),
         ),
       ),
