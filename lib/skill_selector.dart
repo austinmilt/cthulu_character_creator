@@ -180,7 +180,7 @@ class _SpecialtySkillSlotState extends State<_SpecialtySkillSlot> {
         return (widget.skill == null)
             ? _SkillSlot(label: widget.emptyLabel)
             : _SkillChip(
-                value: widget.skill!,
+                skill: widget.skill!,
                 onNotAccepted: widget.onCancelMove,
               );
       },
@@ -226,7 +226,7 @@ class _UnclaimedSkills extends StatelessWidget {
             itemCount: skills.length,
             itemBuilder: (context, index) => Padding(
               padding: const EdgeInsets.only(top: 4, bottom: 4, right: 30),
-              child: _SkillChip(value: skills[index], onNotAccepted: onCancelMove),
+              child: _SkillChip(skill: skills[index], onNotAccepted: onCancelMove),
             ),
           ),
         );
@@ -243,37 +243,51 @@ class _UnclaimedSkills extends StatelessWidget {
   }
 }
 
-class _SkillChip extends LongPressDraggable<Skill> {
-  _SkillChip({required Skill value, required this.onNotAccepted})
-      : super(
-            child: Container(
-              decoration: BoxDecoration(border: Border.all(), borderRadius: BorderRadius.circular(8)),
-              padding: const EdgeInsets.all(8),
-              child: Row(
-                children: [
-                  Flexible(
-                    child: Text(
-                      "${value.name} (${(value.basePercentage + value.percentageModifier).toString().padLeft(2, '0')}%)",
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            data: value,
-            feedback: Material(
-                child: Chip(label: Text("${value.name} (${(value.basePercentage).toString().padLeft(2, '0')}%)"))),
-            dragAnchorStrategy: pointerDragAnchorStrategy,
-            onDragEnd: (details) {
-              if (!details.wasAccepted) {
-                onNotAccepted();
-              }
-            },
-            onDraggableCanceled: (velocity, offset) {
-              onNotAccepted();
-            },
-            delay: const Duration(milliseconds: 0));
+class _SkillChip extends StatelessWidget {
+  const _SkillChip({required this.skill, required this.onNotAccepted});
 
+  final Skill skill;
   final void Function() onNotAccepted;
+
+  static Widget _chip(BuildContext context, String name, int totalPercentage) {
+    final String label = "$name (${(totalPercentage).toString().padLeft(2, '0')}%)";
+    return Container(
+      decoration: BoxDecoration(
+        border: Border.all(),
+        borderRadius: BorderRadius.circular(8),
+        color: Theme.of(context).cardColor,
+      ),
+      padding: const EdgeInsets.all(8),
+      constraints: const BoxConstraints(maxWidth: 300, maxHeight: 300),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Flexible(
+            child: Text(label),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return LongPressDraggable<Skill>(
+      data: skill,
+      dragAnchorStrategy: pointerDragAnchorStrategy,
+      onDragEnd: (details) {
+        if (!details.wasAccepted) {
+          onNotAccepted();
+        }
+      },
+      onDraggableCanceled: (velocity, offset) {
+        onNotAccepted();
+      },
+      delay: const Duration(milliseconds: 0),
+      feedback: Material(child: _chip(context, skill.name, skill.basePercentage)),
+      child: _chip(context, skill.name, skill.basePercentage + skill.percentageModifier),
+    );
+  }
 }
 
 class _SkillSlot extends StatelessWidget {
@@ -285,10 +299,10 @@ class _SkillSlot extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(6),
-          border: Border.all(),
-          // TODO fill from theme
-          color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(),
+        color: Theme.of(context).focusColor,
+      ),
       padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 4),
       child: Text(
         label,
