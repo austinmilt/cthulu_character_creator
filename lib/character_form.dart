@@ -48,7 +48,7 @@ Happy to guide you through and help you build your character._
                   """)),
             _section(FormBuilderTextField(
               name: 'email',
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Email *'),
               keyboardType: TextInputType.emailAddress,
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
@@ -58,7 +58,7 @@ Happy to guide you through and help you build your character._
             _section(Column(
               children: [
                 _md("""
-## Occupation
+## Occupation *
 Please select your character's **Occupation**.
 
 _Keepers Note: I will be adding a [TAKEN] tag after those selected by 
@@ -108,7 +108,7 @@ the other Investigators to prevent redundancy._
             _section(Column(
               children: [
                 _md("""
-## Skills
+## Skills *
 You will select **[8] Occupational Skills** that relate to your chosen occupation 
 as well as **[4] Personal Interest Skills** to boost. 
 
@@ -181,11 +181,18 @@ For **Personal Interest Skills**, you will boost those by 20%.
             _section(Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                _md("## Describe your character"),
+                _md("""
+## Describe your character
+
+Add any details about your character and their background.
+
+_Keeper Note: These are optional (except for your Name and Appearance), 
+but feel free to flesh out your character as much as you'd like._
+"""),
                 FormBuilderTextField(
                   name: 'name',
                   decoration: const InputDecoration(
-                    labelText: 'Name',
+                    labelText: 'Name *',
                     helperMaxLines: 2,
                     helperText: 'What is your character\'s name?',
                   ),
@@ -198,7 +205,7 @@ For **Personal Interest Skills**, you will boost those by 20%.
                 FormBuilderTextField(
                   name: 'appearance',
                   decoration: const InputDecoration(
-                    labelText: 'Appearance',
+                    labelText: 'Appearance *',
                     helperMaxLines: 2,
                     helperText: 'Describe your character\'s appearance.',
                   ),
