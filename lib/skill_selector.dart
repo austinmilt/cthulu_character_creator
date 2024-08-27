@@ -274,7 +274,6 @@ class _SkillChip extends StatelessWidget {
   Widget build(BuildContext context) {
     return LongPressDraggable<Skill>(
       data: skill,
-      dragAnchorStrategy: pointerDragAnchorStrategy,
       onDragEnd: (details) {
         if (!details.wasAccepted) {
           onNotAccepted();
@@ -284,8 +283,18 @@ class _SkillChip extends StatelessWidget {
         onNotAccepted();
       },
       delay: const Duration(milliseconds: 0),
-      feedback: Material(child: _chip(context, skill.name, skill.basePercentage)),
-      child: _chip(context, skill.name, skill.basePercentage + skill.percentageModifier),
+      childWhenDragging: MouseRegion(
+        cursor: SystemMouseCursors.grabbing,
+        child: Material(child: _chip(context, skill.name, skill.basePercentage)),
+      ),
+      feedback: MouseRegion(
+        cursor: SystemMouseCursors.grabbing,
+        child: Material(child: _chip(context, skill.name, skill.basePercentage)),
+      ),
+      child: MouseRegion(
+        cursor: SystemMouseCursors.grab,
+        child: _chip(context, skill.name, skill.basePercentage + skill.percentageModifier),
+      ),
     );
   }
 }
