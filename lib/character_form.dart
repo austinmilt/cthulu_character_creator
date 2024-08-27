@@ -58,6 +58,7 @@ Happy to guide you through and help you build your character._
             _section(Column(
               children: [
                 _md("""
+## Occupation
 Please select your character's **Occupation**.
 
 _Keepers Note: I will be adding a [TAKEN] tag after those selected by 
@@ -107,6 +108,7 @@ the other Investigators to prevent redundancy._
             _section(Column(
               children: [
                 _md("""
+## Skills
 You will select **[8] Occupational Skills** that relate to your chosen occupation 
 as well as **[4] Personal Interest Skills** to boost. 
 
@@ -176,20 +178,146 @@ For **Personal Interest Skills**, you will boost those by 20%.
                 ),
               ],
             )),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () {
-                  // Validate and save the form values
-                  _formKey.currentState?.saveAndValidate();
-                  debugPrint(_formKey.currentState?.value.toString());
+            _section(Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _md("## Describe your character"),
+                FormBuilderTextField(
+                  name: 'name',
+                  decoration: const InputDecoration(
+                    labelText: 'Name',
+                    helperMaxLines: 2,
+                    helperText: 'What is your character\'s name?',
+                  ),
+                  keyboardType: TextInputType.name,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'appearance',
+                  decoration: const InputDecoration(
+                    labelText: 'Appearance',
+                    helperMaxLines: 2,
+                    helperText: 'Describe your character\'s appearance.',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                  validator: FormBuilderValidators.compose([
+                    FormBuilderValidators.required(),
+                  ]),
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'traits',
+                  decoration: const InputDecoration(
+                    labelText: 'Traits',
+                    helperMaxLines: 2,
+                    helperText: 'Does your character have any notable traits? Please describe them if so.',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'ideology',
+                  decoration: const InputDecoration(
+                    labelText: 'Significant People',
+                    helperMaxLines: 2,
+                    helperText: 'Who, if any, are the significant people in your character\'s life?',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'injuries',
+                  decoration: const InputDecoration(
+                    labelText: 'Injuries & Scars',
+                    helperMaxLines: 2,
+                    helperText: 'Does your character have any injuries & scars?',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'relationships',
+                  decoration: const InputDecoration(
+                    labelText: 'Significant People',
+                    helperMaxLines: 2,
+                    helperText: 'Who, if any, are the Significant People in your character\'s life?',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'phobias',
+                  decoration: const InputDecoration(
+                    labelText: 'Phobias & Manias',
+                    helperMaxLines: 2,
+                    helperText: 'Does your character have any phobias & manias?',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'treasures',
+                  decoration: const InputDecoration(
+                    labelText: 'Treasured Possession',
+                    helperMaxLines: 2,
+                    helperText: 'Describe a treasured possession that your character has.',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'details',
+                  decoration: const InputDecoration(
+                    labelText: 'Details',
+                    helperMaxLines: 2,
+                    helperText: 'Is there anything else you\'d like to share about your character?',
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+                const SizedBox(height: 10),
+                FormBuilderTextField(
+                  name: 'items',
+                  decoration: const InputDecoration(
+                    labelText: 'Items',
+                    helperText: 'Are there any particular items you\'d like to have in your character\'s possession?',
+                    helperMaxLines: 2,
+                  ),
+                  minLines: 1,
+                  maxLines: 5,
+                  keyboardType: TextInputType.text,
+                ),
+              ],
+            )),
+            FilledButton(
+              onPressed: () {
+                // Validate and save the form values
+                _formKey.currentState?.saveAndValidate();
+                debugPrint(_formKey.currentState?.value.toString());
 
-                  // On another side, can access all field values without saving form with instantValues
-                  _formKey.currentState?.validate();
-                  debugPrint(_formKey.currentState?.instantValue.toString());
-                },
-                child: const Text('Next'),
-              ),
+                // On another side, can access all field values without saving form with instantValues
+                _formKey.currentState?.validate();
+                debugPrint(_formKey.currentState?.instantValue.toString());
+              },
+              child: const Text('Submit'),
             )
           ],
         ),
