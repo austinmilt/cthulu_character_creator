@@ -5,12 +5,6 @@ class Env {
   // use the `const` keyword in order for them to be loaded before being
   // processed to their final values during class initialization. Consequently
   // we have to do some weird stuff so that we can use `const`.
-
-  static final String gcpApiKey = _string(
-    _K.gcpApiKey,
-    const bool.hasEnvironment(_K.gcpApiKey) ? const String.fromEnvironment(_K.gcpApiKey) : null,
-  );
-
   static final String gcpServiceAccountKey = _base64String(
     _K.gcpServiceAccountKey,
     const bool.hasEnvironment(_K.gcpServiceAccountKey) ? const String.fromEnvironment(_K.gcpServiceAccountKey) : null,
@@ -18,7 +12,6 @@ class Env {
 }
 
 class _K {
-  static const String gcpApiKey = 'GCP_API_KEY';
   static const String gcpServiceAccountKey = 'GCP_SERVICE_ACCOUNT_KEY_BASE64';
 }
 

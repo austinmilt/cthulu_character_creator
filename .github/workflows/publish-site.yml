@@ -31,6 +31,8 @@ jobs:
           channel: stable
 
       - name: Build the web artifact
+        env:
+            GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
         run: |
           flutter config --enable-web
           flutter pub get
