@@ -31,13 +31,14 @@ jobs:
           channel: stable
 
       - name: Build the web artifact
-        env:
-            GCP_SERVICE_ACCOUNT_KEY_BASE64: ${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
         run: |
           flutter config --enable-web
           flutter pub get
           flutter test
-          flutter build web --release --base-href /${{ github.event.repository.name }}/
+          flutter build web --release >
+            --base-href /${{ github.event.repository.name }}/ >
+            --dart-define=GCP_SERVICE_ACCOUNT_KEY_BASE64=${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }}
+            --dart-define=LOGGING_IMPLEMENTATION=debug
     
       - name: Configure Pages
         uses: actions/configure-pages@v4
