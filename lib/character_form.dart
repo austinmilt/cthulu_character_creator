@@ -1,3 +1,6 @@
+import 'package:cthulu_character_creator/api.dart';
+import 'package:cthulu_character_creator/form_data.dart';
+import 'package:cthulu_character_creator/google_sheets_form_api.dart';
 import 'package:cthulu_character_creator/skill.dart';
 import 'package:cthulu_character_creator/skill_selector.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +19,47 @@ class MainForm extends StatefulWidget {
 
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
+
+  Future<void> _onSubmit() async {
+    _formKey.currentState?.saveAndValidate();
+    final Map<String, dynamic>? formDataMap = _formKey.currentState?.value;
+    if (formDataMap == null) {
+      throw StateError("BUG: Should not be able to submit the form withou any data");
+    }
+
+    final FormData submission = FormData(
+      email: formDataMap['email'],
+      occupation: formDataMap['occupation'],
+      skills: (formDataMap['skills'] as (List<Skill>, bool)).$1,
+      name: formDataMap['name'],
+      appearance: formDataMap['appearance'],
+      traits: formDataMap['traits'],
+      ideology: formDataMap['ideology'],
+      injuries: formDataMap['injuries'],
+      relationships: formDataMap['relationships'],
+      phobias: formDataMap['phobias'],
+      treasures: formDataMap['treasures'],
+      details: formDataMap['details'],
+      items: formDataMap['items'],
+    );
+    // final FormData submission = FormData(
+    //   email: 'austin.w.milt@gmail.com',
+    //   occupation: 'American Baby',
+    //   skills: [Skill('Brave', 100)],
+    //   name: 'John Krasinski',
+    //   appearance: 'hawt',
+    //   traits: 'so cool',
+    //   ideology: 'myself',
+    //   injuries: 'none',
+    //   relationships: 'myself',
+    //   phobias: 'too brave',
+    //   treasures: 'myself',
+    //   details: 'you wouldnt get it',
+    //   items: 'chips',
+    // );
+    final Api api = GoogleSheetsFormApi();
+    await api.submitForm(submission);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -232,9 +276,9 @@ but feel free to flesh out your character as much as you'd like._
                 FormBuilderTextField(
                   name: 'ideology',
                   decoration: const InputDecoration(
-                    labelText: 'Significant People',
+                    labelText: 'Ideology & Beliefs',
                     helperMaxLines: 2,
-                    helperText: 'Who, if any, are the significant people in your character\'s life?',
+                    helperText: 'Describe your character\'s ideology & beliefs.',
                   ),
                   minLines: 1,
                   maxLines: 5,
@@ -315,15 +359,7 @@ but feel free to flesh out your character as much as you'd like._
               ],
             )),
             FilledButton(
-              onPressed: () {
-                // Validate and save the form values
-                _formKey.currentState?.saveAndValidate();
-                debugPrint(_formKey.currentState?.value.toString());
-
-                // On another side, can access all field values without saving form with instantValues
-                _formKey.currentState?.validate();
-                debugPrint(_formKey.currentState?.instantValue.toString());
-              },
+              onPressed: _onSubmit,
               child: const Text('Submit'),
             )
           ],
