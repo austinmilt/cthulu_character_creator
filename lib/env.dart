@@ -9,10 +9,16 @@ class Env {
     _K.gcpServiceAccountKey,
     const bool.hasEnvironment(_K.gcpServiceAccountKey) ? const String.fromEnvironment(_K.gcpServiceAccountKey) : null,
   );
+
+  static final String loggingImplementation = _string(
+    _K.loggingImplementation,
+    const bool.hasEnvironment(_K.loggingImplementation) ? const String.fromEnvironment(_K.loggingImplementation) : null,
+  );
 }
 
 class _K {
   static const String gcpServiceAccountKey = 'GCP_SERVICE_ACCOUNT_KEY_BASE64';
+  static const String loggingImplementation = 'LOGGING_IMPLEMENTATION';
 }
 
 Duration _duration(String name, int? duration, TimeUnit unit) {

@@ -1,12 +1,12 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/form_data.dart';
-import 'package:cthulu_character_creator/google_sheets_form_api.dart';
 import 'package:cthulu_character_creator/skill.dart';
 import 'package:cthulu_character_creator/skill_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
+import 'package:provider/provider.dart';
 
 class MainForm extends StatefulWidget {
   const MainForm({super.key});
@@ -21,7 +21,14 @@ class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   Future<void> _onSubmit() async {
-    _formKey.currentState?.saveAndValidate();
+    final bool? formIsValid = _formKey.currentState?.saveAndValidate();
+    if (formIsValid == false) {
+      // user has not filled in all required fields with valid values.
+      // If [formIsValid] is null then there's no data yet, which we will
+      // balk about below
+      return;
+    }
+
     final Map<String, dynamic>? formDataMap = _formKey.currentState?.value;
     if (formDataMap == null) {
       throw StateError("BUG: Should not be able to submit the form withou any data");
@@ -57,7 +64,7 @@ class MainFormState extends State<MainForm> {
     //   details: 'you wouldnt get it',
     //   items: 'chips',
     // );
-    final Api api = GoogleSheetsFormApi();
+    final Api api = context.read<Api>();
     await api.submitForm(submission);
   }
 
