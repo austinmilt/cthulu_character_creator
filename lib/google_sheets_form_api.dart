@@ -42,9 +42,9 @@ class GoogleSheetsFormApi implements Api {
         Map.fromEntries(_worksheetSchema.map((s) => MapEntry(s.name, s.serializer(submission))));
     final int submissionRowIndex = await worksheet.values.rowIndexOf(submission.email, inColumn: emailColumnIndex);
     if (submissionRowIndex == -1) {
-      await worksheet.values.map.appendRow(row);
+      await worksheet.values.map.appendRow(row, appendMissing: true);
     } else {
-      await worksheet.values.map.insertRow(submissionRowIndex, row, overwrite: true);
+      await worksheet.values.map.insertRow(submissionRowIndex, row, overwrite: true, appendMissing: true);
     }
   }
 
@@ -71,6 +71,7 @@ final List<_ColumnSchema> _worksheetSchema = [
   (name: 'treasures', serializer: (d) => d.treasures ?? ""),
   (name: 'details', serializer: (d) => d.details ?? ""),
   (name: 'items', serializer: (d) => d.items ?? ""),
+  (name: 'timestamp', serializer: (d) => DateTime.now().toIso8601String()),
 ];
 
 // TODO deserializer
@@ -84,22 +85,21 @@ class _WorksheetLogger {
 
   Future<void> log(String message, String? email) async {
     final String timestamp = DateTime.now().toIso8601String();
-    final Worksheet worksheet = await _getOrCreateErrorWorksheet();
+    final Worksheet worksheet = await _getOrCreateWorksheet();
     final Map<String, String> row = {
       'timestamp': timestamp,
       'email': email ?? "",
       'message': message,
     };
     print("$row");
-    await worksheet.values.map.appendRow(row);
+    await worksheet.values.map.appendRow(row, appendMissing: true);
   }
 
-  Future<Worksheet> _getOrCreateErrorWorksheet() async {
+  Future<Worksheet> _getOrCreateWorksheet() async {
     final Worksheet result;
     // lazy init the error worksheet in case no errors are logged
     if (_worksheet == null) {
-      result =
-          _spreadsheet.worksheetByTitle("errors") ?? await _spreadsheet.addWorksheet("errors", rows: 1000, columns: 3);
+      result = _spreadsheet.worksheetByTitle("log") ?? await _spreadsheet.addWorksheet("log", rows: 1000, columns: 3);
 
       // get the column order to write the row in, or initialize the column
       // order if it hasnt already been done
