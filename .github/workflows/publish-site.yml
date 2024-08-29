@@ -35,9 +35,9 @@ jobs:
           flutter config --enable-web
           flutter pub get
           flutter test
-          flutter build web --release 
-            --base-href /${{ github.event.repository.name }}/ 
-            --dart-define=GCP_SERVICE_ACCOUNT_KEY_BASE64=${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }} 
+          flutter build web --release \
+            --base-href /${{ github.event.repository.name }}/ \
+            --dart-define=GCP_SERVICE_ACCOUNT_KEY_BASE64=${{ secrets.GCP_SERVICE_ACCOUNT_KEY_BASE64 }} \
             --dart-define=LOGGING_IMPLEMENTATION=debug
     
       - name: Configure Pages
