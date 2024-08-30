@@ -16,6 +16,11 @@ class Skill {
   bool operator ==(Object other) {
     return (other is Skill) && (other.name == name) && (other.basePercentage == basePercentage) && (other._id == _id);
   }
+
+  @override
+  String toString() {
+    return "Skill[$name ($basePercentage+$percentageModifier)%]";
+  }
 }
 
 final Random _rand = Random.secure();
