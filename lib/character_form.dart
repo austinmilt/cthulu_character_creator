@@ -49,21 +49,6 @@ class MainFormState extends State<MainForm> {
       details: formDataMap['details'],
       items: formDataMap['items'],
     );
-    // final FormData submission = FormData(
-    //   email: 'austin.w.milt@gmail.com',
-    //   occupation: 'American Baby',
-    //   skills: [Skill('Brave', 100)],
-    //   name: 'John Krasinski',
-    //   appearance: 'hawt',
-    //   traits: 'so cool',
-    //   ideology: 'myself',
-    //   injuries: 'none',
-    //   relationships: 'myself',
-    //   phobias: 'too brave',
-    //   treasures: 'myself',
-    //   details: 'you wouldnt get it',
-    //   items: 'chips',
-    // );
     final Api api = context.read<Api>();
     await api.submitForm(submission);
   }
