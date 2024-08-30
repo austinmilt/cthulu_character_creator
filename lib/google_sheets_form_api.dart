@@ -63,7 +63,10 @@ final List<_ColumnSchema> _worksheetSchema = [
   (name: 'appearance', serializer: (d) => d.appearance),
   (
     name: 'skills',
-    serializer: (d) => d.skills.map((s) => "${s.name} (${s.basePercentage + s.percentageModifier}%)").join((', '))
+    serializer: (d) {
+      d.skills.sort((s1, s2) => s1.name.compareTo(s2.name));
+      return d.skills.map((s) => "${s.name} (${s.basePercentage + s.percentageModifier}%)").join((', '));
+    }
   ),
   (name: 'traits', serializer: (d) => d.traits ?? ""),
   (name: 'ideology', serializer: (d) => d.ideology ?? ""),
