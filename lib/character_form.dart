@@ -166,6 +166,8 @@ as well as **[4] Personal Interest Skills** to boost.
 Each skill has a default value (listed in parentheses). For your **Occupational 
 Skills**, you will assign new values to them to override the default. 
 For **Personal Interest Skills**, you will boost those by 20%.
+
+_Tap skills to move them between boxes._
 """),
                 const SizedBox(height: 12),
                 FormBuilderField(
