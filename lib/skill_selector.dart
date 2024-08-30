@@ -101,6 +101,7 @@ class _SkillSelectorState extends State<SkillSelector> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: _SpecialtySkillSlot(
         emptyLabel: "$percentageModifier%",
+        filledLabel: "$percentageModifier",
         onTap: (s) => _onTapItem(bucket, s),
         skill: skill,
         active: active,
@@ -121,6 +122,7 @@ class _SkillSelectorState extends State<SkillSelector> {
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: _SpecialtySkillSlot(
         emptyLabel: "+20%",
+        filledLabel: "+20",
         onTap: (s) => _onTapItem(bucket, s),
         skill: skill,
         active: active,
@@ -174,26 +176,44 @@ class _SpecialtySkillSlot extends StatelessWidget {
     required this.emptyLabel,
     required this.onTap,
     required this.active,
+    required this.filledLabel,
     this.skill,
   });
 
   final String emptyLabel;
+  final String filledLabel;
   final void Function(Skill?) onTap;
   final bool active;
   final Skill? skill;
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
+
     return (skill == null)
         ? _SkillSlot(
             label: emptyLabel,
             active: active,
             onTap: () => onTap(null),
           )
-        : _SkillChip(
-            skill: skill!,
-            active: active,
-            onTap: () => onTap(skill),
+        : Row(
+            children: [
+              Container(
+                color: theme.primaryColor,
+                padding: const EdgeInsets.all(4),
+                child: Text(
+                  filledLabel,
+                  style: theme.primaryTextTheme.labelMedium,
+                ),
+              ),
+              Expanded(
+                child: _SkillChip(
+                  skill: skill!,
+                  active: active,
+                  onTap: () => onTap(skill),
+                ),
+              ),
+            ],
           );
   }
 }
