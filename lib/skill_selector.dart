@@ -16,14 +16,12 @@ class _SkillSelectorState extends State<SkillSelector> {
   static const String unclaimedKey = 'u';
 
   final Map<String, List<Skill>> _bucketMap = {};
-  final Map<String, bool> _bucketComplete = {};
   (String, Skill?)? _activeSkill;
 
   @override
   void initState() {
     super.initState();
     _bucketMap[unclaimedKey] = List.from(widget.options);
-    _bucketComplete[unclaimedKey] = true;
   }
 
   // decides what to do with an activated skill, which could be
@@ -56,15 +54,10 @@ class _SkillSelectorState extends State<SkillSelector> {
         if (skill != null) {
           _bucketMap[bucket]?.remove(skill);
           _bucketMap.putIfAbsent(previouslyActivatedBucket, () => []).add(skill);
-          _bucketComplete[previouslyActivatedBucket] = true;
         }
         if (previouslyActivatedSkill != null) {
           _bucketMap[previouslyActivatedBucket]?.remove(previouslyActivatedSkill);
           _bucketMap.putIfAbsent(bucket, () => []).add(previouslyActivatedSkill);
-        } else if (_isSkillSlot(bucket)) {
-          // we took a skill out of the slot [bucket] without swapping in
-          // a new skill
-          _bucketComplete[bucket] = false;
         }
         _activeSkill = null;
         _onCompletionUpdate();
@@ -77,21 +70,16 @@ class _SkillSelectorState extends State<SkillSelector> {
     }
   }
 
-  bool _isSkillSlot(String bucket) {
-    return bucket != unclaimedKey;
-  }
-
   void _onCompletionUpdate() {
-    final bool complete = _bucketComplete.values.firstWhere((v) => v == false, orElse: () => true);
+    final bool complete =
+        _bucketMap.entries.where((e) => e.key != unclaimedKey).where((e) => e.value.isEmpty).firstOrNull == null;
     final List<Skill> allSkills = [];
     _bucketMap.values.forEach(allSkills.addAll);
     widget.onChange(allSkills, complete);
   }
 
   Widget _occupationalSlot(String bucket, int percentageModifier) {
-    // initialize the bucket as being incomplete, but dont overwrite its state
-    // on rerenders
-    _bucketComplete.putIfAbsent(bucket, () => false);
+    _bucketMap.putIfAbsent(bucket, () => []);
     final Skill? skill = _bucketMap[bucket]?.firstOrNull;
     skill?.percentageModifier = percentageModifier - skill.basePercentage;
     final bool slotContainsActiveSkill = (skill != null) && (_activeSkill?.$2 == skill);
@@ -110,9 +98,7 @@ class _SkillSelectorState extends State<SkillSelector> {
   }
 
   Widget _personalSlot(String bucket) {
-    // initialize the bucket as being incomplete, but dont overwrite its state
-    // on rerenders
-    _bucketComplete.putIfAbsent(bucket, () => false);
+    _bucketMap.putIfAbsent(bucket, () => []);
     final Skill? skill = _bucketMap[bucket]?.firstOrNull;
     skill?.percentageModifier = 20;
     final bool slotContainsActiveSkill = (skill != null) && (_activeSkill?.$2 == skill);

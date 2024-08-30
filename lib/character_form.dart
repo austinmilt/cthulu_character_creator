@@ -19,13 +19,32 @@ class MainForm extends StatefulWidget {
 
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
+  bool _submitting = false;
 
-  Future<void> _onSubmit() async {
+  void _onSubmit() {
+    setState(() {
+      _submitting = true;
+      _onSubmitMain().then((_) {
+        setState(() {
+          _submitting = false;
+        });
+      }).onError((e, s) {
+        // TODO proper logging
+        debugPrint('Error submitting form $e');
+        setState(() {
+          _submitting = false;
+        });
+      });
+    });
+  }
+
+  Future<void> _onSubmitMain() async {
     final bool? formIsValid = _formKey.currentState?.saveAndValidate();
     if (formIsValid == false) {
       // user has not filled in all required fields with valid values.
       // If [formIsValid] is null then there's no data yet, which we will
       // balk about below
+      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill all required responses.')));
       return;
     }
 
@@ -50,7 +69,19 @@ class MainFormState extends State<MainForm> {
       items: formDataMap['items'],
     );
     final Api api = context.read<Api>();
-    await api.submitForm(submission);
+    try {
+      await api.submitForm(submission);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text('Submission received! You may still make changes and resubmit.')));
+      }
+    } catch (_) {
+      if (mounted) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(const SnackBar(content: Text('Submission error! Check your responses and resubmit.')));
+      }
+      rethrow;
+    }
   }
 
   @override
@@ -353,8 +384,8 @@ but feel free to flesh out your character as much as you'd like._
               ],
             )),
             FilledButton(
-              onPressed: _onSubmit,
-              child: const Text('Submit'),
+              onPressed: _submitting ? null : _onSubmit,
+              child: _submitting ? const Text('Loading') : const Text('Submit'),
             )
           ],
         ),
