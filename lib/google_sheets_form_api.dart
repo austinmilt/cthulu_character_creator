@@ -11,7 +11,6 @@ import 'package:gsheets/gsheets.dart';
 /// TODO move this to a path parameter or some other option that isnt a compile-time constant
 const _spreadsheetId = '1n_mDhUgQwAIZAWijNLUpqCQ72hbr5IMNXaMXqWEZo8U';
 
-// TODO move instance to provider
 class GoogleSheetsFormApi implements Api {
   GoogleSheetsFormApi.withDefaults() : _googleSheetsClient = GSheets(Env.gcpServiceAccountKey);
 
