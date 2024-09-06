@@ -1,11 +1,11 @@
 import 'dart:math';
 
 class Skill {
-  Skill(this.name, this.basePercentage);
+  Skill(this.name, this.basePercentage, [this.percentageModifier = 0]);
 
   final String name;
   final int basePercentage;
-  int percentageModifier = 0;
+  int percentageModifier;
   // TODO can I replace this with checks for (identical(this, other))?
   final int _id = _rand.nextInt(1000000);
 

@@ -1,7 +1,7 @@
 import 'package:cthulu_character_creator/api.dart';
-import 'package:cthulu_character_creator/form_data.dart';
-import 'package:cthulu_character_creator/skill.dart';
-import 'package:cthulu_character_creator/skill_selector.dart';
+import 'package:cthulu_character_creator/views/character_creator/form_data.dart';
+import 'package:cthulu_character_creator/model/skill.dart';
+import 'package:cthulu_character_creator/views/character_creator/skill_selector.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -9,7 +9,9 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
 class MainForm extends StatefulWidget {
-  const MainForm({super.key});
+  const MainForm({super.key, required this.gameId});
+
+  final String gameId;
 
   @override
   MainFormState createState() {
@@ -53,7 +55,8 @@ class MainFormState extends State<MainForm> {
       throw StateError("BUG: Should not be able to submit the form withou any data");
     }
 
-    final FormData submission = FormData(
+    final FormResponseData submission = FormResponseData(
+      gameId: widget.gameId,
       email: formDataMap['email'],
       occupation: formDataMap['occupation'],
       skills: (formDataMap['skills'] as (List<Skill>, bool)).$1,
@@ -199,6 +202,9 @@ _Tap skills to move them between boxes._
                       child: SkillSelector(
                         onChange: (skills, complete) => field.didChange((skills, complete)),
                         options: [
+                          // TODO keep transcribing to the spreadsheets, then figure out how to get
+                          // the List<FormField> in google_sheets_form_api by reading from the "form"
+                          //  (and other) fields in the form sheet
                           Skill("Accounting", 05),
                           Skill("Anthropology", 01),
                           Skill("Appraise", 05),
@@ -386,7 +392,7 @@ but feel free to flesh out your character as much as you'd like._
             FilledButton(
               onPressed: _submitting ? null : _onSubmit,
               child: _submitting ? const Text('Loading') : const Text('Submit'),
-            )
+            ),
           ],
         ),
       ),

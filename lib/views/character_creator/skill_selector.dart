@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-import 'skill.dart';
+import '../../model/skill.dart';
 
 class SkillSelector extends StatefulWidget {
   const SkillSelector({super.key, required this.options, required this.onChange});

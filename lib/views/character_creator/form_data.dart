@@ -1,7 +1,8 @@
-import 'package:cthulu_character_creator/skill.dart';
+import 'package:cthulu_character_creator/model/skill.dart';
 
-class FormData {
-  FormData({
+class FormResponseData {
+  FormResponseData({
+    required this.gameId,
     required this.email,
     required this.occupation,
     required this.skills,
@@ -17,6 +18,7 @@ class FormData {
     required this.items,
   });
 
+  final String gameId;
   final String email;
   final String occupation;
   final List<Skill> skills;

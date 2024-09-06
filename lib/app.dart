@@ -1,4 +1,4 @@
-import 'package:cthulu_character_creator/home_page.dart';
+import 'package:cthulu_character_creator/views/character_creator/character_creator_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -23,13 +23,13 @@ class MyApp extends StatelessWidget {
 
 GoRouter _router() {
   return GoRouter(
-    initialLocation: HomePage.path,
+    initialLocation: '/character/create/coc-dragoncon-stakes',
     routes: <RouteBase>[
-      HomePage.route(),
+      CharacterCreatorView.route,
     ],
     redirect: (context, state) {
       if (state.path == '/') {
-        return HomePage.path;
+        return CharacterCreatorView.route.path;
       }
       return null;
     },

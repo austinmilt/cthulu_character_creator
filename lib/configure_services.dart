@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/dev/dev_logging.dart';
 import 'package:cthulu_character_creator/env.dart';
-import 'package:cthulu_character_creator/google_sheets_form_api.dart';
+import 'package:cthulu_character_creator/firebase/firestore_form_api.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:logger/logger.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 typedef Services = ({
   Api api,
@@ -27,10 +30,16 @@ Future<Services> configureServices() async {
   }
   final LoggerFactory loggerFactory = LoggerFactory(logOutput);
 
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+
   late final Api api;
-  late final GoogleSheetsFormApi googleSheetsFormApi;
-  googleSheetsFormApi = GoogleSheetsFormApi.withDefaults();
-  api = googleSheetsFormApi;
+  late final FirestoreFormApi firestoreFormApi;
+  {
+    firestoreFormApi = FirestoreFormApi(FirebaseFirestore.instance);
+    api = firestoreFormApi;
+  }
 
   return (
     api: api,

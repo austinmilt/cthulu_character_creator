@@ -14,11 +14,17 @@ class Env {
     _K.loggingImplementation,
     const bool.hasEnvironment(_K.loggingImplementation) ? const String.fromEnvironment(_K.loggingImplementation) : null,
   );
+
+  static final String mainDbSheetId = _string(
+    _K.mainDbSheetId,
+    const bool.hasEnvironment(_K.mainDbSheetId) ? const String.fromEnvironment(_K.mainDbSheetId) : null,
+  );
 }
 
 class _K {
   static const String gcpServiceAccountKey = 'GCP_SERVICE_ACCOUNT_KEY_BASE64';
   static const String loggingImplementation = 'LOGGING_IMPLEMENTATION';
+  static const String mainDbSheetId = 'MAIN_DB_SHEET_ID';
 }
 
 Duration _duration(String name, int? duration, TimeUnit unit) {
