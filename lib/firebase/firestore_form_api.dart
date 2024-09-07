@@ -3,10 +3,10 @@ import 'dart:convert';
 import 'package:crypto/crypto.dart';
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/firebase/serdes.dart';
-import 'package:cthulu_character_creator/firebase/model/game.dart';
+import 'package:cthulu_character_creator/firebase/game.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_data.dart';
+import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // https://firebase.google.com/codelabs/firebase-get-to-know-flutter#4
@@ -19,7 +19,8 @@ class FirestoreFormApi implements Api {
   @override
   Future<Form> getForm(String gameId) async {
     final snapshot = await _gameRef(gameId).get();
-    final List<Map<String, dynamic>> formJson = snapshot.get(_keys.game_.form);
+    final List<Map<String, dynamic>> formJson =
+        (snapshot.get(_keys.game_.form) as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
     return serdes.form.fromJson(formJson);
   }
 

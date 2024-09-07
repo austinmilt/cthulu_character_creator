@@ -1,5 +1,5 @@
 import 'package:cthulu_character_creator/api.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_data.dart';
+import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/model/skill.dart';
 import 'package:cthulu_character_creator/views/character_creator/skill_selector.dart';
 import 'package:flutter/material.dart';

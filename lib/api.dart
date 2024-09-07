@@ -1,6 +1,6 @@
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_data.dart';
+import 'package:cthulu_character_creator/model/form_data.dart';
 
 abstract interface class Api {
   Future<Form> getForm(String gameId);

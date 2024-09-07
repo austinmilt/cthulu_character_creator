@@ -30,6 +30,10 @@ Future<Services> configureServices() async {
   }
   final LoggerFactory loggerFactory = LoggerFactory(logOutput);
 
+  // TODO will need to add a firebase login when you change your cloud firestore rules
+  // to restrict to stuff users own... see
+  // https://console.firebase.google.com/u/0/project/cthulu-character-creator/firestore/databases/-default-/rules
+  // https://firebase.google.com/codelabs/firebase-get-to-know-flutter#4
   await Firebase.initializeApp(
     options: DefaultFirebaseOptions.currentPlatform,
   );

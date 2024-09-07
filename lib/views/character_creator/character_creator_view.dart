@@ -1,4 +1,4 @@
-import 'package:cthulu_character_creator/views/character_creator/character_form.dart';
+import 'package:cthulu_character_creator/views/character_creator/character_form_v2.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
