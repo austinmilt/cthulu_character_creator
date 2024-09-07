@@ -4,9 +4,8 @@ import 'package:cthulu_character_creator/model/skill.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart';
-import 'package:cthulu_character_creator/model/form.dart' as formModel;
+import 'package:cthulu_character_creator/model/form.dart' as form_model;
 
 class MainForm extends StatefulWidget {
   const MainForm({super.key, required this.gameId});
@@ -22,7 +21,7 @@ class MainForm extends StatefulWidget {
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _submitting = false;
-  late Future<formModel.Form> _formFuture;
+  late Future<form_model.Form> _formFuture;
 
   @override
   void initState() {
@@ -106,7 +105,7 @@ class MainFormState extends State<MainForm> {
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               final List<Widget> children = [];
-              children.addAll(snapshot.data!.map((field) => FormFieldWidget(spec: field)).toList());
+              children.addAll(snapshot.data!.map((field) => _section(FormFieldWidget(spec: field))).toList());
               children.add(
                 FilledButton(
                   onPressed: _submitting ? null : _onSubmit,
@@ -185,21 +184,4 @@ Widget _section(Widget? child) {
       ),
     ),
   );
-}
-
-Widget _md(String src) {
-  return MarkdownBody(
-    data: src,
-    styleSheet: mdStyle,
-  );
-}
-
-MarkdownStyleSheet mdStyle = MarkdownStyleSheet(
-  h1: const TextStyle(fontSize: 32),
-  p: const TextStyle(fontSize: 16),
-  blockSpacing: 20,
-);
-
-List<FormBuilderChipOption<String>> _options(Iterable<String> values) {
-  return values.map((e) => FormBuilderChipOption(value: e)).toList();
 }

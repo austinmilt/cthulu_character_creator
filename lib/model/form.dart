@@ -56,8 +56,8 @@ class FormFieldEntry {
 class IntroductionFormField {
   IntroductionFormField({required this.title, required this.bodyMarkdown});
 
-  final String title;
-  final String bodyMarkdown;
+  final String? title;
+  final String? bodyMarkdown;
 }
 
 class EmailFormField {
@@ -70,8 +70,8 @@ class EmailFormField {
   });
 
   final String key;
-  final String title;
-  final String bodyMarkdown;
+  final String? title;
+  final String? bodyMarkdown;
   final bool required;
   final int slots;
 }
@@ -79,8 +79,8 @@ class EmailFormField {
 // TODO have to ensure that <T> is JSON compatible
 class SingleSelectFormField<T> {
   final String key;
-  final String title;
-  final String bodyMarkdown;
+  final String? title;
+  final String? bodyMarkdown;
   final bool required;
   final int slots;
   final List<T> options;
@@ -105,8 +105,8 @@ class CoCSkillsetFormField {
   });
 
   final String key;
-  final String title;
-  final String bodyMarkdown;
+  final String? title;
+  final String? bodyMarkdown;
   final bool required;
   final List<Skill> options;
 }
@@ -120,7 +120,7 @@ class TextFormField {
   });
 
   final String key;
-  final String title;
-  final String bodyMarkdown;
+  final String? title;
+  final String? bodyMarkdown;
   final bool required;
 }

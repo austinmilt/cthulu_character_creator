@@ -36,7 +36,11 @@ class _Intro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return _md('#${spec.title}\n\n${spec.bodyMarkdown}');
+    return _md("""
+# ${spec.title}
+
+${spec.bodyMarkdown}
+""");
   }
 }
 
@@ -50,7 +54,11 @@ class _Text extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        _md('#${spec.title}\n\n${spec.bodyMarkdown}'),
+        _md("""
+# ${spec.title}
+
+${spec.bodyMarkdown}
+"""),
         FormBuilderTextField(
           name: spec.key,
           decoration: InputDecoration(labelText: spec.title),
@@ -74,7 +82,11 @@ class _Email extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _md(spec.bodyMarkdown),
+        _md("""
+# ${spec.title}
+
+${spec.bodyMarkdown}
+"""),
         const SizedBox(height: 10),
         FormBuilderTextField(
           name: spec.key,
@@ -103,7 +115,11 @@ class _SingleSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _md('#${spec.title}\n\n${spec.bodyMarkdown}'),
+        _md("""
+# ${spec.title}
+
+${spec.bodyMarkdown}
+"""),
         const SizedBox(height: 20),
         FormBuilderChoiceChip(
           name: spec.key,
@@ -130,7 +146,11 @@ class _CocSkillSelect extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
-        _md('#${spec.title}\n\n${spec.bodyMarkdown}'),
+        _md("""
+# ${spec.title}
+
+${spec.bodyMarkdown}
+"""),
         const SizedBox(height: 12),
         FormBuilderField(
           name: spec.key,

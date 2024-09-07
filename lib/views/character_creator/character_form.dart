@@ -100,19 +100,19 @@ class MainFormState extends State<MainForm> {
           children: [
             _section(_md("""
 # Investigator Builder: 1920's Edition
-
+\n
 Fill out this form to build your character for _Stakes on a Train_. 
-
+\n
 You will select your **Occupation**, relevant **Skills**, and add any 
 **Descriptions** to your character as you see fit.
-
+\n
 **Setting**: It is the year 1922. You find yourself aboard a luxury 
 train traveling toward the bustling city of Arkham, containing the 
 famed Miskatonic University. Whether you are traveling toward your 
 home or away on whatever business carries you—that is your own destiny 
 to determine. But that same destiny has brought you here as strange 
 events begin to unfold during the journey.
-
+\n
 _Keeper Note: If you have any questions please feel free to reach out! 
 Happy to guide you through and help you build your character._
                   """)),

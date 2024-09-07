@@ -51,46 +51,48 @@ Map<String, dynamic> _introToJson(IntroductionFormField field) {
 IntroductionFormField _introFromJson(Map<String, dynamic> json) {
   return IntroductionFormField(
     title: json["title"],
-    bodyMarkdown: json["bodyMarkdown"],
+    bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
   );
 }
 
 Map<String, dynamic> _emailToJson(EmailFormField field) {
-  return {
+  final Map<String, dynamic> result = {
     "key": field.key,
-    "title": field.title,
-    "bodyMarkdown": field.bodyMarkdown,
     "required": field.required,
     "slots": field.slots,
   };
+  _putFieldIfPresent('title', field.title, result);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  return result;
 }
 
 EmailFormField _emailFromJson(Map<String, dynamic> json) {
   return EmailFormField(
     key: json["key"],
     title: json["title"],
-    bodyMarkdown: json["bodyMarkdown"],
+    bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
     slots: json["slots"],
   );
 }
 
 Map<String, dynamic> _singleSelectToJson(SingleSelectFormField field) {
-  return {
+  final Map<String, dynamic> result = {
     "key": field.key,
-    "title": field.title,
-    "bodyMarkdown": field.bodyMarkdown,
     "required": field.required,
     "slots": field.slots,
     "options": field.options,
   };
+  _putFieldIfPresent('title', field.title, result);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  return result;
 }
 
 SingleSelectFormField _singleSelectFromJson(Map<String, dynamic> json) {
   return SingleSelectFormField(
     key: json["key"],
     title: json["title"],
-    bodyMarkdown: json["bodyMarkdown"],
+    bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
     slots: json["slots"],
     options: json["options"],
@@ -98,20 +100,21 @@ SingleSelectFormField _singleSelectFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _cocSkillsetToJson(CoCSkillsetFormField field) {
-  return {
+  final Map<String, dynamic> result = {
     "key": field.key,
-    "title": field.title,
-    "bodyMarkdown": field.bodyMarkdown,
     "required": field.required,
     "options": field.options.map((s) => _skillToJson(s)).toList(),
   };
+  _putFieldIfPresent('title', field.title, result);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  return result;
 }
 
 CoCSkillsetFormField _cocSkillsetSelectFromJson(Map<String, dynamic> json) {
   return CoCSkillsetFormField(
     key: json["key"],
     title: json["title"],
-    bodyMarkdown: json["bodyMarkdown"],
+    bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
     options: (json["options"] as List).map((e) => _skillFromJson(e)).toList(),
   );
@@ -142,21 +145,26 @@ Skill _skillFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _textToJson(TextFormField field) {
-  return {
+  final Map<String, dynamic> result = {
     "key": field.key,
-    "title": field.title,
-    "bodyMarkdown": field.bodyMarkdown,
     "required": field.required,
   };
+  _putFieldIfPresent('title', field.title, result);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  return result;
 }
 
 TextFormField _textFromJson(Map<String, dynamic> json) {
   return TextFormField(
     key: json["key"],
     title: json["title"],
-    bodyMarkdown: json["bodyMarkdown"],
+    bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
   );
+}
+
+String? _decodeMarkdown(String? source) {
+  return source?.replaceAll(RegExp(r'\\n'), '\n');
 }
 
 Map<String, dynamic> _formResponseToJson(FormResponseData submission) {
