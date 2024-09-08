@@ -22,22 +22,35 @@ Form _formFromJson(List<Map<String, dynamic>> json) {
 }
 
 Map<String, dynamic> _formFieldEntryToJson(FormFieldEntry entry) {
-  if (entry.isIntro) return _introToJson(entry.introRequired);
-  if (entry.isEmail) return _emailToJson(entry.emailRequired);
-  if (entry.isSingleSelect) return _singleSelectToJson(entry.singleSelectRequired);
-  if (entry.isText) return _textToJson(entry.textRequired);
-  if (entry.isCocSkillset) return _cocSkillsetToJson(entry.cocSkillsetRequired);
-  throw UnimplementedError("Dont know how to serialize $entry to JSON");
+  final Map<String, dynamic> result;
+  if (entry.isIntro) {
+    result = _introToJson(entry.introRequired);
+  } else if (entry.isEmail) {
+    result = _emailToJson(entry.emailRequired);
+  } else if (entry.isSingleSelect) {
+    result = _singleSelectToJson(entry.singleSelectRequired);
+  } else if (entry.isText) {
+    result = _textToJson(entry.textRequired);
+  } else if (entry.isCocSkillset) {
+    result = _cocSkillsetToJson(entry.cocSkillsetRequired);
+  } else {
+    throw UnimplementedError("Dont know how to serialize $entry to JSON");
+  }
+  _putFieldIfPresent('group', entry.group, result);
+  return result;
 }
 
 FormFieldEntry _formFieldEntryFromJson(Map<String, dynamic> json) {
-  if (json.containsKey("intro")) return FormFieldEntry.intro(_introFromJson(json["intro"]));
-  if (json.containsKey("email")) return FormFieldEntry.email(_emailFromJson(json["email"]));
-  if (json.containsKey("singleSelect")) return FormFieldEntry.singleSelect(_singleSelectFromJson(json["singleSelect"]));
-  if (json.containsKey("cocSkillset")) {
-    return FormFieldEntry.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]));
+  final String? group = json['group'];
+  if (json.containsKey("intro")) return FormFieldEntry.intro(_introFromJson(json["intro"]), group);
+  if (json.containsKey("email")) return FormFieldEntry.email(_emailFromJson(json["email"]), group);
+  if (json.containsKey("singleSelect")) {
+    return FormFieldEntry.singleSelect(_singleSelectFromJson(json["singleSelect"]), group);
   }
-  if (json.containsKey("text")) return FormFieldEntry.text(_textFromJson(json["text"]));
+  if (json.containsKey("cocSkillset")) {
+    return FormFieldEntry.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]), group);
+  }
+  if (json.containsKey("text")) return FormFieldEntry.text(_textFromJson(json["text"]), group);
   throw UnimplementedError("Dont know how to deserialize $json to FormFieldEntry");
 }
 

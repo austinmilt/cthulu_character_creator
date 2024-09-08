@@ -1,5 +1,6 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/logging.dart';
+import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/model/skill.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
@@ -63,6 +64,7 @@ class MainFormState extends State<MainForm> {
       throw StateError("BUG: Should not be able to submit the form without any data");
     }
 
+    // TODO refactor this to pull fields from the Form
     final FormResponseData submission = FormResponseData(
       gameId: widget.gameId,
       email: formDataMap['email'],
@@ -95,6 +97,27 @@ class MainFormState extends State<MainForm> {
     }
   }
 
+  List<List<FormFieldEntry>> _groupEntries(form_model.Form form) {
+    final List<List<FormFieldEntry>> result = [];
+    List<FormFieldEntry> currentGroupOfEntries = [];
+    String? lastGroup;
+    for (int i = 0; i < form.length; i++) {
+      final FormFieldEntry entry = form[i];
+      // detect when a new group has started. Note this grouping preserves
+      // the overall ordering of entries at the expense that non-contiguous
+      // entries with the same group ID will wind up in different sections, e.g.
+      // [group a, group a, group b, group a] => [[group a, group a], [group b], [group a]]
+      if ((i > 0) && ((entry.group == null) || (entry.group != lastGroup))) {
+        result.add(currentGroupOfEntries);
+        currentGroupOfEntries = [];
+      }
+      currentGroupOfEntries.add(entry);
+      lastGroup = entry.group;
+    }
+    result.add(currentGroupOfEntries);
+    return result;
+  }
+
   @override
   Widget build(BuildContext context) {
     return FormBuilder(
@@ -106,8 +129,17 @@ class MainFormState extends State<MainForm> {
           future: _formFuture,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
+              final List<List<FormFieldEntry>> groupedEntries = _groupEntries(snapshot.data!);
               final List<Widget> children = [];
-              children.addAll(snapshot.data!.map((field) => _section(FormFieldWidget(spec: field))).toList());
+              for (List<FormFieldEntry> group in groupedEntries) {
+                if (group.length == 1) {
+                  children.add(_section(FormFieldWidget(spec: group.first)));
+                } else {
+                  children.add(_section(Column(
+                    children: group.map((field) => FormFieldWidget(spec: field)).toList(),
+                  )));
+                }
+              }
               children.add(
                 FilledButton(
                   onPressed: _submitting ? null : _onSubmit,

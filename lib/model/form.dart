@@ -4,6 +4,7 @@ typedef Form = List<FormFieldEntry>;
 
 class FormFieldEntry {
   FormFieldEntry._({
+    this.group,
     this.intro,
     this.email,
     this.singleSelect,
@@ -11,42 +12,43 @@ class FormFieldEntry {
     this.text,
   });
 
+  final String? group;
   final IntroductionFormField? intro;
   final EmailFormField? email;
   final SingleSelectFormField? singleSelect;
   final CoCSkillsetFormField? cocSkillset;
   final TextFormField? text;
 
-  factory FormFieldEntry.intro(IntroductionFormField field) {
-    return FormFieldEntry._(intro: field);
+  factory FormFieldEntry.intro(IntroductionFormField field, [String? group]) {
+    return FormFieldEntry._(intro: field, group: group);
   }
 
   bool get isIntro => intro != null;
   IntroductionFormField get introRequired => intro!;
 
-  factory FormFieldEntry.email(EmailFormField field) {
-    return FormFieldEntry._(email: field);
+  factory FormFieldEntry.email(EmailFormField field, [String? group]) {
+    return FormFieldEntry._(email: field, group: group);
   }
 
   bool get isEmail => email != null;
   EmailFormField get emailRequired => email!;
 
-  factory FormFieldEntry.singleSelect(SingleSelectFormField field) {
-    return FormFieldEntry._(singleSelect: field);
+  factory FormFieldEntry.singleSelect(SingleSelectFormField field, [String? group]) {
+    return FormFieldEntry._(singleSelect: field, group: group);
   }
 
   bool get isSingleSelect => singleSelect != null;
   SingleSelectFormField get singleSelectRequired => singleSelect!;
 
-  factory FormFieldEntry.cocSkillset(CoCSkillsetFormField field) {
-    return FormFieldEntry._(cocSkillset: field);
+  factory FormFieldEntry.cocSkillset(CoCSkillsetFormField field, [String? group]) {
+    return FormFieldEntry._(cocSkillset: field, group: group);
   }
 
   bool get isCocSkillset => cocSkillset != null;
   CoCSkillsetFormField get cocSkillsetRequired => cocSkillset!;
 
-  factory FormFieldEntry.text(TextFormField field) {
-    return FormFieldEntry._(text: field);
+  factory FormFieldEntry.text(TextFormField field, [String? group]) {
+    return FormFieldEntry._(text: field, group: group);
   }
 
   bool get isText => text != null;
