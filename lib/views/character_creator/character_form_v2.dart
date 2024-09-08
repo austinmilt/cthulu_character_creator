@@ -1,4 +1,5 @@
 import 'package:cthulu_character_creator/api.dart';
+import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/model/skill.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
@@ -22,10 +23,12 @@ class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _submitting = false;
   late Future<form_model.Form> _formFuture;
+  late final Logger _logger;
 
   @override
   void initState() {
     super.initState();
+    _logger = context.read<LoggerFactory>().makeLogger(MainForm);
     _formFuture = context.read<Api>().getForm(widget.gameId);
   }
 
@@ -37,8 +40,7 @@ class MainFormState extends State<MainForm> {
           _submitting = false;
         });
       }).onError((e, s) {
-        // TODO proper logging
-        debugPrint('Error submitting form $e');
+        _logger.error('Error submitting form $e');
         setState(() {
           _submitting = false;
         });

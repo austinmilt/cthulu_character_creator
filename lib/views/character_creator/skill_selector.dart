@@ -1,4 +1,6 @@
+import 'package:cthulu_character_creator/logging.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../../model/skill.dart';
 
@@ -17,10 +19,12 @@ class _SkillSelectorState extends State<SkillSelector> {
 
   final Map<String, List<Skill>> _bucketMap = {};
   (String, Skill?)? _activeSkill;
+  late final Logger _logger;
 
   @override
   void initState() {
     super.initState();
+    _logger = context.read<LoggerFactory>().makeLogger(SkillSelector);
     _bucketMap[unclaimedKey] = List.from(widget.options);
   }
 
@@ -44,12 +48,12 @@ class _SkillSelectorState extends State<SkillSelector> {
     final bool couldSwapOrMove = thereIsAnActiveBucket && !tappedBucketIsActiveBucket && thereIsAFocalSkill;
 
     if (tappedSkillIsActiveSkill) {
-      debugPrint('deactivating $skill in $bucket');
+      _logger.debug('deactivating $skill in $bucket');
       setState(() {
         _activeSkill = null;
       });
     } else if (couldSwapOrMove) {
-      debugPrint('swapping $skill in $bucket with $previouslyActivatedSkill in $previouslyActivatedBucket');
+      _logger.debug('swapping $skill in $bucket with $previouslyActivatedSkill in $previouslyActivatedBucket');
       setState(() {
         if (skill != null) {
           _bucketMap[bucket]?.remove(skill);
@@ -63,7 +67,7 @@ class _SkillSelectorState extends State<SkillSelector> {
         _onCompletionUpdate();
       });
     } else {
-      debugPrint('activating $skill in $bucket');
+      _logger.debug('activating $skill in $bucket');
       setState(() {
         _activeSkill = (bucket, skill);
       });

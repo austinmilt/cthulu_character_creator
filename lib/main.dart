@@ -1,6 +1,7 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/app.dart';
 import 'package:cthulu_character_creator/configure_services.dart';
+import 'package:cthulu_character_creator/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -15,6 +16,7 @@ void main() async {
   runApp(MultiProvider(
     providers: [
       Provider<Api>(create: (_) => api),
+      Provider<LoggerFactory>(create: (_) => loggerFactory),
     ],
     child: const MyApp(),
   ));

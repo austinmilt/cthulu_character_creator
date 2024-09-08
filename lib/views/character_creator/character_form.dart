@@ -31,7 +31,6 @@ class MainFormState extends State<MainForm> {
           _submitting = false;
         });
       }).onError((e, s) {
-        // TODO proper logging
         debugPrint('Error submitting form $e');
         setState(() {
           _submitting = false;
