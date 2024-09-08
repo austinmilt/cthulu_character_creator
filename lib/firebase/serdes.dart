@@ -59,10 +59,10 @@ Map<String, dynamic> _emailToJson(EmailFormField field) {
   final Map<String, dynamic> result = {
     "key": field.key,
     "required": field.required,
-    "slots": field.slots,
   };
   _putFieldIfPresent('title', field.title, result);
   _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  _putFieldIfPresent('slots', field.slots, result);
   return result;
 }
 
@@ -80,11 +80,11 @@ Map<String, dynamic> _singleSelectToJson(SingleSelectFormField field) {
   final Map<String, dynamic> result = {
     "key": field.key,
     "required": field.required,
-    "slots": field.slots,
     "options": field.options,
   };
   _putFieldIfPresent('title', field.title, result);
   _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  _putFieldIfPresent('slots', field.slots, result);
   return result;
 }
 
@@ -125,11 +125,12 @@ List<dynamic> _skillsToJson(List<Skill> skills) {
 }
 
 Map<String, dynamic> _skillToJson(Skill skill) {
-  return {
+  final Map<String, dynamic> result = {
     "name": skill.name,
     "basePercentage": skill.basePercentage,
-    "percentageModifier": skill.percentageModifier,
   };
+  if (skill.percentageModifier != 0) result["percentageModifier"] = skill.percentageModifier;
+  return result;
 }
 
 List<Skill> _skillsFromJson(List<Map<String, dynamic>> json) {
@@ -140,7 +141,7 @@ Skill _skillFromJson(Map<String, dynamic> json) {
   return Skill(
     json["name"],
     json["basePercentage"],
-    json["percentageModifier"],
+    json["percentageModifier"] ?? 0,
   );
 }
 
@@ -160,6 +161,7 @@ TextFormField _textFromJson(Map<String, dynamic> json) {
     title: json["title"],
     bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
+    slots: json["slots"],
   );
 }
 

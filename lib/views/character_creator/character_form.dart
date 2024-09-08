@@ -99,8 +99,6 @@ class MainFormState extends State<MainForm> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             _section(_md("""
-# Investigator Builder: 1920's Edition
-\n
 Fill out this form to build your character for _Stakes on a Train_. 
 \n
 You will select your **Occupation**, relevant **Skills**, and add any 
@@ -129,8 +127,9 @@ Happy to guide you through and help you build your character._
               children: [
                 _md("""
 ## Occupation *
+\n
 Please select your character's **Occupation**.
-
+\n
 _Keepers Note: I will be adding a [TAKEN] tag after those selected by 
 the other Investigators to prevent redundancy._
                 """),
@@ -181,11 +180,11 @@ the other Investigators to prevent redundancy._
 ## Skills *
 You will select **[8] Occupational Skills** that relate to your chosen occupation 
 as well as **[4] Personal Interest Skills** to boost. 
-
+\n
 Each skill has a default value (listed in parentheses). For your **Occupational 
 Skills**, you will assign new values to them to override the default. 
 For **Personal Interest Skills**, you will boost those by 20%.
-
+\n
 _Tap skills to move them between boxes._
 """),
                 const SizedBox(height: 12),

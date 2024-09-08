@@ -73,7 +73,7 @@ class EmailFormField {
   final String? title;
   final String? bodyMarkdown;
   final bool required;
-  final int slots;
+  final int? slots;
 }
 
 // TODO have to ensure that <T> is JSON compatible
@@ -82,7 +82,7 @@ class SingleSelectFormField<T> {
   final String? title;
   final String? bodyMarkdown;
   final bool required;
-  final int slots;
+  final int? slots;
   final List<T> options;
 
   SingleSelectFormField({
@@ -117,10 +117,12 @@ class TextFormField {
     required this.title,
     required this.bodyMarkdown,
     required this.required,
+    required this.slots,
   });
 
   final String key;
   final String? title;
   final String? bodyMarkdown;
   final bool required;
+  final int? slots;
 }

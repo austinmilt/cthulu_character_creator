@@ -58,7 +58,7 @@ class MainFormState extends State<MainForm> {
 
     final Map<String, dynamic>? formDataMap = _formKey.currentState?.value;
     if (formDataMap == null) {
-      throw StateError("BUG: Should not be able to submit the form withou any data");
+      throw StateError("BUG: Should not be able to submit the form without any data");
     }
 
     final FormResponseData submission = FormResponseData(

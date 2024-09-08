@@ -48,17 +48,14 @@ class _Text extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _mdFromSpec(spec.title, spec.bodyMarkdown),
         FormBuilderTextField(
           name: spec.key,
           decoration: InputDecoration(labelText: spec.title),
-          keyboardType: TextInputType.emailAddress,
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.email(),
-          ]),
+          validator: spec.required ? FormBuilderValidators.required() : null,
         ),
       ],
     );
@@ -72,7 +69,10 @@ class _Email extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO validate slots
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _mdFromSpec(spec.title, spec.bodyMarkdown),
         const SizedBox(height: 10),
@@ -81,7 +81,7 @@ class _Email extends StatelessWidget {
           decoration: InputDecoration(labelText: spec.title),
           keyboardType: TextInputType.emailAddress,
           validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
+            if (spec.required) FormBuilderValidators.required(),
             FormBuilderValidators.email(),
           ]),
         ),
@@ -101,7 +101,10 @@ class _SingleSelect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO validate slots
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _mdFromSpec(spec.title, spec.bodyMarkdown),
         const SizedBox(height: 20),
@@ -112,9 +115,7 @@ class _SingleSelect extends StatelessWidget {
           // disable the bottom border line that's on every input
           decoration: const InputDecoration(border: InputBorder.none),
           options: _options(spec.options),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-          ]),
+          validator: spec.required ? FormBuilderValidators.required() : null,
         ),
       ],
     );
@@ -128,7 +129,10 @@ class _CocSkillSelect extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO validate slots
     return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.center,
       children: [
         _mdFromSpec(spec.title, spec.bodyMarkdown),
         const SizedBox(height: 12),
@@ -158,9 +162,9 @@ Widget _mdFromSpec(String? title, String? bodyMd) {
   String? mdString;
   if (title != null) {
     if (bodyMd != null) {
-      mdString = "# $title\n$bodyMd";
+      mdString = "## $title\n$bodyMd";
     } else {
-      mdString = "# $title";
+      mdString = "## $title";
     }
   } else if (bodyMd != null) {
     mdString = bodyMd;
