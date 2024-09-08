@@ -5,7 +5,7 @@ typedef Form = List<FormFieldEntry>;
 class FormFieldEntry {
   FormFieldEntry._({
     this.group,
-    this.intro,
+    this.info,
     this.email,
     this.singleSelect,
     this.cocSkillset,
@@ -13,18 +13,18 @@ class FormFieldEntry {
   });
 
   final String? group;
-  final IntroductionFormField? intro;
+  final InformationFormField? info;
   final EmailFormField? email;
   final SingleSelectFormField? singleSelect;
   final CoCSkillsetFormField? cocSkillset;
   final TextFormField? text;
 
-  factory FormFieldEntry.intro(IntroductionFormField field, [String? group]) {
-    return FormFieldEntry._(intro: field, group: group);
+  factory FormFieldEntry.info(InformationFormField field, [String? group]) {
+    return FormFieldEntry._(info: field, group: group);
   }
 
-  bool get isIntro => intro != null;
-  IntroductionFormField get introRequired => intro!;
+  bool get isInfo => info != null;
+  InformationFormField get infoRequired => info!;
 
   factory FormFieldEntry.email(EmailFormField field, [String? group]) {
     return FormFieldEntry._(email: field, group: group);
@@ -55,8 +55,8 @@ class FormFieldEntry {
   TextFormField get textRequired => text!;
 }
 
-class IntroductionFormField {
-  IntroductionFormField({required this.title, required this.bodyMarkdown});
+class InformationFormField {
+  InformationFormField({required this.title, required this.bodyMarkdown});
 
   final String? title;
   final String? bodyMarkdown;

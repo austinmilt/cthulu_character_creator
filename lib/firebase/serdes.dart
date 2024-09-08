@@ -23,8 +23,8 @@ Form _formFromJson(List<Map<String, dynamic>> json) {
 
 Map<String, dynamic> _formFieldEntryToJson(FormFieldEntry entry) {
   final Map<String, dynamic> result;
-  if (entry.isIntro) {
-    result = _introToJson(entry.introRequired);
+  if (entry.isInfo) {
+    result = _infoToJson(entry.infoRequired);
   } else if (entry.isEmail) {
     result = _emailToJson(entry.emailRequired);
   } else if (entry.isSingleSelect) {
@@ -42,7 +42,7 @@ Map<String, dynamic> _formFieldEntryToJson(FormFieldEntry entry) {
 
 FormFieldEntry _formFieldEntryFromJson(Map<String, dynamic> json) {
   final String? group = json['group'];
-  if (json.containsKey("intro")) return FormFieldEntry.intro(_introFromJson(json["intro"]), group);
+  if (json.containsKey("info")) return FormFieldEntry.info(_infoFromJson(json["info"]), group);
   if (json.containsKey("email")) return FormFieldEntry.email(_emailFromJson(json["email"]), group);
   if (json.containsKey("singleSelect")) {
     return FormFieldEntry.singleSelect(_singleSelectFromJson(json["singleSelect"]), group);
@@ -54,15 +54,15 @@ FormFieldEntry _formFieldEntryFromJson(Map<String, dynamic> json) {
   throw UnimplementedError("Dont know how to deserialize $json to FormFieldEntry");
 }
 
-Map<String, dynamic> _introToJson(IntroductionFormField field) {
+Map<String, dynamic> _infoToJson(InformationFormField field) {
   return {
     "title": field.title,
     "bodyMarkdown": field.bodyMarkdown,
   };
 }
 
-IntroductionFormField _introFromJson(Map<String, dynamic> json) {
-  return IntroductionFormField(
+InformationFormField _infoFromJson(Map<String, dynamic> json) {
+  return InformationFormField(
     title: json["title"],
     bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
   );

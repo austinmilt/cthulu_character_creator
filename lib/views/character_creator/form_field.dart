@@ -13,8 +13,8 @@ class FormFieldWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (spec.isIntro) {
-      return _Intro(spec: spec.introRequired);
+    if (spec.isInfo) {
+      return _Info(spec: spec.infoRequired);
     } else if (spec.isEmail) {
       return _Email(spec: spec.emailRequired);
     } else if (spec.isSingleSelect) {
@@ -29,10 +29,10 @@ class FormFieldWidget extends StatelessWidget {
   }
 }
 
-class _Intro extends StatelessWidget {
-  const _Intro({required this.spec});
+class _Info extends StatelessWidget {
+  const _Info({required this.spec});
 
-  final model.IntroductionFormField spec;
+  final model.InformationFormField spec;
 
   @override
   Widget build(BuildContext context) {
