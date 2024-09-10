@@ -1,9 +1,9 @@
 import 'package:cthulu_character_creator/model/skill.dart';
 
-typedef Form = List<FormFieldEntry>;
+typedef Form = List<FormField>;
 
-class FormFieldEntry {
-  FormFieldEntry._({
+class FormField {
+  FormField._({
     this.group,
     this.info,
     this.email,
@@ -21,43 +21,43 @@ class FormFieldEntry {
   final TextFormField? text;
   final TextAreaFormField? textArea;
 
-  factory FormFieldEntry.info(InformationFormField field, [String? group]) {
-    return FormFieldEntry._(info: field, group: group);
+  factory FormField.info(InformationFormField field, [String? group]) {
+    return FormField._(info: field, group: group);
   }
 
   bool get isInfo => info != null;
   InformationFormField get infoRequired => info!;
 
-  factory FormFieldEntry.email(EmailFormField field, [String? group]) {
-    return FormFieldEntry._(email: field, group: group);
+  factory FormField.email(EmailFormField field, [String? group]) {
+    return FormField._(email: field, group: group);
   }
 
   bool get isEmail => email != null;
   EmailFormField get emailRequired => email!;
 
-  factory FormFieldEntry.singleSelect(SingleSelectFormField field, [String? group]) {
-    return FormFieldEntry._(singleSelect: field, group: group);
+  factory FormField.singleSelect(SingleSelectFormField field, [String? group]) {
+    return FormField._(singleSelect: field, group: group);
   }
 
   bool get isSingleSelect => singleSelect != null;
   SingleSelectFormField get singleSelectRequired => singleSelect!;
 
-  factory FormFieldEntry.cocSkillset(CoCSkillsetFormField field, [String? group]) {
-    return FormFieldEntry._(cocSkillset: field, group: group);
+  factory FormField.cocSkillset(CoCSkillsetFormField field, [String? group]) {
+    return FormField._(cocSkillset: field, group: group);
   }
 
   bool get isCocSkillset => cocSkillset != null;
   CoCSkillsetFormField get cocSkillsetRequired => cocSkillset!;
 
-  factory FormFieldEntry.text(TextFormField field, [String? group]) {
-    return FormFieldEntry._(text: field, group: group);
+  factory FormField.text(TextFormField field, [String? group]) {
+    return FormField._(text: field, group: group);
   }
 
   bool get isText => text != null;
   TextFormField get textRequired => text!;
 
-  factory FormFieldEntry.textArea(TextAreaFormField field, [String? group]) {
-    return FormFieldEntry._(textArea: field, group: group);
+  factory FormField.textArea(TextAreaFormField field, [String? group]) {
+    return FormField._(textArea: field, group: group);
   }
 
   bool get isTextArea => textArea != null;
@@ -87,14 +87,13 @@ class EmailFormField {
   final int? slots;
 }
 
-// TODO have to ensure that <T> is JSON compatible
-class SingleSelectFormField<T> {
+class SingleSelectFormField {
   final String key;
   final String? title;
   final String? bodyMarkdown;
   final bool required;
   final int? slots;
-  final List<T> options;
+  final List<String> options;
 
   SingleSelectFormField({
     required this.key,

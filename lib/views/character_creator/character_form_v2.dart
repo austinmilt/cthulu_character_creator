@@ -1,6 +1,5 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/logging.dart';
-import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/model/skill.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
@@ -10,9 +9,14 @@ import 'package:provider/provider.dart';
 import 'package:cthulu_character_creator/model/form.dart' as form_model;
 
 class MainForm extends StatefulWidget {
-  const MainForm({super.key, required this.gameId});
+  const MainForm({
+    super.key,
+    required this.gameId,
+    this.responseId,
+  });
 
   final String gameId;
+  final String? responseId;
 
   @override
   MainFormState createState() {
@@ -22,15 +26,63 @@ class MainForm extends StatefulWidget {
 
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
-  bool _submitting = false;
   late Future<form_model.Form> _formFuture;
+
+  @override
+  void initState() {
+    super.initState();
+    _formFuture = context.read<Api>().getForm(widget.gameId);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FormBuilder(
+      key: _formKey,
+      child: _TopCenterScrollableContainer(
+        maxWidth: 600,
+        padding: const EdgeInsets.all(16),
+        child: FutureBuilder(
+          future: _formFuture,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return _FormLoaded(gameId: widget.gameId, form: snapshot.requireData);
+            } else if (snapshot.hasError) {
+              return Center(
+                child: Text('uh oh ${snapshot.error} ${snapshot.stackTrace}'),
+              );
+            } else {
+              // TODO handle errors and edge cases
+              return const CircularProgressIndicator();
+            }
+          },
+        ),
+      ),
+    );
+  }
+}
+
+class _FormLoaded extends StatefulWidget {
+  const _FormLoaded({required this.gameId, required this.form, this.responseId});
+
+  final String gameId;
+  final String? responseId;
+  final form_model.Form form;
+
+  @override
+  State<_FormLoaded> createState() => _FormLoadedState();
+}
+
+class _FormLoadedState extends State<_FormLoaded> {
+  final _formKey = GlobalKey<FormBuilderState>();
+  bool _submitting = false;
   late final Logger _logger;
+  late final List<List<form_model.FormField>> _fields;
 
   @override
   void initState() {
     super.initState();
     _logger = context.read<LoggerFactory>().makeLogger(MainForm);
-    _formFuture = context.read<Api>().getForm(widget.gameId);
+    _fields = _groupEntries(widget.form);
   }
 
   void _onSubmit() {
@@ -64,26 +116,43 @@ class MainFormState extends State<MainForm> {
       throw StateError("BUG: Should not be able to submit the form without any data");
     }
 
-    // TODO refactor this to pull fields from the Form
-    final FormResponseData submission = FormResponseData(
-      gameId: widget.gameId,
-      email: formDataMap['email'],
-      occupation: formDataMap['occupation'],
-      skills: (formDataMap['skills'] as (List<Skill>, bool)).$1,
-      name: formDataMap['name'],
-      appearance: formDataMap['appearance'],
-      traits: formDataMap['traits'],
-      ideology: formDataMap['ideology'],
-      injuries: formDataMap['injuries'],
-      relationships: formDataMap['relationships'],
-      phobias: formDataMap['phobias'],
-      treasures: formDataMap['treasures'],
-      details: formDataMap['details'],
-      items: formDataMap['items'],
-    );
+    final FormResponse submission = FormResponse(id: widget.responseId, fields: []);
+    for (form_model.FormField spec in widget.form) {
+      if (spec.isCocSkillset) {
+        final String key = spec.cocSkillsetRequired.key;
+        if (formDataMap[key] != null) {
+          submission.fields.add(FormFieldResponse.cocSkillset(key, (formDataMap[key] as (List<Skill>, bool)).$1));
+        }
+      } else if (spec.isEmail) {
+        final String key = spec.emailRequired.key;
+        if (formDataMap[key] != null) {
+          submission.fields.add(FormFieldResponse.email(key, formDataMap[key]));
+        }
+      } else if (spec.isSingleSelect) {
+        final String key = spec.singleSelectRequired.key;
+        if (formDataMap[key] != null) {
+          submission.fields.add(FormFieldResponse.singleSelect(key, formDataMap[key]));
+        }
+      } else if (spec.isText) {
+        final String key = spec.textRequired.key;
+        if (formDataMap[key] != null) {
+          submission.fields.add(FormFieldResponse.text(key, formDataMap[key]));
+        }
+      } else if (spec.isTextArea) {
+        final String key = spec.textAreaRequired.key;
+        if (formDataMap[key] != null) {
+          submission.fields.add(FormFieldResponse.textArea(key, formDataMap[key]));
+        }
+      }
+    }
+
     final Api api = context.read<Api>();
+    // TODO do additional validation, such as checking for uniqueness of results
+    // compared to other submissions, and
+    // use that in the form's validation thing
+
     try {
-      await api.submitForm(submission);
+      await api.submitForm(widget.gameId, submission);
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Submission received! You may still make changes and resubmit.')));
@@ -97,12 +166,12 @@ class MainFormState extends State<MainForm> {
     }
   }
 
-  List<List<FormFieldEntry>> _groupEntries(form_model.Form form) {
-    final List<List<FormFieldEntry>> result = [];
-    List<FormFieldEntry> currentGroupOfEntries = [];
+  List<List<form_model.FormField>> _groupEntries(form_model.Form form) {
+    final List<List<form_model.FormField>> result = [];
+    List<form_model.FormField> currentGroupOfEntries = [];
     String? lastGroup;
     for (int i = 0; i < form.length; i++) {
-      final FormFieldEntry entry = form[i];
+      final form_model.FormField entry = form[i];
       // detect when a new group has started. Note this grouping preserves
       // the overall ordering of entries at the expense that non-contiguous
       // entries with the same group ID will wind up in different sections, e.g.
@@ -120,48 +189,33 @@ class MainFormState extends State<MainForm> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> children = [];
+    for (List<form_model.FormField> group in _fields) {
+      if (group.length == 1) {
+        children.add(_section(FormFieldWidget(spec: group.first)));
+      } else {
+        children.add(_section(Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: group.map((field) => FormFieldWidget(spec: field)).toList(),
+        )));
+      }
+    }
+    children.add(
+      FilledButton(
+        onPressed: _submitting ? null : _onSubmit,
+        child: _submitting ? const Text('Loading') : const Text('Submit'),
+      ),
+    );
     return FormBuilder(
       key: _formKey,
       child: _TopCenterScrollableContainer(
         maxWidth: 600,
         padding: const EdgeInsets.all(16),
-        child: FutureBuilder(
-          future: _formFuture,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              final List<List<FormFieldEntry>> groupedEntries = _groupEntries(snapshot.data!);
-              final List<Widget> children = [];
-              for (List<FormFieldEntry> group in groupedEntries) {
-                if (group.length == 1) {
-                  children.add(_section(FormFieldWidget(spec: group.first)));
-                } else {
-                  children.add(_section(Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: group.map((field) => FormFieldWidget(spec: field)).toList(),
-                  )));
-                }
-              }
-              children.add(
-                FilledButton(
-                  onPressed: _submitting ? null : _onSubmit,
-                  child: _submitting ? const Text('Loading') : const Text('Submit'),
-                ),
-              );
-              return Column(
-                mainAxisAlignment: MainAxisAlignment.start,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: children,
-              );
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('uh oh ${snapshot.error} ${snapshot.stackTrace}'),
-              );
-            } else {
-              // TODO handle errors and edge cases
-              return const CircularProgressIndicator();
-            }
-          },
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: children,
         ),
       ),
     );

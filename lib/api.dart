@@ -4,7 +4,9 @@ import 'package:cthulu_character_creator/model/form_data.dart';
 
 abstract interface class Api {
   Future<Form> getForm(String gameId);
-  Future<void> submitForm(FormResponseData submission);
+
+  /// Upserts the response and returns its key (for editing).
+  Future<String> submitForm(String gameId, FormResponse submission);
 
   /// Initializes a new game, reserving its name in the database and doing any
   /// setup for its game system.

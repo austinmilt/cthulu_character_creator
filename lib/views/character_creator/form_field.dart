@@ -9,7 +9,7 @@ import 'package:form_builder_validators/form_builder_validators.dart';
 class FormFieldWidget extends StatelessWidget {
   const FormFieldWidget({super.key, required this.spec});
 
-  final model.FormFieldEntry spec;
+  final model.FormField spec;
 
   @override
   Widget build(BuildContext context) {

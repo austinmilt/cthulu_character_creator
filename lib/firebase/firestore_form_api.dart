@@ -1,6 +1,5 @@
-import 'dart:convert';
+import 'dart:math';
 
-import 'package:crypto/crypto.dart';
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/firebase/serdes.dart';
 import 'package:cthulu_character_creator/firebase/game.dart';
@@ -8,6 +7,7 @@ import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:word_generator/word_generator.dart';
 
 // https://firebase.google.com/codelabs/firebase-get-to-know-flutter#4
 
@@ -25,17 +25,31 @@ class FirestoreFormApi implements Api {
   }
 
   @override
-  Future<void> submitForm(FormResponseData submission) async {
-    await _gameRef(submission.gameId)
+  Future<String> submitForm(String gameId, FormResponse submission) async {
+    submission.id ??= _formResponseKey(submission);
+    await _gameRef(gameId)
         .collection(_keys.game_.responses)
-        .doc(_formResponseKey(submission))
+        .doc(submission.id)
         .set(serdes.formResponse.toJson(submission));
+
+    return submission.id!;
   }
 
-  String _formResponseKey(FormResponseData submission) {
-    var bytes = utf8.encode(submission.email);
-    var digest = sha256.convert(bytes);
-    return digest.toString();
+  String _formResponseKey(FormResponse submission) {
+    final List<String> possessiveOptions = ["my", "your", "their", "her", "his"];
+    final String possessive = possessiveOptions[_rand.nextInt(possessiveOptions.length)];
+    final String verb = _specialVerb();
+    final String noun = _wordGenerator.randomNoun();
+    // TODO check that the key is unique before returning
+    return '$possessive-$verb-$noun';
+  }
+
+  String _specialVerb() {
+    String candidate = "";
+    while (!candidate.endsWith('ing') && !candidate.endsWith("ed")) {
+      candidate = _wordGenerator.randomVerb();
+    }
+    return candidate;
   }
 
   @override
@@ -52,6 +66,9 @@ class FirestoreFormApi implements Api {
     return _firestore.collection(_keys.games).doc(gameId);
   }
 }
+
+final _wordGenerator = WordGenerator();
+final _rand = Random.secure();
 
 const _keys = (
   games: 'games',

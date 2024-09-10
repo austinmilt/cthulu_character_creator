@@ -21,7 +21,7 @@ Form _formFromJson(List<Map<String, dynamic>> json) {
   return json.map(_formFieldEntryFromJson).toList();
 }
 
-Map<String, dynamic> _formFieldEntryToJson(FormFieldEntry entry) {
+Map<String, dynamic> _formFieldEntryToJson(FormField entry) {
   final Map<String, dynamic> result;
   if (entry.isInfo) {
     result = _infoToJson(entry.infoRequired);
@@ -42,18 +42,18 @@ Map<String, dynamic> _formFieldEntryToJson(FormFieldEntry entry) {
   return result;
 }
 
-FormFieldEntry _formFieldEntryFromJson(Map<String, dynamic> json) {
+FormField _formFieldEntryFromJson(Map<String, dynamic> json) {
   final String? group = json['group'];
-  if (json.containsKey("info")) return FormFieldEntry.info(_infoFromJson(json["info"]), group);
-  if (json.containsKey("email")) return FormFieldEntry.email(_emailFromJson(json["email"]), group);
+  if (json.containsKey("info")) return FormField.info(_infoFromJson(json["info"]), group);
+  if (json.containsKey("email")) return FormField.email(_emailFromJson(json["email"]), group);
   if (json.containsKey("singleSelect")) {
-    return FormFieldEntry.singleSelect(_singleSelectFromJson(json["singleSelect"]), group);
+    return FormField.singleSelect(_singleSelectFromJson(json["singleSelect"]), group);
   }
   if (json.containsKey("cocSkillset")) {
-    return FormFieldEntry.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]), group);
+    return FormField.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]), group);
   }
-  if (json.containsKey("text")) return FormFieldEntry.text(_textFromJson(json["text"]), group);
-  if (json.containsKey("textArea")) return FormFieldEntry.textArea(_textAreaFromJson(json["textArea"]), group);
+  if (json.containsKey("text")) return FormField.text(_textFromJson(json["text"]), group);
+  if (json.containsKey("textArea")) return FormField.textArea(_textAreaFromJson(json["textArea"]), group);
   throw UnimplementedError("Dont know how to deserialize $json to FormFieldEntry");
 }
 
@@ -111,7 +111,7 @@ SingleSelectFormField _singleSelectFromJson(Map<String, dynamic> json) {
     bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
     slots: json["slots"],
-    options: json["options"],
+    options: (json["options"] as List).map((e) => e as String).toList(),
   );
 }
 
@@ -213,23 +213,24 @@ String? _decodeMarkdown(String? source) {
   return source?.replaceAll(RegExp(r'\\n'), '\n');
 }
 
-Map<String, dynamic> _formResponseToJson(FormResponseData submission) {
-  final Map<String, dynamic> result = {
-    'gameId': submission.gameId,
-    'email': submission.email,
-    'occupation': submission.occupation,
-    'skills': _skillsToJson(submission.skills),
-    'name': submission.name,
-    'appearance': submission.appearance,
+Map<String, dynamic> _formResponseToJson(FormResponse submission) {
+  return {
+    'id': submission.id,
+    'fields': submission.fields.map(_formFieldResponseToJson).toList(),
   };
-  _putFieldIfPresent('traits', submission.traits, result);
-  _putFieldIfPresent('ideology', submission.ideology, result);
-  _putFieldIfPresent('injuries', submission.injuries, result);
-  _putFieldIfPresent('relationships', submission.relationships, result);
-  _putFieldIfPresent('phobias', submission.phobias, result);
-  _putFieldIfPresent('treasures', submission.treasures, result);
-  _putFieldIfPresent('details', submission.details, result);
-  _putFieldIfPresent('items', submission.items, result);
+}
+
+Map<String, dynamic> _formFieldResponseToJson(FormFieldResponse submission) {
+  final Map<String, dynamic> result = {};
+  result['fieldKey'] = submission.fieldKey;
+  _putFieldIfPresent('email', submission.email, result);
+  _putFieldIfPresent('singleSelect', submission.singleSelect, result);
+  _putFieldIfPresent('cocSkillset', submission.cocSkillset, result);
+  if (submission.isCocSkillset) {
+    result['cocSkillset'] = _skillsToJson(submission.cocSkillSetRequired);
+  }
+  _putFieldIfPresent('text', submission.text, result);
+  _putFieldIfPresent('textArea', submission.textArea, result);
   return result;
 }
 
@@ -238,21 +239,27 @@ void _putFieldIfPresent<T>(String key, T? field, Map<String, dynamic> json, [dyn
   if (field != null) json[key] = toJson(field);
 }
 
-FormResponseData _formResponseFromJson(Map<String, dynamic> json) {
-  return FormResponseData(
-    gameId: json['gameId'],
-    email: json['email'],
-    occupation: json['occupation'],
-    skills: _skillsFromJson(json['skills']),
-    name: json['name'],
-    appearance: json['appearance'],
-    traits: json['traits'],
-    ideology: json['ideology'],
-    injuries: json['injuries'],
-    relationships: json['relationships'],
-    phobias: json['phobias'],
-    treasures: json['treasures'],
-    details: json['details'],
-    items: json['items'],
+FormResponse _formResponseFromJson(Map<String, dynamic> json) {
+  return FormResponse(
+    id: json['id'],
+    // TODO proper type casting of List<Map<String, dynamic>>
+    fields: json['fields'].map(_formFieldResponseFromJson).toList(),
   );
+}
+
+FormFieldResponse _formFieldResponseFromJson(Map<String, dynamic> json) {
+  final String fieldKey = json['fieldKey'];
+  if (json.containsKey('email')) {
+    return FormFieldResponse.email(fieldKey, json['email']);
+  } else if (json.containsKey('singleSelect')) {
+    return FormFieldResponse.singleSelect(fieldKey, json['singleSelect']);
+  } else if (json.containsKey('cocSkillset')) {
+    return FormFieldResponse.cocSkillset(fieldKey, _skillsFromJson(json['cocSkilset']));
+  } else if (json.containsKey('text')) {
+    return FormFieldResponse.text(fieldKey, json['text']);
+  } else if (json.containsKey('textArea')) {
+    return FormFieldResponse.textArea(fieldKey, json['textArea']);
+  } else {
+    throw UnimplementedError('Dont know how to deserialize $json');
+  }
 }

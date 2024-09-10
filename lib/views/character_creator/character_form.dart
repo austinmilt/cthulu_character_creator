@@ -54,36 +54,36 @@ class MainFormState extends State<MainForm> {
       throw StateError("BUG: Should not be able to submit the form withou any data");
     }
 
-    final FormResponseData submission = FormResponseData(
-      gameId: widget.gameId,
-      email: formDataMap['email'],
-      occupation: formDataMap['occupation'],
-      skills: (formDataMap['skills'] as (List<Skill>, bool)).$1,
-      name: formDataMap['name'],
-      appearance: formDataMap['appearance'],
-      traits: formDataMap['traits'],
-      ideology: formDataMap['ideology'],
-      injuries: formDataMap['injuries'],
-      relationships: formDataMap['relationships'],
-      phobias: formDataMap['phobias'],
-      treasures: formDataMap['treasures'],
-      details: formDataMap['details'],
-      items: formDataMap['items'],
-    );
-    final Api api = context.read<Api>();
-    try {
-      await api.submitForm(submission);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Submission received! You may still make changes and resubmit.')));
-      }
-    } catch (_) {
-      if (mounted) {
-        ScaffoldMessenger.of(context)
-            .showSnackBar(const SnackBar(content: Text('Submission error! Check your responses and resubmit.')));
-      }
-      rethrow;
-    }
+    // final FormResponseData submission = FormResponseData(
+    //   gameId: widget.gameId,
+    //   email: formDataMap['email'],
+    //   occupation: formDataMap['occupation'],
+    //   skills: (formDataMap['skills'] as (List<Skill>, bool)).$1,
+    //   name: formDataMap['name'],
+    //   appearance: formDataMap['appearance'],
+    //   traits: formDataMap['traits'],
+    //   ideology: formDataMap['ideology'],
+    //   injuries: formDataMap['injuries'],
+    //   relationships: formDataMap['relationships'],
+    //   phobias: formDataMap['phobias'],
+    //   treasures: formDataMap['treasures'],
+    //   details: formDataMap['details'],
+    //   items: formDataMap['items'],
+    // );
+    // final Api api = context.read<Api>();
+    // try {
+    //   await api.submitForm(submission);
+    //   if (mounted) {
+    //     ScaffoldMessenger.of(context).showSnackBar(
+    //         const SnackBar(content: Text('Submission received! You may still make changes and resubmit.')));
+    //   }
+    // } catch (_) {
+    //   if (mounted) {
+    //     ScaffoldMessenger.of(context)
+    //         .showSnackBar(const SnackBar(content: Text('Submission error! Check your responses and resubmit.')));
+    //   }
+    //   rethrow;
+    // }
   }
 
   @override
