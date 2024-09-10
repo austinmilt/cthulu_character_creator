@@ -136,6 +136,8 @@ class MainFormState extends State<MainForm> {
                   children.add(_section(FormFieldWidget(spec: group.first)));
                 } else {
                   children.add(_section(Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: group.map((field) => FormFieldWidget(spec: field)).toList(),
                   )));
                 }

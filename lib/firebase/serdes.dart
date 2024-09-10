@@ -31,6 +31,8 @@ Map<String, dynamic> _formFieldEntryToJson(FormFieldEntry entry) {
     result = _singleSelectToJson(entry.singleSelectRequired);
   } else if (entry.isText) {
     result = _textToJson(entry.textRequired);
+  } else if (entry.isTextArea) {
+    result = _textAreaToJson(entry.textAreaRequired);
   } else if (entry.isCocSkillset) {
     result = _cocSkillsetToJson(entry.cocSkillsetRequired);
   } else {
@@ -51,6 +53,7 @@ FormFieldEntry _formFieldEntryFromJson(Map<String, dynamic> json) {
     return FormFieldEntry.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]), group);
   }
   if (json.containsKey("text")) return FormFieldEntry.text(_textFromJson(json["text"]), group);
+  if (json.containsKey("textArea")) return FormFieldEntry.textArea(_textAreaFromJson(json["textArea"]), group);
   throw UnimplementedError("Dont know how to deserialize $json to FormFieldEntry");
 }
 
@@ -165,6 +168,8 @@ Map<String, dynamic> _textToJson(TextFormField field) {
   };
   _putFieldIfPresent('title', field.title, result);
   _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  _putFieldIfPresent('label', field.label, result);
+  _putFieldIfPresent('help', field.help, result);
   return result;
 }
 
@@ -175,6 +180,32 @@ TextFormField _textFromJson(Map<String, dynamic> json) {
     bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
     slots: json["slots"],
+    label: json["label"],
+    help: json["help"],
+  );
+}
+
+Map<String, dynamic> _textAreaToJson(TextAreaFormField field) {
+  final Map<String, dynamic> result = {
+    "key": field.key,
+    "required": field.required,
+  };
+  _putFieldIfPresent('title', field.title, result);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
+  _putFieldIfPresent('label', field.label, result);
+  _putFieldIfPresent('help', field.help, result);
+  return result;
+}
+
+TextAreaFormField _textAreaFromJson(Map<String, dynamic> json) {
+  return TextAreaFormField(
+    key: json["key"],
+    title: json["title"],
+    bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
+    required: json["required"],
+    slots: json["slots"],
+    label: json["label"],
+    help: json["help"],
   );
 }
 

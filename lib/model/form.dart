@@ -10,6 +10,7 @@ class FormFieldEntry {
     this.singleSelect,
     this.cocSkillset,
     this.text,
+    this.textArea,
   });
 
   final String? group;
@@ -18,6 +19,7 @@ class FormFieldEntry {
   final SingleSelectFormField? singleSelect;
   final CoCSkillsetFormField? cocSkillset;
   final TextFormField? text;
+  final TextAreaFormField? textArea;
 
   factory FormFieldEntry.info(InformationFormField field, [String? group]) {
     return FormFieldEntry._(info: field, group: group);
@@ -53,6 +55,13 @@ class FormFieldEntry {
 
   bool get isText => text != null;
   TextFormField get textRequired => text!;
+
+  factory FormFieldEntry.textArea(TextAreaFormField field, [String? group]) {
+    return FormFieldEntry._(textArea: field, group: group);
+  }
+
+  bool get isTextArea => textArea != null;
+  TextAreaFormField get textAreaRequired => textArea!;
 }
 
 class InformationFormField {
@@ -120,11 +129,35 @@ class TextFormField {
     required this.bodyMarkdown,
     required this.required,
     required this.slots,
+    required this.label,
+    required this.help,
   });
 
   final String key;
   final String? title;
   final String? bodyMarkdown;
+  final String? label;
+  final String? help;
+  final bool required;
+  final int? slots;
+}
+
+class TextAreaFormField {
+  TextAreaFormField({
+    required this.key,
+    required this.title,
+    required this.bodyMarkdown,
+    required this.required,
+    required this.slots,
+    required this.label,
+    required this.help,
+  });
+
+  final String key;
+  final String? title;
+  final String? bodyMarkdown;
+  final String? label;
+  final String? help;
   final bool required;
   final int? slots;
 }

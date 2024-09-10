@@ -21,6 +21,8 @@ class FormFieldWidget extends StatelessWidget {
       return _SingleSelect(spec: spec.singleSelectRequired);
     } else if (spec.isText) {
       return _Text(spec: spec.textRequired);
+    } else if (spec.isTextArea) {
+      return _TextArea(spec: spec.textAreaRequired);
     } else if (spec.isCocSkillset) {
       return _CocSkillSelect(spec: spec.cocSkillsetRequired);
     } else {
@@ -47,14 +49,48 @@ class _Text extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // TODO validate slots
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         _mdFromSpec(spec.title, spec.bodyMarkdown),
         FormBuilderTextField(
           name: spec.key,
-          decoration: InputDecoration(labelText: spec.title),
+          decoration: InputDecoration(
+            labelText: spec.label,
+            helperMaxLines: 2,
+            helperText: spec.help,
+          ),
+          validator: spec.required ? FormBuilderValidators.required() : null,
+        ),
+      ],
+    );
+  }
+}
+
+class _TextArea extends StatelessWidget {
+  const _TextArea({required this.spec});
+
+  final model.TextAreaFormField spec;
+
+  @override
+  Widget build(BuildContext context) {
+    // TODO validate slots
+    return Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        _mdFromSpec(spec.title, spec.bodyMarkdown),
+        FormBuilderTextField(
+          name: spec.key,
+          decoration: InputDecoration(
+            labelText: spec.label,
+            helperMaxLines: 2,
+            helperText: spec.help,
+          ),
+          minLines: 1,
+          maxLines: 5,
           validator: spec.required ? FormBuilderValidators.required() : null,
         ),
       ],
