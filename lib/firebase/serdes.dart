@@ -1,5 +1,11 @@
+import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
+import 'package:cthulu_character_creator/fields/email/field.dart';
+import 'package:cthulu_character_creator/fields/info/field.dart';
+import 'package:cthulu_character_creator/fields/single_select/field.dart';
+import 'package:cthulu_character_creator/fields/text/field.dart';
+import 'package:cthulu_character_creator/fields/text_area/field.dart';
 import 'package:cthulu_character_creator/model/form.dart';
-import 'package:cthulu_character_creator/model/skill.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 
 const serdes = (
@@ -216,13 +222,12 @@ String? _decodeMarkdown(String? source) {
 Map<String, dynamic> _formResponseToJson(FormResponse submission) {
   return {
     'id': submission.id,
-    'fields': submission.fields.map(_formFieldResponseToJson).toList(),
+    'fields': submission.fields.map((key, response) => MapEntry(key, _formFieldResponseToJson(response))),
   };
 }
 
 Map<String, dynamic> _formFieldResponseToJson(FormFieldResponse submission) {
   final Map<String, dynamic> result = {};
-  result['fieldKey'] = submission.fieldKey;
   _putFieldIfPresent('email', submission.email, result);
   _putFieldIfPresent('singleSelect', submission.singleSelect, result);
   _putFieldIfPresent('cocSkillset', submission.cocSkillset, result);
@@ -243,22 +248,22 @@ FormResponse _formResponseFromJson(Map<String, dynamic> json) {
   return FormResponse(
     id: json['id'],
     // TODO proper type casting of List<Map<String, dynamic>>
-    fields: json['fields'].map(_formFieldResponseFromJson).toList(),
+    fields:
+        (json['fields'] as Map<String, dynamic>).map((key, value) => MapEntry(key, _formFieldResponseFromJson(value))),
   );
 }
 
 FormFieldResponse _formFieldResponseFromJson(Map<String, dynamic> json) {
-  final String fieldKey = json['fieldKey'];
   if (json.containsKey('email')) {
-    return FormFieldResponse.email(fieldKey, json['email']);
+    return FormFieldResponse.email(json['email']);
   } else if (json.containsKey('singleSelect')) {
-    return FormFieldResponse.singleSelect(fieldKey, json['singleSelect']);
+    return FormFieldResponse.singleSelect(json['singleSelect']);
   } else if (json.containsKey('cocSkillset')) {
-    return FormFieldResponse.cocSkillset(fieldKey, _skillsFromJson(json['cocSkilset']));
+    return FormFieldResponse.cocSkillset(_skillsFromJson(json['cocSkilset']));
   } else if (json.containsKey('text')) {
-    return FormFieldResponse.text(fieldKey, json['text']);
+    return FormFieldResponse.text(json['text']);
   } else if (json.containsKey('textArea')) {
-    return FormFieldResponse.textArea(fieldKey, json['textArea']);
+    return FormFieldResponse.textArea(json['textArea']);
   } else {
     throw UnimplementedError('Dont know how to deserialize $json');
   }

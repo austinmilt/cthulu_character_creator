@@ -1,15 +1,19 @@
-import 'package:cthulu_character_creator/model/skill.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/response.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
+import 'package:cthulu_character_creator/fields/email/response.dart';
+import 'package:cthulu_character_creator/fields/single_select/response.dart';
+import 'package:cthulu_character_creator/fields/text/response.dart';
+import 'package:cthulu_character_creator/fields/text_area/response.dart';
 
 class FormResponse {
   FormResponse({required this.id, required this.fields});
 
   String? id;
-  final List<FormFieldResponse> fields;
+  final Map<String, FormFieldResponse> fields;
 }
 
 class FormFieldResponse {
   FormFieldResponse._({
-    required this.fieldKey,
     this.email,
     this.singleSelect,
     this.cocSkillset,
@@ -17,44 +21,42 @@ class FormFieldResponse {
     this.textArea,
   });
 
-  // fields in the response should stay sync'd with FormFieldEntry
-  final String fieldKey;
-  final String? email;
-  final String? singleSelect;
-  final List<Skill>? cocSkillset;
-  final String? text;
-  final String? textArea;
+  final EmailResponse? email;
+  final SingleSelectResponse? singleSelect;
+  final CocSkillsetResponse? cocSkillset;
+  final TextResponse? text;
+  final TextAreaResponse? textArea;
 
-  factory FormFieldResponse.email(String fieldKey, String response) {
-    return FormFieldResponse._(fieldKey: fieldKey, email: response);
+  factory FormFieldResponse.email(EmailResponse response) {
+    return FormFieldResponse._(email: response);
   }
 
   bool get isEmail => email != null;
   String get emailRequired => email!;
 
-  factory FormFieldResponse.singleSelect(String fieldKey, String response) {
-    return FormFieldResponse._(fieldKey: fieldKey, singleSelect: response);
+  factory FormFieldResponse.singleSelect(SingleSelectResponse response) {
+    return FormFieldResponse._(singleSelect: response);
   }
 
   bool get isSingleSelect => singleSelect != null;
   String get singleSelectRequired => singleSelect!;
 
-  factory FormFieldResponse.cocSkillset(String fieldKey, List<Skill> response) {
-    return FormFieldResponse._(fieldKey: fieldKey, cocSkillset: response);
+  factory FormFieldResponse.cocSkillset(CocSkillsetResponse response) {
+    return FormFieldResponse._(cocSkillset: response);
   }
 
   bool get isCocSkillset => cocSkillset != null;
   List<Skill> get cocSkillSetRequired => cocSkillset!;
 
-  factory FormFieldResponse.text(String fieldKey, String response) {
-    return FormFieldResponse._(fieldKey: fieldKey, text: response);
+  factory FormFieldResponse.text(TextResponse response) {
+    return FormFieldResponse._(text: response);
   }
 
   bool get isText => text != null;
   String get textRequired => text!;
 
-  factory FormFieldResponse.textArea(String fieldKey, String response) {
-    return FormFieldResponse._(fieldKey: fieldKey, textArea: response);
+  factory FormFieldResponse.textArea(TextAreaResponse response) {
+    return FormFieldResponse._(textArea: response);
   }
 
   bool get isTextArea => textArea != null;

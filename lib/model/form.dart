@@ -1,4 +1,9 @@
-import 'package:cthulu_character_creator/model/skill.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
+import 'package:cthulu_character_creator/fields/email/field.dart';
+import 'package:cthulu_character_creator/fields/info/field.dart';
+import 'package:cthulu_character_creator/fields/single_select/field.dart';
+import 'package:cthulu_character_creator/fields/text/field.dart';
+import 'package:cthulu_character_creator/fields/text_area/field.dart';
 
 typedef Form = List<FormField>;
 
@@ -62,101 +67,4 @@ class FormField {
 
   bool get isTextArea => textArea != null;
   TextAreaFormField get textAreaRequired => textArea!;
-}
-
-class InformationFormField {
-  InformationFormField({required this.title, required this.bodyMarkdown});
-
-  final String? title;
-  final String? bodyMarkdown;
-}
-
-class EmailFormField {
-  EmailFormField({
-    required this.key,
-    required this.title,
-    required this.bodyMarkdown,
-    required this.required,
-    required this.slots,
-  });
-
-  final String key;
-  final String? title;
-  final String? bodyMarkdown;
-  final bool required;
-  final int? slots;
-}
-
-class SingleSelectFormField {
-  final String key;
-  final String? title;
-  final String? bodyMarkdown;
-  final bool required;
-  final int? slots;
-  final List<String> options;
-
-  SingleSelectFormField({
-    required this.key,
-    required this.title,
-    required this.bodyMarkdown,
-    required this.required,
-    required this.slots,
-    required this.options,
-  });
-}
-
-class CoCSkillsetFormField {
-  CoCSkillsetFormField({
-    required this.key,
-    required this.title,
-    required this.bodyMarkdown,
-    required this.required,
-    required this.options,
-  });
-
-  final String key;
-  final String? title;
-  final String? bodyMarkdown;
-  final bool required;
-  final List<Skill> options;
-}
-
-class TextFormField {
-  TextFormField({
-    required this.key,
-    required this.title,
-    required this.bodyMarkdown,
-    required this.required,
-    required this.slots,
-    required this.label,
-    required this.help,
-  });
-
-  final String key;
-  final String? title;
-  final String? bodyMarkdown;
-  final String? label;
-  final String? help;
-  final bool required;
-  final int? slots;
-}
-
-class TextAreaFormField {
-  TextAreaFormField({
-    required this.key,
-    required this.title,
-    required this.bodyMarkdown,
-    required this.required,
-    required this.slots,
-    required this.label,
-    required this.help,
-  });
-
-  final String key;
-  final String? title;
-  final String? bodyMarkdown;
-  final String? label;
-  final String? help;
-  final bool required;
-  final int? slots;
 }

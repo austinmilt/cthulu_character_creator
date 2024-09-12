@@ -2,7 +2,7 @@ import 'package:cthulu_character_creator/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import '../../model/skill.dart';
+import 'skill.dart';
 
 class SkillSelector extends StatefulWidget {
   const SkillSelector({super.key, required this.options, required this.onChange});

@@ -1,7 +1,6 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
-import 'package:cthulu_character_creator/model/skill.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
@@ -116,40 +115,46 @@ class _FormLoadedState extends State<_FormLoaded> {
       throw StateError("BUG: Should not be able to submit the form without any data");
     }
 
-    final FormResponse submission = FormResponse(id: widget.responseId, fields: []);
+    final FormResponse submission = FormResponse(id: widget.responseId, fields: {});
     for (form_model.FormField spec in widget.form) {
       if (spec.isCocSkillset) {
         final String key = spec.cocSkillsetRequired.key;
         if (formDataMap[key] != null) {
-          submission.fields.add(FormFieldResponse.cocSkillset(key, (formDataMap[key] as (List<Skill>, bool)).$1));
+          submission.fields[key] = FormFieldResponse.cocSkillset(formDataMap[key]);
         }
       } else if (spec.isEmail) {
         final String key = spec.emailRequired.key;
         if (formDataMap[key] != null) {
-          submission.fields.add(FormFieldResponse.email(key, formDataMap[key]));
+          submission.fields[key] = (FormFieldResponse.email(formDataMap[key]));
         }
       } else if (spec.isSingleSelect) {
         final String key = spec.singleSelectRequired.key;
         if (formDataMap[key] != null) {
-          submission.fields.add(FormFieldResponse.singleSelect(key, formDataMap[key]));
+          submission.fields[key] = (FormFieldResponse.singleSelect(formDataMap[key]));
         }
       } else if (spec.isText) {
         final String key = spec.textRequired.key;
         if (formDataMap[key] != null) {
-          submission.fields.add(FormFieldResponse.text(key, formDataMap[key]));
+          submission.fields[key] = (FormFieldResponse.text(formDataMap[key]));
         }
       } else if (spec.isTextArea) {
         final String key = spec.textAreaRequired.key;
         if (formDataMap[key] != null) {
-          submission.fields.add(FormFieldResponse.textArea(key, formDataMap[key]));
+          submission.fields[key] = (FormFieldResponse.textArea(formDataMap[key]));
         }
       }
     }
 
     final Api api = context.read<Api>();
-    // TODO do additional validation, such as checking for uniqueness of results
-    // compared to other submissions, and
-    // use that in the form's validation thing
+    final List<String> validationFailures = await api.validateSubmission(widget.gameId, widget.form, submission);
+    if (validationFailures.isNotEmpty && mounted) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Column(children: validationFailures.map((f) => Text(f)).toList()),
+        ));
+      }
+      return;
+    }
 
     try {
       await api.submitForm(widget.gameId, submission);

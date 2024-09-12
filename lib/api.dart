@@ -5,6 +5,11 @@ import 'package:cthulu_character_creator/model/form_data.dart';
 abstract interface class Api {
   Future<Form> getForm(String gameId);
 
+  /// Checks that [submission] is valid for [gameId], such as checking
+  /// for unique responses, and returns a list of user-friendly validation
+  /// error messages, which could be empty.
+  Future<List<String>> validateSubmission(String gameId, Form form, FormResponse submission);
+
   /// Upserts the response and returns its key (for editing).
   Future<String> submitForm(String gameId, FormResponse submission);
 
