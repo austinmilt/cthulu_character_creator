@@ -67,4 +67,19 @@ class FormField {
 
   bool get isTextArea => textArea != null;
   TextAreaFormField get textAreaRequired => textArea!;
+
+  @override
+  String toString() {
+    if (isCocSkillset) return _strWrap(cocSkillset.toString());
+    if (isEmail) return _strWrap(email.toString());
+    if (isInfo) return _strWrap(info.toString());
+    if (isSingleSelect) return _strWrap(singleSelect.toString());
+    if (isText) return _strWrap(text.toString());
+    if (isTextArea) return _strWrap(textArea.toString());
+    return _strWrap('?');
+  }
+
+  String _strWrap(String str) {
+    return 'FormField[$str]';
+  }
 }

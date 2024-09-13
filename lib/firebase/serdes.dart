@@ -222,6 +222,7 @@ String? _decodeMarkdown(String? source) {
 Map<String, dynamic> _formResponseToJson(FormResponse submission) {
   return {
     'id': submission.id,
+    'editAuthSecret': submission.editAuthSecret,
     'fields': submission.fields.map((key, response) => MapEntry(key, _formFieldResponseToJson(response))),
   };
 }
@@ -247,6 +248,8 @@ void _putFieldIfPresent<T>(String key, T? field, Map<String, dynamic> json, [dyn
 FormResponse _formResponseFromJson(Map<String, dynamic> json) {
   return FormResponse(
     id: json['id'],
+    // the secret is only used on upload and edit, never download/view
+    editAuthSecret: null,
     // TODO proper type casting of List<Map<String, dynamic>>
     fields:
         (json['fields'] as Map<String, dynamic>).map((key, value) => MapEntry(key, _formFieldResponseFromJson(value))),

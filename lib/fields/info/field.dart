@@ -3,4 +3,9 @@ class InformationFormField {
 
   final String? title;
   final String? bodyMarkdown;
+
+  @override
+  String toString() {
+    return 'InformationFormField[title=$title, bodyMarkdown=$bodyMarkdown]';
+  }
 }

@@ -14,4 +14,11 @@ class SingleSelectFormField {
     required this.slots,
     required this.options,
   });
+
+  @override
+  String toString() {
+    return 'SingleSelectFormField[key=$key, title=$title, '
+        'bodyMarkdown=$bodyMarkdown, required=$required, slots=$slots, '
+        'options=$options]';
+  }
 }

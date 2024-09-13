@@ -1,5 +1,3 @@
-import 'dart:math';
-
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/response.dart';
@@ -11,7 +9,7 @@ import 'package:cthulu_character_creator/fields/text/field.dart';
 import 'package:cthulu_character_creator/fields/text/response.dart';
 import 'package:cthulu_character_creator/fields/text_area/field.dart';
 import 'package:cthulu_character_creator/fields/text_area/response.dart';
-import 'package:cthulu_character_creator/firebase/random_words.dart';
+import 'package:cthulu_character_creator/firebase/crypto.dart';
 import 'package:cthulu_character_creator/firebase/serdes.dart';
 import 'package:cthulu_character_creator/firebase/game.dart';
 import 'package:cthulu_character_creator/logging.dart';
@@ -30,33 +28,76 @@ class FirestoreFormApi implements Api {
 
   @override
   Future<Form> getForm(String gameId) async {
+    _logger.debug("Getting form for game $gameId");
     final snapshot = await _gameRef(gameId).get();
     final List<Map<String, dynamic>> formJson =
         (snapshot.get(_keys.game_.form) as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
-    return serdes.form.fromJson(formJson);
+    final Form result = serdes.form.fromJson(formJson);
+    _logger.debug("Got form for game $gameId: $result");
+    return result;
   }
 
   @override
-  Future<String> submitForm(String gameId, FormResponse submission) async {
-    // TODO validate the user is using the correct edit passphrase (URL)
-    final bool isEdit = submission.id != null;
+  Future<({String id, String editAuthSecret})> submitForm(String gameId, FormResponse submission) async {
+    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSubmit(gameId, submission);
+    if (!userIsAuthorizedToSubmit) {
+      _logger.warn("User not authorized to submit for game $gameId and submission $submission");
+      throw ApiError.unauthorized(gameId);
+    }
     submission.id ??= _formResponseKey();
+    submission.editAuthSecret ??= _editAuthSecret();
+    _logger.debug("Submitting response for game $gameId: $submission");
     await _responseRef(gameId, submission.id!).set(serdes.formResponse.toJson(submission));
-    return submission.id!;
+    _logger.debug("Done submitting response ${submission.id} for game $gameId");
+    return (id: submission.id!, editAuthSecret: submission.editAuthSecret!);
   }
 
   String _formResponseKey() {
     return myRandomPhrase();
   }
 
+  // insecure to let the client set the secret but this aint Fort Knox
+  String _editAuthSecret() {
+    return myRandomAlpha(10);
+  }
+
+  Future<bool> _userHasAuthorityToSubmit(String gameId, FormResponse submission) async {
+    final bool isEdit = submission.id != null;
+    if (isEdit) {
+      final String id = submission.id!;
+      final String? authSecret = submission.editAuthSecret;
+      if (authSecret == null) return false;
+
+      // We want to check that if the response exists that the user has the right
+      // secret to edit it. We check that by looking to see if there is an instance
+      // of a response with that ID with a secret different than what was given, which
+      // indicates the user does not have the right secret and is not authorized.
+      final AggregateQuerySnapshot isAuthorizedQuery = await _responsesRef(gameId)
+          .where(Filter.and(
+            Filter(_keys.game_.responses_.id, isEqualTo: id),
+            Filter(_keys.game_.responses_.editAuthSecret, isNotEqualTo: authSecret),
+          ))
+          .limit(1)
+          .count()
+          .get();
+
+      return (isAuthorizedQuery.count == null) || (isAuthorizedQuery.count == 0);
+    }
+    return true;
+  }
+
   @override
   Future<void> createGame(String gameId, GameSystem system) async {
-    final bool gameExists = (await _gameRef(gameId).get()).exists;
+    _logger.debug("Want to create game $gameId");
+    final DocumentReference gameDoc = _gameRef(gameId);
+    final bool gameExists = (await gameDoc.get()).exists;
     if (gameExists) {
+      _logger.warn("Game $gameId already exists");
       throw ApiError.gameExists(gameId);
     }
     final Game game = Game(gameSystem: system);
-    await _gameRef(gameId).set(game.toJson());
+    await gameDoc.set(game.toJson());
+    _logger.debug("Created game $gameId with system ${system.name}");
   }
 
   @override
@@ -91,12 +132,14 @@ class FirestoreFormApi implements Api {
       }
     }
     final List<String?> validations = await Future.wait(validationFutures);
-    return validations.whereType<String>().toList();
+    final List<String> nonEmptyValidations = validations.whereType<String>().toList();
+    _logger.debug("Validation results: $nonEmptyValidations");
+    return nonEmptyValidations;
   }
 
   Future<String?> _validateCocSkillset(CoCSkillsetFormField field, CocSkillsetResponse? response) async {
-    // TODO need a better validation?
     if (field.required && (response == null) || (response!.isEmpty)) {
+      _logger.debug("Received an invalid skillset");
       return "${field.key}: Skillset cannot be empty";
     }
     return null;
@@ -107,15 +150,18 @@ class FirestoreFormApi implements Api {
     EmailResponse? response,
     CollectionReference responses,
   ) async {
-    if (field.required && (response == null) || (response!.trim().isEmpty)) {
+    if (field.required && ((response == null) || (response.trim().isEmpty))) {
+      _logger.debug("Received an invalid email");
       return "${field.key}: Email is required";
     }
     if (field.slots != null) {
       // TODO could create a race condition since it's not atomic (likewise elsewhere)
-      final AggregateQuerySnapshot queryResult =
-          await responses.where("fields.${field.key}.email", isEqualTo: response).count().get();
+      final String emailKey =
+          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.email}';
+      final AggregateQuerySnapshot queryResult = await responses.where(emailKey, isEqualTo: response).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
+        _logger.debug("Received an email that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
       }
     }
@@ -127,14 +173,18 @@ class FirestoreFormApi implements Api {
     SingleSelectResponse? response,
     CollectionReference responses,
   ) async {
-    if (field.required && (response == null) || (response!.trim().isEmpty)) {
+    if (field.required && ((response == null) || (response.trim().isEmpty))) {
+      _logger.debug("Received an invalid singleSelect");
       return "${field.key}: Selection is required";
     }
     if (field.slots != null) {
+      final String singleSelectKey =
+          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.singleSelect}';
       final AggregateQuerySnapshot queryResult =
-          await responses.where("fields.${field.key}.singleSelect", isEqualTo: response).count().get();
+          await responses.where(singleSelectKey, isEqualTo: response).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
+        _logger.debug("Received a singleSelect that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
       }
     }
@@ -146,14 +196,17 @@ class FirestoreFormApi implements Api {
     TextResponse? response,
     CollectionReference responses,
   ) async {
-    if (field.required && (response == null) || (response!.trim().isEmpty)) {
+    if (field.required && ((response == null) || (response.trim().isEmpty))) {
+      _logger.debug("Received an invalid text");
       return "${field.key}: Response is required";
     }
     if (field.slots != null) {
-      final AggregateQuerySnapshot queryResult =
-          await responses.where("fields.${field.key}.text", isEqualTo: response).count().get();
+      final String textKey =
+          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.text}';
+      final AggregateQuerySnapshot queryResult = await responses.where(textKey, isEqualTo: response).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
+        _logger.debug("Received a text that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
       }
     }
@@ -165,14 +218,17 @@ class FirestoreFormApi implements Api {
     TextAreaResponse? response,
     CollectionReference responses,
   ) async {
-    if (field.required && (response == null) || (response!.trim().isEmpty)) {
+    if (field.required && ((response == null) || (response.trim().isEmpty))) {
+      _logger.debug("Received an invalid textArea");
       return "${field.key}: Response is required";
     }
     if (field.slots != null) {
-      final AggregateQuerySnapshot queryResult =
-          await responses.where("fields.${field.key}.textArea", isEqualTo: response).count().get();
+      final String textAreaKey =
+          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.textArea}';
+      final AggregateQuerySnapshot queryResult = await responses.where(textAreaKey, isEqualTo: response).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
+        _logger.debug("Received a textArea that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
       }
     }
@@ -192,12 +248,23 @@ class FirestoreFormApi implements Api {
   }
 }
 
-final _rand = Random.secure();
-
 const _keys = (
   games: 'games',
   game_: (
     form: 'form',
     responses: 'responses',
+    responses_: (
+      id: 'id',
+      editAuthSecret: 'editAuthSecret',
+      fields: 'fields',
+      fields_: (
+        key_: (
+          email: 'email',
+          singleSelect: 'singleSelect',
+          text: 'text',
+          textArea: 'textArea',
+        ),
+      ),
+    )
   ),
 );

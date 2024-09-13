@@ -6,9 +6,10 @@ import 'package:cthulu_character_creator/fields/text/response.dart';
 import 'package:cthulu_character_creator/fields/text_area/response.dart';
 
 class FormResponse {
-  FormResponse({required this.id, required this.fields});
+  FormResponse({required this.id, required this.editAuthSecret, required this.fields});
 
   String? id;
+  String? editAuthSecret;
   final Map<String, FormFieldResponse> fields;
 }
 

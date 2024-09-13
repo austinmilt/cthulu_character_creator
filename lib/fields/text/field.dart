@@ -16,4 +16,10 @@ class TextFormField {
   final String? help;
   final bool required;
   final int? slots;
+
+  @override
+  String toString() {
+    return 'TextFormField[key=$key, title=$title, bodyMarkdown=$bodyMarkdown, '
+        'label=$label, help=$help, required=$required, slots=$slots]';
+  }
 }

@@ -12,10 +12,12 @@ class MainForm extends StatefulWidget {
     super.key,
     required this.gameId,
     this.responseId,
+    this.editAuthSecret,
   });
 
   final String gameId;
   final String? responseId;
+  final String? editAuthSecret;
 
   @override
   MainFormState createState() {
@@ -44,11 +46,16 @@ class MainFormState extends State<MainForm> {
           future: _formFuture,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return _FormLoaded(gameId: widget.gameId, form: snapshot.requireData);
-            } else if (snapshot.hasError) {
-              return Center(
-                child: Text('uh oh ${snapshot.error} ${snapshot.stackTrace}'),
+              return _FormLoaded(
+                gameId: widget.gameId,
+                responseId: widget.responseId,
+                editAuthSecret: widget.editAuthSecret,
+                form: snapshot.requireData,
               );
+            } else if (snapshot.hasError) {
+              ScaffoldMessenger.of(context)
+                  .showSnackBar(SnackBar(content: Text('Something went wrong ${snapshot.error}')));
+              return const SizedBox();
             } else {
               // TODO handle errors and edge cases
               return const CircularProgressIndicator();
@@ -61,11 +68,17 @@ class MainFormState extends State<MainForm> {
 }
 
 class _FormLoaded extends StatefulWidget {
-  const _FormLoaded({required this.gameId, required this.form, this.responseId});
+  const _FormLoaded({
+    required this.gameId,
+    required this.form,
+    this.responseId,
+    this.editAuthSecret,
+  });
 
   final String gameId;
   final String? responseId;
   final form_model.Form form;
+  final String? editAuthSecret;
 
   @override
   State<_FormLoaded> createState() => _FormLoadedState();
@@ -92,7 +105,7 @@ class _FormLoadedState extends State<_FormLoaded> {
           _submitting = false;
         });
       }).onError((e, s) {
-        _logger.error('Error submitting form $e');
+        _logger.error('Error submitting form', e, s);
         setState(() {
           _submitting = false;
         });
@@ -115,7 +128,11 @@ class _FormLoadedState extends State<_FormLoaded> {
       throw StateError("BUG: Should not be able to submit the form without any data");
     }
 
-    final FormResponse submission = FormResponse(id: widget.responseId, fields: {});
+    final FormResponse submission = FormResponse(
+      id: widget.responseId,
+      editAuthSecret: widget.editAuthSecret,
+      fields: {},
+    );
     for (form_model.FormField spec in widget.form) {
       if (spec.isCocSkillset) {
         final String key = spec.cocSkillsetRequired.key;

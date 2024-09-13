@@ -200,9 +200,6 @@ _Tap skills to move them between boxes._
                       child: SkillSelector(
                         onChange: (skills, complete) => field.didChange((skills, complete)),
                         options: [
-                          // TODO keep transcribing to the spreadsheets, then figure out how to get
-                          // the List<FormField> in google_sheets_form_api by reading from the "form"
-                          //  (and other) fields in the form sheet
                           Skill("Accounting", 05),
                           Skill("Anthropology", 01),
                           Skill("Appraise", 05),

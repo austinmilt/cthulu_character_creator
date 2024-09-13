@@ -4,11 +4,21 @@ String myRandomPhrase() {
   return "${_choose(_possessivePronouns)}-${_choose(_adjectives)}-${_choose(_nouns)}";
 }
 
+String myRandomAlpha(int length) {
+  String result = '';
+  for (int i = 0; i < length; i++) {
+    result += _choose(_alphaNumerics);
+  }
+  return result;
+}
+
 String _choose(List<String> options) {
   return options[_rand.nextInt(options.length)];
 }
 
 final Random _rand = Random.secure();
+
+final List<String> _alphaNumerics = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'.split('');
 
 const List<String> _possessivePronouns = ["my", "our", "his", "her", "their", "your"];
 

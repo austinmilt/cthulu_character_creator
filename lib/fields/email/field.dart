@@ -12,4 +12,10 @@ class EmailFormField {
   final String? bodyMarkdown;
   final bool required;
   final int? slots;
+
+  @override
+  String toString() {
+    return 'EmailFormField[key=$key, title=$title, bodyMarkdown=$bodyMarkdown, '
+        'required=$required, slots=$slots]';
+  }
 }

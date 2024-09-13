@@ -14,4 +14,10 @@ class CoCSkillsetFormField {
   final String? bodyMarkdown;
   final bool required;
   final List<Skill> options;
+
+  @override
+  String toString() {
+    return 'CocSkillsetFormField[key=$key, title=$title, '
+        'bodyMarkdown=$bodyMarkdown, required=$required, options=$options]';
+  }
 }
