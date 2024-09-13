@@ -45,7 +45,7 @@ Future<Services> configureServices() async {
   late final Api api;
   late final FirestoreFormApi firestoreFormApi;
   {
-    firestoreFormApi = FirestoreFormApi(FirebaseFirestore.instance);
+    firestoreFormApi = FirestoreFormApi(FirebaseFirestore.instance, loggerFactory.makeLogger(FirestoreFormApi));
     api = firestoreFormApi;
   }
 

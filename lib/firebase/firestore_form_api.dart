@@ -7,20 +7,26 @@ import 'package:cthulu_character_creator/fields/email/field.dart';
 import 'package:cthulu_character_creator/fields/email/response.dart';
 import 'package:cthulu_character_creator/fields/single_select/field.dart';
 import 'package:cthulu_character_creator/fields/single_select/response.dart';
+import 'package:cthulu_character_creator/fields/text/field.dart';
+import 'package:cthulu_character_creator/fields/text/response.dart';
+import 'package:cthulu_character_creator/fields/text_area/field.dart';
+import 'package:cthulu_character_creator/fields/text_area/response.dart';
+import 'package:cthulu_character_creator/firebase/random_words.dart';
 import 'package:cthulu_character_creator/firebase/serdes.dart';
 import 'package:cthulu_character_creator/firebase/game.dart';
+import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:word_generator/word_generator.dart';
 
 // https://firebase.google.com/codelabs/firebase-get-to-know-flutter#4
 
 class FirestoreFormApi implements Api {
-  FirestoreFormApi(this._firestore);
+  FirestoreFormApi(this._firestore, this._logger);
 
   final FirebaseFirestore _firestore;
+  final Logger _logger;
 
   @override
   Future<Form> getForm(String gameId) async {
@@ -32,27 +38,15 @@ class FirestoreFormApi implements Api {
 
   @override
   Future<String> submitForm(String gameId, FormResponse submission) async {
-    submission.id ??= _formResponseKey(submission);
+    // TODO validate the user is using the correct edit passphrase (URL)
+    final bool isEdit = submission.id != null;
+    submission.id ??= _formResponseKey();
     await _responseRef(gameId, submission.id!).set(serdes.formResponse.toJson(submission));
-
     return submission.id!;
   }
 
-  String _formResponseKey(FormResponse submission) {
-    final List<String> possessiveOptions = ["my", "your", "their", "her", "his"];
-    final String possessive = possessiveOptions[_rand.nextInt(possessiveOptions.length)];
-    final String verb = _specialVerb();
-    final String noun = _wordGenerator.randomNoun();
-    // TODO check that the key is unique before returning
-    return '$possessive-$verb-$noun';
-  }
-
-  String _specialVerb() {
-    String candidate = "";
-    while (!candidate.endsWith('ing') && !candidate.endsWith("ed")) {
-      candidate = _wordGenerator.randomVerb();
-    }
-    return candidate;
+  String _formResponseKey() {
+    return myRandomPhrase();
   }
 
   @override
@@ -82,6 +76,18 @@ class FirestoreFormApi implements Api {
         final SingleSelectFormField field = fieldWrapper.singleSelectRequired;
         final SingleSelectResponse? response = submission.fields[field.key]?.singleSelect;
         validationFutures.add(_validateSingleSelect(field, response, responsesRef));
+      } else if (fieldWrapper.isText) {
+        final TextFormField field = fieldWrapper.textRequired;
+        final TextResponse? response = submission.fields[field.key]?.text;
+        validationFutures.add(_validateText(field, response, responsesRef));
+      } else if (fieldWrapper.isTextArea) {
+        final TextAreaFormField field = fieldWrapper.textAreaRequired;
+        final TextAreaResponse? response = submission.fields[field.key]?.textArea;
+        validationFutures.add(_validateTextArea(field, response, responsesRef));
+      } else if (fieldWrapper.isInfo) {
+        // skip known non-response fields
+      } else {
+        throw UnimplementedError("BUG: Unknown how to handle $fieldWrapper");
       }
     }
     final List<String?> validations = await Future.wait(validationFutures);
@@ -110,7 +116,7 @@ class FirestoreFormApi implements Api {
           await responses.where("fields.${field.key}.email", isEqualTo: response).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
-        return "${field.key}=$response is already taken!";
+        return "${field.key}=$response is already taken";
       }
     }
     return null;
@@ -129,7 +135,45 @@ class FirestoreFormApi implements Api {
           await responses.where("fields.${field.key}.singleSelect", isEqualTo: response).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
-        return "${field.key}=$response is already taken!";
+        return "${field.key}=$response is already taken";
+      }
+    }
+    return null;
+  }
+
+  Future<String?> _validateText(
+    TextFormField field,
+    TextResponse? response,
+    CollectionReference responses,
+  ) async {
+    if (field.required && (response == null) || (response!.trim().isEmpty)) {
+      return "${field.key}: Response is required";
+    }
+    if (field.slots != null) {
+      final AggregateQuerySnapshot queryResult =
+          await responses.where("fields.${field.key}.text", isEqualTo: response).count().get();
+      final int slotsTaken = queryResult.count ?? 0;
+      if (slotsTaken >= field.slots!) {
+        return "${field.key}=$response is already taken";
+      }
+    }
+    return null;
+  }
+
+  Future<String?> _validateTextArea(
+    TextAreaFormField field,
+    TextAreaResponse? response,
+    CollectionReference responses,
+  ) async {
+    if (field.required && (response == null) || (response!.trim().isEmpty)) {
+      return "${field.key}: Response is required";
+    }
+    if (field.slots != null) {
+      final AggregateQuerySnapshot queryResult =
+          await responses.where("fields.${field.key}.textArea", isEqualTo: response).count().get();
+      final int slotsTaken = queryResult.count ?? 0;
+      if (slotsTaken >= field.slots!) {
+        return "${field.key}=$response is already taken";
       }
     }
     return null;
@@ -148,7 +192,6 @@ class FirestoreFormApi implements Api {
   }
 }
 
-final _wordGenerator = WordGenerator();
 final _rand = Random.secure();
 
 const _keys = (
