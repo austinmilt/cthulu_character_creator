@@ -80,6 +80,6 @@ class FormField {
   }
 
   String _strWrap(String str) {
-    return 'FormField[$str]';
+    return 'FormField[group=$group, $str]';
   }
 }

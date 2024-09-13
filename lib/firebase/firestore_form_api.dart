@@ -112,19 +112,19 @@ class FirestoreFormApi implements Api {
       } else if (fieldWrapper.isEmail) {
         final EmailFormField field = fieldWrapper.emailRequired;
         final EmailResponse? response = submission.fields[field.key]?.email;
-        validationFutures.add(_validateEmail(field, response, responsesRef));
+        validationFutures.add(_validateEmail(submission.id, field, response, responsesRef));
       } else if (fieldWrapper.isSingleSelect) {
         final SingleSelectFormField field = fieldWrapper.singleSelectRequired;
         final SingleSelectResponse? response = submission.fields[field.key]?.singleSelect;
-        validationFutures.add(_validateSingleSelect(field, response, responsesRef));
+        validationFutures.add(_validateSingleSelect(submission.id, field, response, responsesRef));
       } else if (fieldWrapper.isText) {
         final TextFormField field = fieldWrapper.textRequired;
         final TextResponse? response = submission.fields[field.key]?.text;
-        validationFutures.add(_validateText(field, response, responsesRef));
+        validationFutures.add(_validateText(submission.id, field, response, responsesRef));
       } else if (fieldWrapper.isTextArea) {
         final TextAreaFormField field = fieldWrapper.textAreaRequired;
         final TextAreaResponse? response = submission.fields[field.key]?.textArea;
-        validationFutures.add(_validateTextArea(field, response, responsesRef));
+        validationFutures.add(_validateTextArea(submission.id, field, response, responsesRef));
       } else if (fieldWrapper.isInfo) {
         // skip known non-response fields
       } else {
@@ -146,6 +146,7 @@ class FirestoreFormApi implements Api {
   }
 
   Future<String?> _validateEmail(
+    String? submissionId,
     EmailFormField field,
     EmailResponse? response,
     CollectionReference responses,
@@ -155,10 +156,15 @@ class FirestoreFormApi implements Api {
       return "${field.key}: Email is required";
     }
     if (field.slots != null) {
-      // TODO could create a race condition since it's not atomic (likewise elsewhere)
       final String emailKey =
           '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.email}';
-      final AggregateQuerySnapshot queryResult = await responses.where(emailKey, isEqualTo: response).count().get();
+      final String idKey = _keys.game_.responses_.id;
+      final Filter takenFilter = Filter.and(
+        Filter(idKey, isNotEqualTo: submissionId),
+        Filter(emailKey, isEqualTo: response),
+      );
+      // TODO could create a race condition since it's not atomic (likewise elsewhere)
+      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received an email that was already taken ($slotsTaken/${field.slots} slots)");
@@ -169,6 +175,7 @@ class FirestoreFormApi implements Api {
   }
 
   Future<String?> _validateSingleSelect(
+    String? submissionId,
     SingleSelectFormField field,
     SingleSelectResponse? response,
     CollectionReference responses,
@@ -180,8 +187,12 @@ class FirestoreFormApi implements Api {
     if (field.slots != null) {
       final String singleSelectKey =
           '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.singleSelect}';
-      final AggregateQuerySnapshot queryResult =
-          await responses.where(singleSelectKey, isEqualTo: response).count().get();
+      final String idKey = _keys.game_.responses_.id;
+      final Filter takenFilter = Filter.and(
+        Filter(idKey, isNotEqualTo: submissionId),
+        Filter(singleSelectKey, isEqualTo: response),
+      );
+      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received a singleSelect that was already taken ($slotsTaken/${field.slots} slots)");
@@ -192,6 +203,7 @@ class FirestoreFormApi implements Api {
   }
 
   Future<String?> _validateText(
+    String? submissionId,
     TextFormField field,
     TextResponse? response,
     CollectionReference responses,
@@ -203,7 +215,12 @@ class FirestoreFormApi implements Api {
     if (field.slots != null) {
       final String textKey =
           '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.text}';
-      final AggregateQuerySnapshot queryResult = await responses.where(textKey, isEqualTo: response).count().get();
+      final String idKey = _keys.game_.responses_.id;
+      final Filter takenFilter = Filter.and(
+        Filter(idKey, isNotEqualTo: submissionId),
+        Filter(textKey, isEqualTo: response),
+      );
+      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received a text that was already taken ($slotsTaken/${field.slots} slots)");
@@ -214,6 +231,7 @@ class FirestoreFormApi implements Api {
   }
 
   Future<String?> _validateTextArea(
+    String? submissionId,
     TextAreaFormField field,
     TextAreaResponse? response,
     CollectionReference responses,
@@ -225,7 +243,12 @@ class FirestoreFormApi implements Api {
     if (field.slots != null) {
       final String textAreaKey =
           '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.textArea}';
-      final AggregateQuerySnapshot queryResult = await responses.where(textAreaKey, isEqualTo: response).count().get();
+      final String idKey = _keys.game_.responses_.id;
+      final Filter takenFilter = Filter.and(
+        Filter(idKey, isNotEqualTo: submissionId),
+        Filter(textAreaKey, isEqualTo: response),
+      );
+      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
       final int slotsTaken = queryResult.count ?? 0;
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received a textArea that was already taken ($slotsTaken/${field.slots} slots)");
