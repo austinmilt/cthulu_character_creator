@@ -79,6 +79,7 @@ class _SkillSelectorState extends State<SkillSelector> {
         _bucketMap.putIfAbsent("u", () => []).add(option);
       }
     }
+    _onCompletionUpdate();
   }
 
   // decides what to do with an activated skill, which could be
