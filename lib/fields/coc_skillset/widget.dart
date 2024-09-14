@@ -45,7 +45,8 @@ class _CocSkillsetWidgetState extends State<CocSkillsetWidget> {
                   _complete = complete;
                   field.didChange(skills);
                 },
-                options: widget.spec.options,
+                spec: widget.spec,
+                initialValue: widget.initialValue,
               ),
             );
           },

@@ -1,4 +1,5 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
 import 'package:cthulu_character_creator/fields/email/field.dart';
 import 'package:cthulu_character_creator/fields/info/field.dart';
 import 'package:cthulu_character_creator/fields/single_select/field.dart';
@@ -125,7 +126,8 @@ Map<String, dynamic> _cocSkillsetToJson(CoCSkillsetFormField field) {
   final Map<String, dynamic> result = {
     "key": field.key,
     "required": field.required,
-    "options": field.options.map((s) => _skillToJson(s)).toList(),
+    "skills": field.skills.map((s) => _skillToJson(s)).toList(),
+    "slots": field.slots.map((s) => _slotToJson(s)).toList(),
   };
   _putFieldIfPresent('title', field.title, result);
   _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
@@ -138,7 +140,9 @@ CoCSkillsetFormField _cocSkillsetSelectFromJson(Map<String, dynamic> json) {
     title: json["title"],
     bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),
     required: json["required"],
-    options: (json["options"] as List).map((e) => _skillFromJson(e)).toList(),
+    // TODO remove the "options" version
+    skills: ((json["skills"] ?? json["options"]) as List).map((e) => _skillFromJson(e)).toList(),
+    slots: (json["slots"] as List).map((e) => _slotFromJson(e)).toList(),
   );
 }
 
@@ -165,6 +169,27 @@ Skill _skillFromJson(dynamic json) {
     json["basePercentage"],
     json["percentageModifier"] ?? 0,
   );
+}
+
+Map<String, dynamic> _slotToJson(SkillSlot slot) {
+  return {
+    "type": slot.type.name,
+    "points": slot.points,
+  };
+}
+
+SkillSlot _slotFromJson(dynamic json) {
+  final SkillSlotType type = SkillSlotType.fromName(json["type"]);
+  switch (type) {
+    case SkillSlotType.override:
+      return SkillSlot.override(json["points"]);
+
+    case SkillSlotType.modify:
+      return SkillSlot.modify(json["points"]);
+
+    default:
+      throw UnimplementedError("Unknown how to handle slot type $type");
+  }
 }
 
 Map<String, dynamic> _textToJson(TextFormField field) {

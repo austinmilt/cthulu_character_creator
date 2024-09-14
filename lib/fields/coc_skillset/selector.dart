@@ -1,3 +1,5 @@
+import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
@@ -7,12 +9,12 @@ import 'skill.dart';
 class SkillSelector extends StatefulWidget {
   const SkillSelector({
     super.key,
-    required this.options,
+    required this.spec,
     required this.onChange,
     this.initialValue,
   });
 
-  final List<Skill> options;
+  final CoCSkillsetFormField spec;
   final List<Skill>? initialValue;
   final void Function(List<Skill> updated, bool complete) onChange;
 
@@ -31,8 +33,52 @@ class _SkillSelectorState extends State<SkillSelector> {
   void initState() {
     super.initState();
     _logger = context.read<LoggerFactory>().makeLogger(SkillSelector);
-    // TODO figure out how to populate the buckets from a prior response (widget.initialValue)
-    _bucketMap[unclaimedKey] = List.from(widget.options);
+    _initBuckets();
+  }
+
+  void _initBuckets() {
+    final List<(int, SkillSlot)> unclaimedSlots = [];
+    for (int i = 0; i < widget.spec.slots.length; i++) {
+      unclaimedSlots.add((i, widget.spec.slots[i]));
+    }
+
+    skey(Skill skill) => "${skill.name}(${skill.basePercentage})";
+    final List<Skill> initialValues = widget.initialValue ?? [];
+    final Map<String, List<Skill>> unmappedInitialValues = {};
+    for (final Skill skill in initialValues) {
+      unmappedInitialValues.putIfAbsent(skey(skill), () => []).add(skill);
+    }
+
+    for (Skill option in widget.spec.skills) {
+      final String slotKey = skey(option);
+      final List<Skill>? initialMatches = unmappedInitialValues[slotKey];
+      Skill? initialMatch;
+      (int, SkillSlot)? matchingSlot;
+      if ((initialMatches != null) && (initialMatches.isNotEmpty)) {
+        initialMatch = initialMatches.removeAt(0);
+        // TODO this is pretty garbo. Do I care to fix it (better way to relate skills to slots)?
+        matchingSlot = unclaimedSlots.where((v) => v.$2.points == initialMatch!.percentageModifier).firstOrNull;
+        matchingSlot ??= unclaimedSlots
+            .where((v) => v.$2.points == (initialMatch!.basePercentage + initialMatch.percentageModifier))
+            .firstOrNull;
+      }
+
+      // waterfall
+      //  1. put an initial value into the matching slot
+      //  2. put an intial value into the unclaimed skills
+      //  3. put the skill option into the unclaimed skills
+      if (initialMatch != null) {
+        if (matchingSlot != null) {
+          _bucketMap.putIfAbsent("${matchingSlot.$1}", () => []).add(initialMatch);
+          unclaimedSlots.removeAt(matchingSlot.$1);
+        } else {
+          _bucketMap.putIfAbsent("u", () => []).add(initialMatch);
+          // intialMatch already removed from unmapped intial vales above
+        }
+      } else {
+        _bucketMap.putIfAbsent("u", () => []).add(option);
+      }
+    }
   }
 
   // decides what to do with an activated skill, which could be
@@ -89,6 +135,20 @@ class _SkillSelectorState extends State<SkillSelector> {
     widget.onChange(allSkills, complete);
   }
 
+  Widget _slot(int index) {
+    final SkillSlot slot = widget.spec.slots[index];
+    switch (slot.type) {
+      case SkillSlotType.override:
+        return _occupationalSlot("$index", slot.points);
+
+      case SkillSlotType.modify:
+        return _personalSlot("$index", slot.points);
+
+      default:
+        throw UnimplementedError("$slot");
+    }
+  }
+
   Widget _occupationalSlot(String bucket, int percentageModifier) {
     _bucketMap.putIfAbsent(bucket, () => []);
     final Skill? skill = _bucketMap[bucket]?.firstOrNull;
@@ -108,18 +168,18 @@ class _SkillSelectorState extends State<SkillSelector> {
     );
   }
 
-  Widget _personalSlot(String bucket) {
+  Widget _personalSlot(String bucket, int percentageModifier) {
     _bucketMap.putIfAbsent(bucket, () => []);
     final Skill? skill = _bucketMap[bucket]?.firstOrNull;
-    skill?.percentageModifier = 20;
+    skill?.percentageModifier = percentageModifier;
     final bool slotContainsActiveSkill = (skill != null) && (_activeSkill?.$2 == skill);
     final bool slotIsActive = _activeSkill?.$1 == bucket;
     final bool active = slotContainsActiveSkill || slotIsActive;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
       child: _SpecialtySkillSlot(
-        emptyLabel: "+20%",
-        filledLabel: "+20",
+        emptyLabel: "+$percentageModifier%",
+        filledLabel: "+$percentageModifier",
         onTap: (s) => _onTapItem(bucket, s),
         skill: skill,
         active: active,
@@ -134,22 +194,10 @@ class _SkillSelectorState extends State<SkillSelector> {
       child: Row(
         children: [
           Expanded(
-            child: ListView(
+            child: ListView.builder(
               padding: const EdgeInsets.only(right: 4),
-              children: [
-                _occupationalSlot('o70', 70),
-                _occupationalSlot('o60-1', 60),
-                _occupationalSlot('o60-2', 60),
-                _occupationalSlot('o50-1', 50),
-                _occupationalSlot('o50-2', 50),
-                _occupationalSlot('o50-3', 50),
-                _occupationalSlot('o40-1', 40),
-                _occupationalSlot('o40-2', 40),
-                _personalSlot('p20-1'),
-                _personalSlot('p20-2'),
-                _personalSlot('p20-3'),
-                _personalSlot('p20-4'),
-              ],
+              itemCount: widget.spec.slots.length,
+              itemBuilder: (context, index) => _slot(index),
             ),
           ),
           Expanded(
