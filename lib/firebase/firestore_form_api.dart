@@ -1,3 +1,6 @@
+import 'dart:convert';
+
+import 'package:crypto/crypto.dart';
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/response.dart';
@@ -38,6 +41,20 @@ class FirestoreFormApi implements Api {
   }
 
   @override
+  Future<FormResponse?> getSubmission(String gameId, String submissionId) async {
+    _logger.debug("Getting response for game $gameId with id $submissionId");
+    final snapshot = await _responseRef(gameId, submissionId).get();
+    final Map<String, dynamic>? json = snapshot.get(_keys.game_.responses_.fields);
+    if (json == null) {
+      _logger.debug("Response $gameId $submissionId does not exist");
+      return null;
+    }
+    final FormResponse result = serdes.formResponse.fromJson({_keys.game_.responses_.fields: json});
+    _logger.debug("Got response for game $gameId: $result");
+    return result;
+  }
+
+  @override
   Future<({String id, String editAuthSecret})> submitForm(String gameId, FormResponse submission) async {
     final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSubmit(gameId, submission);
     if (!userIsAuthorizedToSubmit) {
@@ -46,6 +63,8 @@ class FirestoreFormApi implements Api {
     }
     submission.id ??= _formResponseKey();
     submission.editAuthSecret ??= _editAuthSecret();
+    _logger.debug("Updating indexes for game $gameId: ${submission.id}");
+    await _updateIndexes(gameId, submission);
     _logger.debug("Submitting response for game $gameId: $submission");
     await _responseRef(gameId, submission.id!).set(serdes.formResponse.toJson(submission));
     _logger.debug("Done submitting response ${submission.id} for game $gameId");
@@ -86,6 +105,12 @@ class FirestoreFormApi implements Api {
     return true;
   }
 
+  Future<void> _updateIndexes(String gameId, FormResponse submission) async {
+    final _Index index = _Index.prepare(_firestore, gameId);
+    // dont need to load when updating
+    await index.update(submission);
+  }
+
   @override
   Future<void> createGame(String gameId, GameSystem system) async {
     _logger.debug("Want to create game $gameId");
@@ -102,8 +127,9 @@ class FirestoreFormApi implements Api {
 
   @override
   Future<List<String>> validateSubmission(String gameId, Form form, FormResponse submission) async {
-    final CollectionReference responsesRef = _responsesRef(gameId);
     final List<Future<String?>> validationFutures = [];
+    final _Index index = _Index.prepare(_firestore, gameId);
+    await index.load();
     for (FormField fieldWrapper in form) {
       if (fieldWrapper.isCocSkillset) {
         final CoCSkillsetFormField field = fieldWrapper.cocSkillsetRequired;
@@ -112,19 +138,19 @@ class FirestoreFormApi implements Api {
       } else if (fieldWrapper.isEmail) {
         final EmailFormField field = fieldWrapper.emailRequired;
         final EmailResponse? response = submission.fields[field.key]?.email;
-        validationFutures.add(_validateEmail(submission.id, field, response, responsesRef));
+        validationFutures.add(_validateEmail(submission.id, field, response, index));
       } else if (fieldWrapper.isSingleSelect) {
         final SingleSelectFormField field = fieldWrapper.singleSelectRequired;
         final SingleSelectResponse? response = submission.fields[field.key]?.singleSelect;
-        validationFutures.add(_validateSingleSelect(submission.id, field, response, responsesRef));
+        validationFutures.add(_validateSingleSelect(submission.id, field, response, index));
       } else if (fieldWrapper.isText) {
         final TextFormField field = fieldWrapper.textRequired;
         final TextResponse? response = submission.fields[field.key]?.text;
-        validationFutures.add(_validateText(submission.id, field, response, responsesRef));
+        validationFutures.add(_validateText(submission.id, field, response, index));
       } else if (fieldWrapper.isTextArea) {
         final TextAreaFormField field = fieldWrapper.textAreaRequired;
         final TextAreaResponse? response = submission.fields[field.key]?.textArea;
-        validationFutures.add(_validateTextArea(submission.id, field, response, responsesRef));
+        validationFutures.add(_validateTextArea(submission.id, field, response, index));
       } else if (fieldWrapper.isInfo) {
         // skip known non-response fields
       } else {
@@ -149,23 +175,15 @@ class FirestoreFormApi implements Api {
     String? submissionId,
     EmailFormField field,
     EmailResponse? response,
-    CollectionReference responses,
+    _Index index,
   ) async {
     if (field.required && ((response == null) || (response.trim().isEmpty))) {
       _logger.debug("Received an invalid email");
       return "${field.key}: Email is required";
     }
     if (field.slots != null) {
-      final String emailKey =
-          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.email}';
-      final String idKey = _keys.game_.responses_.id;
-      final Filter takenFilter = Filter.and(
-        Filter(idKey, isNotEqualTo: submissionId),
-        Filter(emailKey, isEqualTo: response),
-      );
       // TODO could create a race condition since it's not atomic (likewise elsewhere)
-      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
-      final int slotsTaken = queryResult.count ?? 0;
+      final int slotsTaken = index.countMatches(field.key, submissionId, response);
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received an email that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
@@ -178,22 +196,14 @@ class FirestoreFormApi implements Api {
     String? submissionId,
     SingleSelectFormField field,
     SingleSelectResponse? response,
-    CollectionReference responses,
+    _Index index,
   ) async {
     if (field.required && ((response == null) || (response.trim().isEmpty))) {
       _logger.debug("Received an invalid singleSelect");
       return "${field.key}: Selection is required";
     }
     if (field.slots != null) {
-      final String singleSelectKey =
-          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.singleSelect}';
-      final String idKey = _keys.game_.responses_.id;
-      final Filter takenFilter = Filter.and(
-        Filter(idKey, isNotEqualTo: submissionId),
-        Filter(singleSelectKey, isEqualTo: response),
-      );
-      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
-      final int slotsTaken = queryResult.count ?? 0;
+      final int slotsTaken = index.countMatches(field.key, submissionId, response);
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received a singleSelect that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
@@ -206,22 +216,14 @@ class FirestoreFormApi implements Api {
     String? submissionId,
     TextFormField field,
     TextResponse? response,
-    CollectionReference responses,
+    _Index index,
   ) async {
     if (field.required && ((response == null) || (response.trim().isEmpty))) {
       _logger.debug("Received an invalid text");
       return "${field.key}: Response is required";
     }
     if (field.slots != null) {
-      final String textKey =
-          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.text}';
-      final String idKey = _keys.game_.responses_.id;
-      final Filter takenFilter = Filter.and(
-        Filter(idKey, isNotEqualTo: submissionId),
-        Filter(textKey, isEqualTo: response),
-      );
-      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
-      final int slotsTaken = queryResult.count ?? 0;
+      final int slotsTaken = index.countMatches(field.key, submissionId, response);
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received a text that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
@@ -234,22 +236,14 @@ class FirestoreFormApi implements Api {
     String? submissionId,
     TextAreaFormField field,
     TextAreaResponse? response,
-    CollectionReference responses,
+    _Index index,
   ) async {
     if (field.required && ((response == null) || (response.trim().isEmpty))) {
       _logger.debug("Received an invalid textArea");
       return "${field.key}: Response is required";
     }
     if (field.slots != null) {
-      final String textAreaKey =
-          '${_keys.game_.responses_.fields}.${field.key}.${_keys.game_.responses_.fields_.key_.textArea}';
-      final String idKey = _keys.game_.responses_.id;
-      final Filter takenFilter = Filter.and(
-        Filter(idKey, isNotEqualTo: submissionId),
-        Filter(textAreaKey, isEqualTo: response),
-      );
-      final AggregateQuerySnapshot queryResult = await responses.where(takenFilter).limit(field.slots!).count().get();
-      final int slotsTaken = queryResult.count ?? 0;
+      final int slotsTaken = index.countMatches(field.key, submissionId, response);
       if (slotsTaken >= field.slots!) {
         _logger.debug("Received a textArea that was already taken ($slotsTaken/${field.slots} slots)");
         return "${field.key}=$response is already taken";
@@ -258,16 +252,70 @@ class FirestoreFormApi implements Api {
     return null;
   }
 
-  DocumentReference _responseRef(String gameId, String submissionId) {
+  DocumentReference<Map<String, dynamic>> _responseRef(String gameId, String submissionId) {
     return _responsesRef(gameId).doc(submissionId);
   }
 
-  CollectionReference _responsesRef(String gameId) {
+  CollectionReference<Map<String, dynamic>> _responsesRef(String gameId) {
     return _gameRef(gameId).collection(_keys.game_.responses);
   }
 
-  DocumentReference _gameRef(String gameId) {
+  DocumentReference<Map<String, dynamic>> _gameRef(String gameId) {
     return _firestore.collection(_keys.games).doc(gameId);
+  }
+}
+
+class _Index {
+  _Index.prepare(FirebaseFirestore firestore, String gameId) : _docRef = firestore.collection("indexes").doc(gameId);
+
+  final DocumentReference<Map<String, dynamic>> _docRef;
+  late final Map<String, Map<String, String>> _data;
+
+  Future<void> load() async {
+    final DocumentSnapshot<Map<String, dynamic>> doc = await _docRef.get();
+    final Map<String, dynamic> json = doc.data() ?? {};
+    _data = json.map((f, m) => MapEntry(f, (m as Map).map((k, v) => MapEntry(k, v))));
+  }
+
+  Future<void> update(FormResponse submission) async {
+    // This is probably really not a great idea, but here's my thinking...
+    // - Form owners using this will only need on the order of 10 responses.
+    // - The chance of false-positives (errant collisions) is pretty small
+    // - It aint that serious
+    //
+    // "But Firestore has its own indexing." Yes, but the way I set up my data
+    // model, it's not straightforward to create firestore indexes and besides those
+    // indexes are effectively useless because of how specific my queries are
+    // (so the indexes are overkill).
+
+    assert(submission.id != null);
+    final String submissionIdHash = _hash(submission.id!);
+    final Map<String, Map<String, String>> submissionHashes = {};
+    final Map<String, dynamic> submissionFields = serdes.formResponse.toJson(submission)[_keys.game_.responses_.fields];
+    for (MapEntry<String, dynamic> entry in submissionFields.entries) {
+      final String fieldKey = entry.key;
+      final String responseHash = _hash(jsonEncode(entry.value));
+      submissionHashes[fieldKey] = {submissionIdHash: responseHash};
+    }
+    return _docRef.set(submissionHashes, SetOptions(merge: true));
+  }
+
+  /// Counts the number of submission responses for field [fieldKey] that are
+  /// the same as the given [response], excluding those from [submissionId] if
+  /// they exist.
+  int countMatches(String fieldKey, String? submissionId, dynamic response) {
+    int count = 0;
+    final String responseHash = _hash(jsonEncode(response));
+    for (final MapEntry<String, String> entry in (_data[fieldKey]?.entries ?? {})) {
+      if ((entry.key != submissionId) && (entry.value == responseHash)) {
+        count += 1;
+      }
+    }
+    return count;
+  }
+
+  String _hash(String source) {
+    return sha1.convert(utf8.encode(source)).toString();
   }
 }
 

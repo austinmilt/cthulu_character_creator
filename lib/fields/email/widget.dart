@@ -1,17 +1,18 @@
 import 'package:cthulu_character_creator/components/markdown.dart';
 import 'package:cthulu_character_creator/fields/email/field.dart' as model;
+import 'package:cthulu_character_creator/fields/email/response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
-class FieldWidget extends StatelessWidget {
-  const FieldWidget({super.key, required this.spec});
+class EmailWidget extends StatelessWidget {
+  const EmailWidget({super.key, required this.spec, this.initialValue});
 
   final model.EmailFormField spec;
+  final EmailResponse? initialValue;
 
   @override
   Widget build(BuildContext context) {
-    // TODO validate slots
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,
@@ -23,6 +24,7 @@ class FieldWidget extends StatelessWidget {
         const SizedBox(height: 10),
         FormBuilderTextField(
           name: spec.key,
+          initialValue: initialValue,
           decoration: InputDecoration(labelText: spec.title),
           keyboardType: TextInputType.emailAddress,
           validator: FormBuilderValidators.compose([

@@ -27,12 +27,23 @@ class MainForm extends StatefulWidget {
 
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late Future<form_model.Form> _formFuture;
+  late Future<({form_model.Form? form, FormResponse? response})> _future;
 
   @override
   void initState() {
     super.initState();
-    _formFuture = context.read<Api>().getForm(widget.gameId);
+    final Api api = context.read<Api>();
+    final Future<form_model.Form?> formFuture = api.getForm(widget.gameId);
+    final Future<FormResponse?> responseFuture =
+        (widget.responseId == null) ? Future.value(null) : api.getSubmission(widget.gameId, widget.responseId!);
+    _future = Future.wait([formFuture, responseFuture]).then((v) {
+      final form_model.Form? form = v[0] as form_model.Form?;
+      if (form == null) {
+        throw ArgumentError.notNull("form");
+      }
+      final FormResponse? response = v[1] as FormResponse?;
+      return (form: form, response: response);
+    });
   }
 
   @override
@@ -43,19 +54,18 @@ class MainFormState extends State<MainForm> {
         maxWidth: 600,
         padding: const EdgeInsets.all(16),
         child: FutureBuilder(
-          future: _formFuture,
+          future: _future,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
               return _FormLoaded(
                 gameId: widget.gameId,
                 responseId: widget.responseId,
                 editAuthSecret: widget.editAuthSecret,
-                form: snapshot.requireData,
+                form: snapshot.requireData.form!,
+                priorResponse: snapshot.requireData.response,
               );
             } else if (snapshot.hasError) {
-              ScaffoldMessenger.of(context)
-                  .showSnackBar(SnackBar(content: Text('Something went wrong ${snapshot.error}')));
-              return const SizedBox();
+              return Center(child: Text('Something went wrong ${snapshot.error}'));
             } else {
               // TODO handle errors and edge cases
               return const CircularProgressIndicator();
@@ -71,6 +81,7 @@ class _FormLoaded extends StatefulWidget {
   const _FormLoaded({
     required this.gameId,
     required this.form,
+    this.priorResponse,
     this.responseId,
     this.editAuthSecret,
   });
@@ -78,6 +89,7 @@ class _FormLoaded extends StatefulWidget {
   final String gameId;
   final String? responseId;
   final form_model.Form form;
+  final FormResponse? priorResponse;
   final String? editAuthSecret;
 
   @override
@@ -94,7 +106,7 @@ class _FormLoadedState extends State<_FormLoaded> {
   void initState() {
     super.initState();
     _logger = context.read<LoggerFactory>().makeLogger(MainForm);
-    _fields = _groupEntries(widget.form);
+    _fields = _prepareEntries(widget.form, widget.priorResponse);
   }
 
   void _onSubmit() {
@@ -188,7 +200,7 @@ class _FormLoadedState extends State<_FormLoaded> {
     }
   }
 
-  List<List<form_model.FormField>> _groupEntries(form_model.Form form) {
+  List<List<form_model.FormField>> _prepareEntries(form_model.Form form, FormResponse? startingValues) {
     final List<List<form_model.FormField>> result = [];
     List<form_model.FormField> currentGroupOfEntries = [];
     String? lastGroup;
@@ -214,12 +226,22 @@ class _FormLoadedState extends State<_FormLoaded> {
     final List<Widget> children = [];
     for (List<form_model.FormField> group in _fields) {
       if (group.length == 1) {
-        children.add(_section(FormFieldWidget(spec: group.first)));
+        final form_model.FormField field = group.first;
+        final String? fieldKey = field.key();
+        final FormFieldResponse? response = (fieldKey == null) ? null : widget.priorResponse?.fields[fieldKey];
+        children.add(_section(FormFieldWidget(spec: group.first, initialValue: response)));
       } else {
         children.add(_section(Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: group.map((field) => FormFieldWidget(spec: field)).toList(),
+          children: group
+              .map(
+                (field) => FormFieldWidget(
+                  spec: field,
+                  initialValue: (field.key() == null) ? null : widget.priorResponse?.fields[field.key()],
+                ),
+              )
+              .toList(),
         )));
       }
     }

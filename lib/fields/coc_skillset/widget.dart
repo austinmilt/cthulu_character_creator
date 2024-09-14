@@ -1,14 +1,16 @@
 import 'package:cthulu_character_creator/components/markdown.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart' as model;
+import 'package:cthulu_character_creator/fields/coc_skillset/response.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/selector.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 
 class CocSkillsetWidget extends StatefulWidget {
-  const CocSkillsetWidget({super.key, required this.spec});
+  const CocSkillsetWidget({super.key, required this.spec, this.initialValue});
 
   final model.CoCSkillsetFormField spec;
+  final CocSkillsetResponse? initialValue;
 
   @override
   State<CocSkillsetWidget> createState() => _CocSkillsetWidgetState();
@@ -30,6 +32,7 @@ class _CocSkillsetWidgetState extends State<CocSkillsetWidget> {
         const SizedBox(height: 12),
         FormBuilderField(
           name: widget.spec.key,
+          initialValue: widget.initialValue,
           validator: (List<Skill>? value) => _complete ? null : "You must select occupational and personal skills",
           builder: (FormFieldState<List<Skill>> field) {
             return InputDecorator(

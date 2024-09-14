@@ -1,13 +1,15 @@
 import 'package:cthulu_character_creator/components/markdown.dart';
 import 'package:cthulu_character_creator/fields/text_area/field.dart' as model;
+import 'package:cthulu_character_creator/fields/text_area/response.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 
 class TextAreaWidget extends StatelessWidget {
-  const TextAreaWidget({super.key, required this.spec});
+  const TextAreaWidget({super.key, required this.spec, this.initialValue});
 
   final model.TextAreaFormField spec;
+  final TextAreaResponse? initialValue;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +24,7 @@ class TextAreaWidget extends StatelessWidget {
         ),
         FormBuilderTextField(
           name: spec.key,
+          initialValue: initialValue,
           decoration: InputDecoration(
             labelText: spec.label,
             helperMaxLines: 2,

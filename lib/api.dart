@@ -3,7 +3,11 @@ import 'package:cthulu_character_creator/model/game_system.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 
 abstract interface class Api {
-  Future<Form> getForm(String gameId);
+  /// Loads the form form game [gameId], returning [null] if it does not exist.
+  Future<Form?> getForm(String gameId);
+
+  /// Loads the form submission for [gameId] with id [submissionId], returning [null] if it does not exist.
+  Future<FormResponse?> getSubmission(String gameId, String submissionId);
 
   /// Checks that [submission] is valid for [gameId], such as checking
   /// for unique responses, and returns a list of user-friendly validation

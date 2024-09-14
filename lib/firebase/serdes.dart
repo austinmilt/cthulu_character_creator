@@ -155,11 +155,11 @@ Map<String, dynamic> _skillToJson(Skill skill) {
   return result;
 }
 
-List<Skill> _skillsFromJson(List<Map<String, dynamic>> json) {
-  return json.map(_skillFromJson).toList();
+List<Skill> _skillsFromJson(List<dynamic> json) {
+  return List.from(json.map(_skillFromJson));
 }
 
-Skill _skillFromJson(Map<String, dynamic> json) {
+Skill _skillFromJson(dynamic json) {
   return Skill(
     json["name"],
     json["basePercentage"],
@@ -250,9 +250,7 @@ FormResponse _formResponseFromJson(Map<String, dynamic> json) {
     id: json['id'],
     // the secret is only used on upload and edit, never download/view
     editAuthSecret: null,
-    // TODO proper type casting of List<Map<String, dynamic>>
-    fields:
-        (json['fields'] as Map<String, dynamic>).map((key, value) => MapEntry(key, _formFieldResponseFromJson(value))),
+    fields: (json['fields'] as Map<String, dynamic>).map((k, v) => MapEntry(k, _formFieldResponseFromJson(v))),
   );
 }
 
@@ -262,7 +260,7 @@ FormFieldResponse _formFieldResponseFromJson(Map<String, dynamic> json) {
   } else if (json.containsKey('singleSelect')) {
     return FormFieldResponse.singleSelect(json['singleSelect']);
   } else if (json.containsKey('cocSkillset')) {
-    return FormFieldResponse.cocSkillset(_skillsFromJson(json['cocSkilset']));
+    return FormFieldResponse.cocSkillset(_skillsFromJson(json['cocSkillset']));
   } else if (json.containsKey('text')) {
     return FormFieldResponse.text(json['text']);
   } else if (json.containsKey('textArea')) {

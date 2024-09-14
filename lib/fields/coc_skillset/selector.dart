@@ -5,9 +5,15 @@ import 'package:provider/provider.dart';
 import 'skill.dart';
 
 class SkillSelector extends StatefulWidget {
-  const SkillSelector({super.key, required this.options, required this.onChange});
+  const SkillSelector({
+    super.key,
+    required this.options,
+    required this.onChange,
+    this.initialValue,
+  });
 
   final List<Skill> options;
+  final List<Skill>? initialValue;
   final void Function(List<Skill> updated, bool complete) onChange;
 
   @override
@@ -25,6 +31,7 @@ class _SkillSelectorState extends State<SkillSelector> {
   void initState() {
     super.initState();
     _logger = context.read<LoggerFactory>().makeLogger(SkillSelector);
+    // TODO figure out how to populate the buckets from a prior response (widget.initialValue)
     _bucketMap[unclaimedKey] = List.from(widget.options);
   }
 

@@ -68,6 +68,17 @@ class FormField {
   bool get isTextArea => textArea != null;
   TextAreaFormField get textAreaRequired => textArea!;
 
+  /// Returns the key of the field if it has one, null otherwise.
+  String? key() {
+    if (isCocSkillset) return cocSkillset?.key;
+    if (isEmail) return email?.key;
+    if (isInfo) return null;
+    if (isSingleSelect) return singleSelect?.key;
+    if (isText) return text?.key;
+    if (isTextArea) return textArea?.key;
+    throw UnimplementedError("Unhandled field");
+  }
+
   @override
   String toString() {
     if (isCocSkillset) return _strWrap(cocSkillset.toString());
