@@ -14,8 +14,20 @@ class CharacterCreatorView extends StatelessWidget {
   final String? responseId;
   final String? editAuthSecret;
 
-  static final GoRoute route = GoRoute(
-    name: 'character-creator',
+  static final GoRoute newRoute = GoRoute(
+    name: 'character-creator-new',
+    path: '/character/create/:gameId',
+    builder: (context, state) {
+      final String? gameId = state.pathParameters['gameId'];
+      if (gameId == null) {
+        throw StateError('Tried to navigate to character creator without a game ID');
+      }
+      return CharacterCreatorView(gameId: gameId);
+    },
+  );
+
+  static final GoRoute editRoute = GoRoute(
+    name: 'character-creator-edit',
     path: '/character/create/:gameId/:responseId',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
@@ -38,7 +50,7 @@ class CharacterCreatorView extends StatelessWidget {
     pathParams['gameId'] = gameId;
     if (responseId != null) pathParams['responseId'] = responseId;
     if (editAuthSecret != null) queryParams['s'] = editAuthSecret;
-    context.goNamed(route.name!, pathParameters: pathParams, queryParameters: queryParams);
+    context.goNamed(editRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
   }
 
   @override

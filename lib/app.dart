@@ -23,15 +23,12 @@ class MyApp extends StatelessWidget {
 
 GoRouter _router() {
   return GoRouter(
-    initialLocation: '/character/create/coc-dragoncon-stakes/our-eminent-hook',
+    initialLocation: '/character/create/coc-dragoncon-stakes',
     routes: <RouteBase>[
-      CharacterCreatorView.route,
+      CharacterCreatorView.newRoute,
+      CharacterCreatorView.editRoute,
     ],
     redirect: (context, state) {
-      if (state.path == '/') {
-        // TODO need a better default route
-        // return CharacterCreatorView.route.path;
-      }
       return null;
     },
   );
