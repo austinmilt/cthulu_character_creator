@@ -1,9 +1,11 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/views/character_creator/character_creator_view.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cthulu_character_creator/model/form.dart' as form_model;
 
@@ -188,10 +190,14 @@ class _FormLoadedState extends State<_FormLoaded> {
     try {
       await api.submitForm(widget.gameId, submission);
       if (mounted) {
+        CharacterCreatorView.replaceRoute(
+          context,
+          widget.gameId,
+          submission.id,
+          submission.editAuthSecret,
+        );
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Submission received! You may still make changes and resubmit.')));
-
-        // TODO show the user their share and edit URLs and update the URL to be the edit URL
       }
     } catch (_) {
       if (mounted) {

@@ -1,6 +1,8 @@
-import 'package:cthulu_character_creator/views/character_creator/character_form_v2.dart';
+import 'package:cthulu_character_creator/views/character_creator/character_form.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:universal_html/html.dart' as html;
 
 class CharacterCreatorView extends StatelessWidget {
   const CharacterCreatorView({
@@ -53,13 +55,123 @@ class CharacterCreatorView extends StatelessWidget {
     context.goNamed(editRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
   }
 
+  /// Replaces the current route with this view's route without refreshing
+  static void replaceRoute(BuildContext context, String gameId, String? responseId, String? editAuthSecret) {
+    final Map<String, String> pathParams = {};
+    final Map<String, String> queryParams = {};
+    pathParams['gameId'] = gameId;
+    if (responseId != null) pathParams['responseId'] = responseId;
+    if (editAuthSecret != null) queryParams['s'] = editAuthSecret;
+    context.replaceNamed(editRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
+  }
+
+  void _onShare(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return _CopyUrl(
+          gameId: gameId,
+          responseId: responseId,
+          editAuthSecret: editAuthSecret,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      floatingActionButton: IconButton(
+        onPressed: () => _onShare(context),
+        icon: const Icon(Icons.share),
+      ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: MainForm(
         gameId: gameId,
         responseId: responseId,
         editAuthSecret: editAuthSecret,
+      ),
+    );
+  }
+}
+
+class _CopyUrl extends StatelessWidget {
+  const _CopyUrl({
+    required this.gameId,
+    this.responseId,
+    this.editAuthSecret,
+  });
+
+  final String gameId;
+  final String? responseId;
+  final String? editAuthSecret;
+
+  bool _canShareEdit() {
+    return (responseId != null) && (editAuthSecret != null);
+  }
+
+  String _editUrl(BuildContext context) {
+    return "${_urlOrigin(context)}/character/create/$gameId/$responseId?s=$editAuthSecret";
+  }
+
+  bool _canShareResponse() {
+    return responseId != null;
+  }
+
+  String _responseUrl(BuildContext context) {
+    return "${_urlOrigin(context)}/character/create/$gameId/$responseId";
+  }
+
+  String _formUrl(BuildContext context) {
+    return "${_urlOrigin(context)}/character/create/$gameId";
+  }
+
+  String _urlOrigin(BuildContext context) {
+    return "${html.window.location.origin}/#";
+  }
+
+  void _copyToClipboard(String value) {
+    Clipboard.setData(ClipboardData(text: value));
+  }
+
+  Widget _option(BuildContext context, String label, String url) {
+    final String displayUrl = (url.length > 50) ? "...${url.substring(url.length - 50)}" : url;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Align(alignment: Alignment.centerLeft, child: Text(displayUrl)),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            onPressed: () => _copyToClipboard(url),
+            icon: const Icon(Icons.copy),
+            label: Text(label),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Share"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          _option(context, 'Form', _formUrl(context)),
+          if (_canShareResponse())
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _option(context, 'Response', _responseUrl(context)),
+            ),
+          if (_canShareEdit())
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _option(context, 'Edit', _editUrl(context)),
+            ),
+        ],
       ),
     );
   }
