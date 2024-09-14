@@ -22,6 +22,11 @@ abstract interface class Api {
   ///
   /// Throws [ApiError] if the game already exists.
   Future<void> createGame(String gameName, GameSystem system);
+
+  /// Gets the count of remaining slots for each field in the [form]. Fields
+  /// with unlimited capacity and free-form answers will be excluded from the result.
+  /// Returns a map like Map<field_key, Map<field_option, slots_remaining>>>
+  Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, Form form);
 }
 
 class ApiError implements Exception {

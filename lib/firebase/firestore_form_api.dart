@@ -44,12 +44,12 @@ class FirestoreFormApi implements Api {
   Future<FormResponse?> getSubmission(String gameId, String submissionId) async {
     _logger.debug("Getting response for game $gameId with id $submissionId");
     final snapshot = await _responseRef(gameId, submissionId).get();
-    final Map<String, dynamic>? json = snapshot.get(_keys.game_.responses_.fields);
+    final Map<String, dynamic>? json = snapshot.get(_keys.game_.response_.fields);
     if (json == null) {
       _logger.debug("Response $gameId $submissionId does not exist");
       return null;
     }
-    final FormResponse result = serdes.formResponse.fromJson({_keys.game_.responses_.fields: json});
+    final FormResponse result = serdes.formResponse.fromJson({_keys.game_.response_.fields: json});
     _logger.debug("Got response for game $gameId: $result");
     return result;
   }
@@ -93,8 +93,8 @@ class FirestoreFormApi implements Api {
       // indicates the user does not have the right secret and is not authorized.
       final AggregateQuerySnapshot isAuthorizedQuery = await _responsesRef(gameId)
           .where(Filter.and(
-            Filter(_keys.game_.responses_.id, isEqualTo: id),
-            Filter(_keys.game_.responses_.editAuthSecret, isNotEqualTo: authSecret),
+            Filter(_keys.game_.response_.id, isEqualTo: id),
+            Filter(_keys.game_.response_.editAuthSecret, isNotEqualTo: authSecret),
           ))
           .limit(1)
           .count()
@@ -123,6 +123,30 @@ class FirestoreFormApi implements Api {
     final Game game = Game(gameSystem: system);
     await gameDoc.set(game.toJson());
     _logger.debug("Created game $gameId with system ${system.name}");
+  }
+
+  @override
+  Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, Form form) async {
+    final _Index index = _Index.prepare(_firestore, gameId);
+    await index.load();
+    final Map<String, Map<String, int>> result = {};
+    for (final FormField field in form) {
+      // At present singleSelect is the only field type which we can check slots
+      // ahead of time. All other fields are free-form and so can really only
+      // be checked at submission time.
+      if (field.isSingleSelect) {
+        final SingleSelectFormField singleSelectField = field.singleSelectRequired;
+        final int? slots = singleSelectField.slots;
+        if (slots != null) {
+          for (final String option in singleSelectField.options) {
+            final int optionUseCount = index.countMatches(singleSelectField.key, null, option);
+            result.putIfAbsent(singleSelectField.key, () => {}).putIfAbsent(option, () => 0);
+            result[singleSelectField.key]![option] = slots - optionUseCount;
+          }
+        }
+      }
+    }
+    return result;
   }
 
   @override
@@ -292,7 +316,7 @@ class _Index {
     final String submissionIdHash = _hash(submission.id!);
     final Map<String, Map<String, String>> submissionHashes = {};
     final Map<String, Map<String, dynamic>> submissionFields =
-        serdes.formResponse.toJson(submission)[_keys.game_.responses_.fields];
+        serdes.formResponse.toJson(submission)[_keys.game_.response_.fields];
     for (MapEntry<String, Map<String, dynamic>> entry in submissionFields.entries) {
       final String fieldKey = entry.key;
       final String responseHash = _hash(jsonEncode(entry.value.entries.first.value));
@@ -326,11 +350,11 @@ const _keys = (
   game_: (
     form: 'form',
     responses: 'responses',
-    responses_: (
+    response_: (
       id: 'id',
       editAuthSecret: 'editAuthSecret',
       fields: 'fields',
-      fields_: (
+      field_: (
         key_: (
           email: 'email',
           singleSelect: 'singleSelect',
