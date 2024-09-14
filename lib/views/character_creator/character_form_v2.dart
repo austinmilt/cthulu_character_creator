@@ -190,6 +190,8 @@ class _FormLoadedState extends State<_FormLoaded> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(content: Text('Submission received! You may still make changes and resubmit.')));
+
+        // TODO show the user their share and edit URLs and update the URL to be the edit URL
       }
     } catch (_) {
       if (mounted) {

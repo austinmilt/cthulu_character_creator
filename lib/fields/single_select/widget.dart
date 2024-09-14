@@ -17,7 +17,6 @@ class SingleSelectWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO validate slots
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.center,

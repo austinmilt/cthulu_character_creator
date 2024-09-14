@@ -291,10 +291,11 @@ class _Index {
     assert(submission.id != null);
     final String submissionIdHash = _hash(submission.id!);
     final Map<String, Map<String, String>> submissionHashes = {};
-    final Map<String, dynamic> submissionFields = serdes.formResponse.toJson(submission)[_keys.game_.responses_.fields];
-    for (MapEntry<String, dynamic> entry in submissionFields.entries) {
+    final Map<String, Map<String, dynamic>> submissionFields =
+        serdes.formResponse.toJson(submission)[_keys.game_.responses_.fields];
+    for (MapEntry<String, Map<String, dynamic>> entry in submissionFields.entries) {
       final String fieldKey = entry.key;
-      final String responseHash = _hash(jsonEncode(entry.value));
+      final String responseHash = _hash(jsonEncode(entry.value.entries.first.value));
       submissionHashes[fieldKey] = {submissionIdHash: responseHash};
     }
     return _docRef.set(submissionHashes, SetOptions(merge: true));
@@ -305,9 +306,10 @@ class _Index {
   /// they exist.
   int countMatches(String fieldKey, String? submissionId, dynamic response) {
     int count = 0;
+    final String? submissionIdHash = submissionId == null ? null : _hash(submissionId);
     final String responseHash = _hash(jsonEncode(response));
     for (final MapEntry<String, String> entry in (_data[fieldKey]?.entries ?? {})) {
-      if ((entry.key != submissionId) && (entry.value == responseHash)) {
+      if ((entry.key != submissionIdHash) && (entry.value == responseHash)) {
         count += 1;
       }
     }
