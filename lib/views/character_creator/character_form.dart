@@ -241,12 +241,14 @@ class _FormLoadedState extends State<_FormLoaded> {
         )));
       }
     }
-    children.add(
-      FilledButton(
-        onPressed: _submitting ? null : _onSubmit,
-        child: _submitting ? const Text('Loading') : const Text('Submit'),
-      ),
-    );
+    if (context.watch<FormController>().canEditResponse) {
+      children.add(
+        FilledButton(
+          onPressed: _submitting ? null : _onSubmit,
+          child: _submitting ? const Text('Loading') : const Text('Submit'),
+        ),
+      );
+    }
     return FormBuilder(
       key: _formKey,
       child: _TopCenterScrollableContainer(

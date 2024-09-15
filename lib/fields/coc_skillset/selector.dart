@@ -1,6 +1,7 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
 import 'package:cthulu_character_creator/logging.dart';
+import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
@@ -64,7 +65,8 @@ class _SkillSelectorState extends State<SkillSelector> {
       (int, SkillSlot)? matchingSlot;
       if ((initialMatches != null) && (initialMatches.isNotEmpty)) {
         initialMatch = initialMatches.removeAt(0);
-        // TODO this is pretty garbo. Do I care to fix it (better way to relate skills to slots)?
+        // TODO this is pretty garbo. Do I care to fix it (better way to relate skills to slots than guessing
+        // based on their modifier)?
         matchingSlot = unclaimedSlots.where((v) => v.$2.points == initialMatch!.percentageModifier).firstOrNull;
         matchingSlot ??= unclaimedSlots
             .where((v) => v.$2.points == (initialMatch!.basePercentage + initialMatch.percentageModifier))
@@ -326,8 +328,9 @@ class _SkillChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final int totalPercentage = skill.basePercentage + skill.percentageModifier;
     final String label = "${skill.name} (${(totalPercentage).toString().padLeft(2, '0')}%)";
+    final bool canEdit = context.watch<FormController>().canEditResponse;
     return InkWell(
-      onTap: onTap,
+      onTap: canEdit ? onTap : null,
       child: Container(
         decoration: BoxDecoration(
           border: Border.all(),

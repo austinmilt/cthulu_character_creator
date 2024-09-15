@@ -60,6 +60,7 @@ class _SingleSelectWidgetState extends State<SingleSelectWidget> {
         FormBuilderChoiceChip(
           name: widget.spec.key,
           initialValue: widget.intialValue,
+          enabled: context.watch<FormController>().canEditResponse,
           spacing: 8,
           runSpacing: 8,
           // disable the bottom border line that's on every input

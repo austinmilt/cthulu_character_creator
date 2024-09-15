@@ -31,6 +31,9 @@ class FormController with ChangeNotifier {
   bool _validating = true;
   bool get validating => _validating;
 
+  bool _canEditResponse = false;
+  bool get canEditResponse => _canEditResponse;
+
   Future<void> load(String gameId, String? responseId, String? editAuthSecret) async {
     final List<Future> futures = [];
     futures.add(_api.getForm(gameId).then((f) async {
@@ -42,6 +45,10 @@ class FormController with ChangeNotifier {
     if (responseId != null) {
       futures.add(_api.getSubmission(gameId, responseId).then((s) => _submission = s));
     }
+
+    final bool newSubmission = (responseId == null) && (editAuthSecret == null);
+    final bool editingSubmission = (responseId != null) && (editAuthSecret != null);
+    _canEditResponse = newSubmission || editingSubmission;
 
     await Future.wait(futures);
   }
@@ -58,6 +65,7 @@ class FormController with ChangeNotifier {
       _submission = submission;
       _editAuthSecret = response.editAuthSecret;
       _submissionId = response.id;
+      _canEditResponse = true;
     } finally {
       _submitting = false;
       notifyListeners();
