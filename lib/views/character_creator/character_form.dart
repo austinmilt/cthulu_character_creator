@@ -1,11 +1,10 @@
-import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/views/character_creator/character_creator_view.dart';
+import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
 import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
-import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:cthulu_character_creator/model/form.dart' as form_model;
 
@@ -29,23 +28,13 @@ class MainForm extends StatefulWidget {
 
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late Future<({form_model.Form? form, FormResponse? response})> _future;
+  late Future<void> _future;
 
   @override
   void initState() {
     super.initState();
-    final Api api = context.read<Api>();
-    final Future<form_model.Form?> formFuture = api.getForm(widget.gameId);
-    final Future<FormResponse?> responseFuture =
-        (widget.responseId == null) ? Future.value(null) : api.getSubmission(widget.gameId, widget.responseId!);
-    _future = Future.wait([formFuture, responseFuture]).then((v) {
-      final form_model.Form? form = v[0] as form_model.Form?;
-      if (form == null) {
-        throw ArgumentError.notNull("form");
-      }
-      final FormResponse? response = v[1] as FormResponse?;
-      return (form: form, response: response);
-    });
+    final FormController controller = context.read<FormController>();
+    _future = controller.load(widget.gameId, widget.responseId, widget.editAuthSecret);
   }
 
   @override
@@ -58,18 +47,16 @@ class MainFormState extends State<MainForm> {
         child: FutureBuilder(
           future: _future,
           builder: (context, snapshot) {
-            if (snapshot.hasData) {
+            final FormController controller = context.watch<FormController>();
+            if (controller.form != null) {
               return _FormLoaded(
                 gameId: widget.gameId,
                 responseId: widget.responseId,
                 editAuthSecret: widget.editAuthSecret,
-                form: snapshot.requireData.form!,
-                priorResponse: snapshot.requireData.response,
+                form: controller.form!,
+                priorResponse: controller.submission,
               );
-            } else if (snapshot.hasError) {
-              return Center(child: Text('Something went wrong ${snapshot.error}'));
             } else {
-              // TODO handle errors and edge cases
               return const CircularProgressIndicator();
             }
           },
@@ -107,6 +94,7 @@ class _FormLoadedState extends State<_FormLoaded> {
   @override
   void initState() {
     super.initState();
+    // TODO could clean some of this up putting logic and state into the controller
     _logger = context.read<LoggerFactory>().makeLogger(MainForm);
     _fields = _prepareEntries(widget.form, widget.priorResponse);
   }
@@ -176,8 +164,8 @@ class _FormLoadedState extends State<_FormLoaded> {
       }
     }
 
-    final Api api = context.read<Api>();
-    final List<String> validationFailures = await api.validateSubmission(widget.gameId, widget.form, submission);
+    final FormController controller = context.read<FormController>();
+    final List<String> validationFailures = await controller.validationSubmission(submission);
     if (validationFailures.isNotEmpty && mounted) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
@@ -188,7 +176,7 @@ class _FormLoadedState extends State<_FormLoaded> {
     }
 
     try {
-      await api.submitForm(widget.gameId, submission);
+      await controller.submit(submission);
       if (mounted) {
         CharacterCreatorView.replaceRoute(
           context,
