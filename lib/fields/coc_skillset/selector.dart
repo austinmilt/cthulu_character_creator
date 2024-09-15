@@ -34,6 +34,14 @@ class _SkillSelectorState extends State<SkillSelector> {
     super.initState();
     _logger = context.read<LoggerFactory>().makeLogger(SkillSelector);
     _initBuckets();
+
+    // we need to update the state of the form with the user's previous responses
+    // (if it exists) but without triggering a re-render request during
+    // initState()
+    // https://stackoverflow.com/a/64186549
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _onCompletionUpdate();
+    });
   }
 
   void _initBuckets() {
@@ -79,8 +87,6 @@ class _SkillSelectorState extends State<SkillSelector> {
         _bucketMap.putIfAbsent("u", () => []).add(option);
       }
     }
-    // TODO need to do this without triggering a render
-    // _onCompletionUpdate();
   }
 
   // decides what to do with an activated skill, which could be
