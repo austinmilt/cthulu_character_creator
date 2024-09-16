@@ -27,6 +27,10 @@ abstract interface class Api {
   /// with unlimited capacity and free-form answers will be excluded from the result.
   /// Returns a map like Map<field_key, Map<field_option, slots_remaining>>>
   Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, Form form);
+
+  /// Gets summaries of responses submitted for the game [gameId].
+  /// Throws an [ApiError] if the user is not authorized to view these responses.
+  Future<List<FormResponseSummary>?> getSubmissionSummaries(String gameId, String auth);
 }
 
 class ApiError implements Exception {

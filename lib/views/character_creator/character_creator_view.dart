@@ -1,7 +1,9 @@
 import 'package:cthulu_character_creator/views/character_creator/character_form.dart';
+import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
 
 class CharacterCreatorView extends StatelessWidget {
@@ -28,8 +30,8 @@ class CharacterCreatorView extends StatelessWidget {
     },
   );
 
-  static final GoRoute editRoute = GoRoute(
-    name: 'character-creator-edit',
+  static final GoRoute existingRoute = GoRoute(
+    name: 'character-creator-existing',
     path: '/character/create/:gameId/:responseId',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
@@ -52,7 +54,7 @@ class CharacterCreatorView extends StatelessWidget {
     pathParams['gameId'] = gameId;
     if (responseId != null) pathParams['responseId'] = responseId;
     if (editAuthSecret != null) queryParams['s'] = editAuthSecret;
-    context.goNamed(editRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
+    context.goNamed(existingRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
   }
 
   /// Replaces the current route with this view's route without refreshing
@@ -62,7 +64,7 @@ class CharacterCreatorView extends StatelessWidget {
     pathParams['gameId'] = gameId;
     if (responseId != null) pathParams['responseId'] = responseId;
     if (editAuthSecret != null) queryParams['s'] = editAuthSecret;
-    context.replaceNamed(editRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
+    context.replaceNamed(existingRoute.name!, pathParameters: pathParams, queryParameters: queryParams);
   }
 
   void _onShare(BuildContext context) {
@@ -86,10 +88,20 @@ class CharacterCreatorView extends StatelessWidget {
         icon: const Icon(Icons.share),
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
-      body: MainForm(
-        gameId: gameId,
-        responseId: responseId,
-        editAuthSecret: editAuthSecret,
+      body: FutureBuilder(
+        future: context.read<FormController>().load(gameId, responseId, editAuthSecret),
+        builder: (context, snapshot) {
+          final FormController controller = context.watch<FormController>();
+          if (controller.form != null) {
+            return MainForm(
+              gameId: gameId,
+              responseId: responseId,
+              editAuthSecret: editAuthSecret,
+            );
+          } else {
+            return const CircularProgressIndicator();
+          }
+        },
       ),
     );
   }

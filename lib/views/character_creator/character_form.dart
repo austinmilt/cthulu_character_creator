@@ -28,38 +28,21 @@ class MainForm extends StatefulWidget {
 
 class MainFormState extends State<MainForm> {
   final _formKey = GlobalKey<FormBuilderState>();
-  late Future<void> _future;
-
-  @override
-  void initState() {
-    super.initState();
-    final FormController controller = context.read<FormController>();
-    _future = controller.load(widget.gameId, widget.responseId, widget.editAuthSecret);
-  }
 
   @override
   Widget build(BuildContext context) {
+    final FormController controller = context.watch<FormController>();
     return FormBuilder(
       key: _formKey,
       child: _TopCenterScrollableContainer(
         maxWidth: 600,
         padding: const EdgeInsets.all(16),
-        child: FutureBuilder(
-          future: _future,
-          builder: (context, snapshot) {
-            final FormController controller = context.watch<FormController>();
-            if (controller.form != null) {
-              return _FormLoaded(
-                gameId: widget.gameId,
-                responseId: widget.responseId,
-                editAuthSecret: widget.editAuthSecret,
-                form: controller.form!,
-                priorResponse: controller.submission,
-              );
-            } else {
-              return const CircularProgressIndicator();
-            }
-          },
+        child: _FormLoaded(
+          gameId: widget.gameId,
+          responseId: widget.responseId,
+          editAuthSecret: widget.editAuthSecret,
+          form: controller.form!,
+          priorResponse: controller.submission,
         ),
       ),
     );

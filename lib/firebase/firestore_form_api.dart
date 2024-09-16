@@ -112,7 +112,7 @@ class FirestoreFormApi implements Api {
   }
 
   @override
-  Future<void> createGame(String gameId, GameSystem system) async {
+  Future<Game> createGame(String gameId, GameSystem system) async {
     _logger.debug("Want to create game $gameId");
     final DocumentReference gameDoc = _gameRef(gameId);
     final bool gameExists = (await gameDoc.get()).exists;
@@ -120,9 +120,10 @@ class FirestoreFormApi implements Api {
       _logger.warn("Game $gameId already exists");
       throw ApiError.gameExists(gameId);
     }
-    final Game game = Game(gameSystem: system);
+    final Game game = Game(id: gameId, gameSystem: system, auth: myRandomAlpha(10));
     await gameDoc.set(game.toJson());
     _logger.debug("Created game $gameId with system ${system.name}");
+    return game;
   }
 
   @override
@@ -276,6 +277,33 @@ class FirestoreFormApi implements Api {
     return null;
   }
 
+  @override
+  Future<List<FormResponseSummary>?> getSubmissionSummaries(String gameId, String auth) async {
+    final bool userIsAuthorized = await _userHasAuthorityToViewSubmissions(gameId, auth);
+    if (!userIsAuthorized) {
+      _logger.warn("User not authorized to view submissions for $gameId");
+      throw ApiError.unauthorized(gameId);
+    }
+    _logger.debug("Getting submission summaries for game $gameId");
+    // TODO inefficient to read every document just to get summaries, also reveals their
+    // secrets to the form owner.
+    final snapshots = await _responsesRef(gameId).get();
+    final List<FormResponseSummary> result = snapshots.docs.map((d) => FormResponseSummary(id: d.id)).toList();
+    _logger.debug("Got the following summaries for $gameId: $result");
+    return result;
+  }
+
+  Future<bool> _userHasAuthorityToViewSubmissions(String gameId, String auth) async {
+    final AggregateQuerySnapshot isAuthorizedQuery = await _gamesRef()
+        .where(_keys.game_.id, isEqualTo: gameId)
+        .where(_keys.game_.auth, isNotEqualTo: auth)
+        .limit(1)
+        .count()
+        .get();
+
+    return (isAuthorizedQuery.count == null) || (isAuthorizedQuery.count == 0);
+  }
+
   DocumentReference<Map<String, dynamic>> _responseRef(String gameId, String submissionId) {
     return _responsesRef(gameId).doc(submissionId);
   }
@@ -285,7 +313,11 @@ class FirestoreFormApi implements Api {
   }
 
   DocumentReference<Map<String, dynamic>> _gameRef(String gameId) {
-    return _firestore.collection(_keys.games).doc(gameId);
+    return _gamesRef().doc(gameId);
+  }
+
+  CollectionReference<Map<String, dynamic>> _gamesRef() {
+    return _firestore.collection(_keys.games);
   }
 }
 
@@ -348,6 +380,8 @@ class _Index {
 const _keys = (
   games: 'games',
   game_: (
+    id: 'id',
+    auth: 'auth',
     form: 'form',
     responses: 'responses',
     response_: (

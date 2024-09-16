@@ -63,3 +63,14 @@ class FormFieldResponse {
   bool get isTextArea => textArea != null;
   String get textAreaRequired => textArea!;
 }
+
+class FormResponseSummary {
+  FormResponseSummary({required this.id});
+
+  final String id;
+
+  @override
+  String toString() {
+    return "FormResponseSummary[id=$id]";
+  }
+}
