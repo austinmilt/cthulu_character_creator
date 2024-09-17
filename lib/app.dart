@@ -1,5 +1,5 @@
-import 'package:cthulu_character_creator/views/character_creator/character_creator_view.dart';
-import 'package:cthulu_character_creator/views/submissions/view.dart';
+import 'package:cthulu_character_creator/views/response/response_view.dart';
+import 'package:cthulu_character_creator/views/responses/responses_view.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -26,9 +26,9 @@ GoRouter _router() {
   return GoRouter(
     initialLocation: '/submissions/coc-dragoncon-stakes',
     routes: <RouteBase>[
-      CharacterCreatorView.newRoute,
-      CharacterCreatorView.existingRoute,
-      SubmissionsView.route,
+      ResponseView.newRoute,
+      ResponseView.existingRoute,
+      ResponsesView.route,
     ],
     redirect: (context, state) {
       return null;

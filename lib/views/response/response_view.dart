@@ -1,13 +1,13 @@
-import 'package:cthulu_character_creator/views/character_creator/character_form.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/response_form.dart';
+import 'package:cthulu_character_creator/views/response/form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:universal_html/html.dart' as html;
 
-class CharacterCreatorView extends StatelessWidget {
-  const CharacterCreatorView({
+class ResponseView extends StatelessWidget {
+  const ResponseView({
     super.key,
     required this.gameId,
     this.responseId,
@@ -19,20 +19,20 @@ class CharacterCreatorView extends StatelessWidget {
   final String? editAuthSecret;
 
   static final GoRoute newRoute = GoRoute(
-    name: 'character-creator-new',
-    path: '/character/create/:gameId',
+    name: 'respond-to-form',
+    path: ':gameId/form/respond',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
       if (gameId == null) {
         throw StateError('Tried to navigate to character creator without a game ID');
       }
-      return CharacterCreatorView(gameId: gameId);
+      return ResponseView(gameId: gameId);
     },
   );
 
   static final GoRoute existingRoute = GoRoute(
-    name: 'character-creator-existing',
-    path: '/character/create/:gameId/:responseId',
+    name: 'view-or-edit-response',
+    path: '/:gameId/form/response/:responseId',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
       final String? responseId = state.pathParameters['responseId'];
@@ -40,7 +40,7 @@ class CharacterCreatorView extends StatelessWidget {
       if (gameId == null) {
         throw StateError('Tried to navigate to character creator without a game ID');
       }
-      return CharacterCreatorView(
+      return ResponseView(
         gameId: gameId,
         responseId: responseId,
         editAuthSecret: editAuthSecret,
@@ -93,7 +93,7 @@ class CharacterCreatorView extends StatelessWidget {
         builder: (context, snapshot) {
           final FormController controller = context.watch<FormController>();
           if (controller.form != null) {
-            return MainForm(
+            return ResponseForm(
               gameId: gameId,
               responseId: responseId,
               editAuthSecret: editAuthSecret,
@@ -123,7 +123,9 @@ class _CopyUrl extends StatelessWidget {
   }
 
   String _editUrl(BuildContext context) {
-    return "${_urlOrigin(context)}/character/create/$gameId/$responseId?s=$editAuthSecret";
+    final String path =
+        ResponseView.existingRoute.path.replaceFirst(":gameId", gameId).replaceFirst(":responseId", responseId ?? "");
+    return "${_urlOrigin(context)}$path?s=$editAuthSecret";
   }
 
   bool _canShareResponse() {
@@ -131,11 +133,14 @@ class _CopyUrl extends StatelessWidget {
   }
 
   String _responseUrl(BuildContext context) {
-    return "${_urlOrigin(context)}/character/create/$gameId/$responseId";
+    final String path =
+        ResponseView.existingRoute.path.replaceFirst(":gameId", gameId).replaceFirst(":responseId", responseId ?? "");
+    return "${_urlOrigin(context)}$path";
   }
 
   String _formUrl(BuildContext context) {
-    return "${_urlOrigin(context)}/character/create/$gameId";
+    final String path = ResponseView.newRoute.path.replaceFirst(":gameId", gameId);
+    return "${_urlOrigin(context)}$path";
   }
 
   String _urlOrigin(BuildContext context) {

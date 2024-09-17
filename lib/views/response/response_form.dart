@@ -1,15 +1,15 @@
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
-import 'package:cthulu_character_creator/views/character_creator/character_creator_view.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_field.dart';
+import 'package:cthulu_character_creator/views/response/response_view.dart';
+import 'package:cthulu_character_creator/views/response/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/form_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
 import 'package:cthulu_character_creator/model/form.dart' as form_model;
 
-class MainForm extends StatefulWidget {
-  const MainForm({
+class ResponseForm extends StatefulWidget {
+  const ResponseForm({
     super.key,
     required this.gameId,
     this.responseId,
@@ -21,12 +21,12 @@ class MainForm extends StatefulWidget {
   final String? editAuthSecret;
 
   @override
-  MainFormState createState() {
-    return MainFormState();
+  ResponseFormState createState() {
+    return ResponseFormState();
   }
 }
 
-class MainFormState extends State<MainForm> {
+class ResponseFormState extends State<ResponseForm> {
   final _formKey = GlobalKey<FormBuilderState>();
 
   @override
@@ -78,7 +78,7 @@ class _FormLoadedState extends State<_FormLoaded> {
   void initState() {
     super.initState();
     // TODO could clean some of this up putting logic and state into the controller
-    _logger = context.read<LoggerFactory>().makeLogger(MainForm);
+    _logger = context.read<LoggerFactory>().makeLogger(ResponseForm);
     _fields = _prepareEntries(widget.form, widget.priorResponse);
   }
 
@@ -161,7 +161,7 @@ class _FormLoadedState extends State<_FormLoaded> {
     try {
       await controller.submit(submission);
       if (mounted) {
-        CharacterCreatorView.replaceRoute(
+        ResponseView.replaceRoute(
           context,
           widget.gameId,
           submission.id,

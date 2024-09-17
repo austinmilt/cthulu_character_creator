@@ -8,7 +8,6 @@ class FormController with ChangeNotifier {
 
   final Api _api;
 
-  // TODO use late instead of ? (see SubmissionsController)
   String? _gameId;
   String? get gameId => _gameId;
 

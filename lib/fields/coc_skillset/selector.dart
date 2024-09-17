@@ -1,7 +1,7 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
 import 'package:cthulu_character_creator/logging.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 

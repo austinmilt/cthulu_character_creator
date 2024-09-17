@@ -3,7 +3,7 @@ import 'package:cthulu_character_creator/fields/coc_skillset/field.dart' as mode
 import 'package:cthulu_character_creator/fields/coc_skillset/response.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/selector.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/form_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
