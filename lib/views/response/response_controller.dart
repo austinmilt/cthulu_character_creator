@@ -8,22 +8,22 @@ class ResponseController with ChangeNotifier {
 
   final Api _api;
 
-  String? _gameId;
-  String? get gameId => _gameId;
+  late String _gameId;
+  String get gameId => _gameId;
 
-  m.Form? _form;
-  m.Form? get form => _form;
+  late m.Form _form;
+  m.Form get form => _form;
 
   FormResponse? _submission;
   FormResponse? get submission => _submission;
 
-  String? _submissionId;
-  String? get submissionId => _submissionId;
+  late String _submissionId;
+  String get submissionId => _submissionId;
 
-  String? _editAuthSecret;
-  String? get editAuthSecret => _editAuthSecret;
+  late String _editAuthSecret;
+  String get editAuthSecret => _editAuthSecret;
 
-  Map<String, Map<String, int>>? _slotsRemaining;
+  late Map<String, Map<String, int>> _slotsRemaining;
 
   bool _submitting = false;
   bool get submitting => _submitting;
@@ -37,8 +37,8 @@ class ResponseController with ChangeNotifier {
   Future<void> load(String gameId, String? responseId, String? editAuthSecret) async {
     final List<Future> futures = [];
     futures.add(_api.getForm(gameId).then((f) async {
-      _form = f;
       if (f != null) {
+        _form = f;
         _slotsRemaining = await _api.getSlotsRemaining(gameId, f);
       }
     }));
@@ -58,10 +58,7 @@ class ResponseController with ChangeNotifier {
     notifyListeners();
 
     try {
-      if (_gameId == null) {
-        throw StateError("Tried to submit a form without loading a game");
-      }
-      final response = await _api.submitForm(_gameId!, submission);
+      final response = await _api.submitForm(_gameId, submission);
       _submission = submission;
       _editAuthSecret = response.editAuthSecret;
       _submissionId = response.id;
@@ -77,10 +74,7 @@ class ResponseController with ChangeNotifier {
     notifyListeners();
 
     try {
-      if ((_gameId == null) || (_form == null)) {
-        throw StateError("Tried to submit a form without loading a game");
-      }
-      return _api.validateSubmission(_gameId!, _form!, submission);
+      return _api.validateSubmission(_gameId, _form, submission);
     } finally {
       _validating = false;
       notifyListeners();
@@ -88,9 +82,6 @@ class ResponseController with ChangeNotifier {
   }
 
   int? slotsRemaining(String fieldKey, String fieldOption) {
-    if (_slotsRemaining == null) {
-      throw StateError("Tried to get slots remaining without loading a game");
-    }
-    return _slotsRemaining?[fieldKey]?[fieldOption];
+    return _slotsRemaining[fieldKey]?[fieldOption];
   }
 }
