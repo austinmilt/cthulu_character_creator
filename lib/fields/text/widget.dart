@@ -1,7 +1,7 @@
 import 'package:cthulu_character_creator/components/markdown.dart';
 import 'package:cthulu_character_creator/fields/text/field.dart' as model;
 import 'package:cthulu_character_creator/fields/text/response.dart';
-import 'package:cthulu_character_creator/views/response/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
@@ -26,7 +26,7 @@ class TextWidget extends StatelessWidget {
         FormBuilderTextField(
           name: spec.key,
           initialValue: initialValue,
-          enabled: context.watch<FormController>().canEditResponse,
+          enabled: context.watch<ResponseController>().canEditResponse,
           decoration: InputDecoration(
             labelText: spec.label,
             helperMaxLines: 2,

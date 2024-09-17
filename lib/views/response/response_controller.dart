@@ -3,8 +3,8 @@ import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:flutter/material.dart';
 import 'package:cthulu_character_creator/model/form.dart' as m;
 
-class FormController with ChangeNotifier {
-  FormController(this._api);
+class ResponseController with ChangeNotifier {
+  ResponseController(this._api);
 
   final Api _api;
 

@@ -8,8 +8,8 @@ import 'package:cthulu_character_creator/model/form.dart' as model;
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:flutter/material.dart';
 
-class FormFieldWidget extends StatelessWidget {
-  const FormFieldWidget({super.key, required this.spec, this.initialValue});
+class ResponseField extends StatelessWidget {
+  const ResponseField({super.key, required this.spec, this.initialValue});
 
   final model.FormField spec;
   final FormFieldResponse? initialValue;

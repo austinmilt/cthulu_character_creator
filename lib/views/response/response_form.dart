@@ -1,8 +1,8 @@
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
-import 'package:cthulu_character_creator/views/response/form_controller.dart';
-import 'package:cthulu_character_creator/views/response/form_field.dart';
+import 'package:cthulu_character_creator/views/response/response_controller.dart';
+import 'package:cthulu_character_creator/views/response/response_field.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
@@ -31,7 +31,7 @@ class ResponseFormState extends State<ResponseForm> {
 
   @override
   Widget build(BuildContext context) {
-    final FormController controller = context.watch<FormController>();
+    final ResponseController controller = context.watch<ResponseController>();
     return FormBuilder(
       key: _formKey,
       child: _TopCenterScrollableContainer(
@@ -147,7 +147,7 @@ class _FormLoadedState extends State<_FormLoaded> {
       }
     }
 
-    final FormController controller = context.read<FormController>();
+    final ResponseController controller = context.read<ResponseController>();
     final List<String> validationFailures = await controller.validationSubmission(submission);
     if (validationFailures.isNotEmpty && mounted) {
       if (mounted) {
@@ -208,14 +208,14 @@ class _FormLoadedState extends State<_FormLoaded> {
         final form_model.FormField field = group.first;
         final String? fieldKey = field.key();
         final FormFieldResponse? response = (fieldKey == null) ? null : widget.priorResponse?.fields[fieldKey];
-        children.add(_section(FormFieldWidget(spec: group.first, initialValue: response)));
+        children.add(_section(ResponseField(spec: group.first, initialValue: response)));
       } else {
         children.add(_section(Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: group
               .map(
-                (field) => FormFieldWidget(
+                (field) => ResponseField(
                   spec: field,
                   initialValue: (field.key() == null) ? null : widget.priorResponse?.fields[field.key()],
                 ),
@@ -224,7 +224,7 @@ class _FormLoadedState extends State<_FormLoaded> {
         )));
       }
     }
-    if (context.watch<FormController>().canEditResponse) {
+    if (context.watch<ResponseController>().canEditResponse) {
       children.add(
         FilledButton(
           onPressed: _submitting ? null : _onSubmit,

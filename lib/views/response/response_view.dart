@@ -1,5 +1,5 @@
 import 'package:cthulu_character_creator/views/response/response_form.dart';
-import 'package:cthulu_character_creator/views/response/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -89,9 +89,9 @@ class ResponseView extends StatelessWidget {
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.endFloat,
       body: FutureBuilder(
-        future: context.read<FormController>().load(gameId, responseId, editAuthSecret),
+        future: context.read<ResponseController>().load(gameId, responseId, editAuthSecret),
         builder: (context, snapshot) {
-          final FormController controller = context.watch<FormController>();
+          final ResponseController controller = context.watch<ResponseController>();
           if (controller.form != null) {
             return ResponseForm(
               gameId: gameId,
