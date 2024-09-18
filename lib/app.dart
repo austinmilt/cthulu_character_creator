@@ -1,3 +1,4 @@
+import 'package:cthulu_character_creator/views/builder/form_builder_view.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
 import 'package:cthulu_character_creator/views/responses/responses_view.dart';
 import 'package:flutter/material.dart';
@@ -24,8 +25,9 @@ class MyApp extends StatelessWidget {
 
 GoRouter _router() {
   return GoRouter(
-    initialLocation: '/submissions/coc-dragoncon-stakes',
+    initialLocation: FormBuilderView.route.path,
     routes: <RouteBase>[
+      FormBuilderView.route,
       ResponseView.newRoute,
       ResponseView.existingRoute,
       ResponsesView.route,

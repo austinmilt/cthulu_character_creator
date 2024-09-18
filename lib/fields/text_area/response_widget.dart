@@ -1,39 +1,40 @@
 import 'package:cthulu_character_creator/components/markdown.dart';
-import 'package:cthulu_character_creator/fields/email/field.dart' as model;
-import 'package:cthulu_character_creator/fields/email/response.dart';
+import 'package:cthulu_character_creator/fields/text_area/field.dart' as model;
+import 'package:cthulu_character_creator/fields/text_area/response.dart';
 import 'package:cthulu_character_creator/views/response/response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
-class EmailWidget extends StatelessWidget {
-  const EmailWidget({super.key, required this.spec, this.initialValue});
+class TextAreaResponseWidget extends StatelessWidget {
+  const TextAreaResponseWidget({super.key, required this.spec, this.initialValue});
 
-  final model.EmailFormField spec;
-  final EmailResponse? initialValue;
+  final model.TextAreaFormField spec;
+  final TextAreaResponse? initialValue;
 
   @override
   Widget build(BuildContext context) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
-      crossAxisAlignment: CrossAxisAlignment.center,
+      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         FieldMarkdown(
           title: spec.title,
           bodyMd: spec.bodyMarkdown,
         ),
-        const SizedBox(height: 10),
         FormBuilderTextField(
           name: spec.key,
           initialValue: initialValue,
           enabled: context.watch<ResponseController>().canEditResponse,
-          decoration: InputDecoration(labelText: spec.title),
-          keyboardType: TextInputType.emailAddress,
-          validator: FormBuilderValidators.compose([
-            if (spec.required) FormBuilderValidators.required(),
-            FormBuilderValidators.email(),
-          ]),
+          decoration: InputDecoration(
+            labelText: spec.label,
+            helperMaxLines: 2,
+            helperText: spec.help,
+          ),
+          minLines: 1,
+          maxLines: 5,
+          validator: spec.required ? FormBuilderValidators.required() : null,
         ),
       ],
     );

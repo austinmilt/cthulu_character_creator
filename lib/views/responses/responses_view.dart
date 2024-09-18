@@ -70,20 +70,21 @@ class _Submissions extends StatelessWidget {
     final ResponsesController controller = context.watch<ResponsesController>();
     final List<FormResponseSummary> summaries = controller.summaries;
     return _TopCenterContainer(
-        maxWidth: 600,
-        padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: summaries.length,
-          itemBuilder: (context, index) => ListTile(
-            title: Text(summaries[index].id),
-            onTap: () => ResponseView.navigate(
-              context,
-              controller.gameId,
-              summaries[index].id,
-              null,
-            ),
+      maxWidth: 600,
+      padding: const EdgeInsets.all(16),
+      child: ListView.builder(
+        itemCount: summaries.length,
+        itemBuilder: (context, index) => ListTile(
+          title: Text(summaries[index].id),
+          onTap: () => ResponseView.navigate(
+            context,
+            controller.gameId,
+            summaries[index].id,
+            null,
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 

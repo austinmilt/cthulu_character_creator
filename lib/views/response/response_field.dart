@@ -1,9 +1,9 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/widget.dart';
-import 'package:cthulu_character_creator/fields/email/widget.dart';
-import 'package:cthulu_character_creator/fields/info/widget.dart';
-import 'package:cthulu_character_creator/fields/single_select/widget.dart';
-import 'package:cthulu_character_creator/fields/text/widget.dart';
-import 'package:cthulu_character_creator/fields/text_area/widget.dart';
+import 'package:cthulu_character_creator/fields/email/response_widget.dart';
+import 'package:cthulu_character_creator/fields/info/response_widget.dart';
+import 'package:cthulu_character_creator/fields/single_select/response_widget.dart';
+import 'package:cthulu_character_creator/fields/text/response_widget.dart';
+import 'package:cthulu_character_creator/fields/text_area/response_widget.dart';
 import 'package:cthulu_character_creator/model/form.dart' as model;
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:flutter/material.dart';
@@ -17,24 +17,24 @@ class ResponseField extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     if (spec.isInfo) {
-      return InfoWidget(spec: spec.infoRequired);
+      return InfoResponseWidget(spec: spec.infoRequired);
     } else if (spec.isEmail) {
-      return EmailWidget(
+      return EmailResponseWidget(
         spec: spec.emailRequired,
         initialValue: initialValue?.email,
       );
     } else if (spec.isSingleSelect) {
-      return SingleSelectWidget(
+      return SingleSelectResponseWidget(
         spec: spec.singleSelectRequired,
         intialValue: initialValue?.singleSelect,
       );
     } else if (spec.isText) {
-      return TextWidget(
+      return TextResponseWidget(
         spec: spec.textRequired,
         initialValue: initialValue?.text,
       );
     } else if (spec.isTextArea) {
-      return TextAreaWidget(
+      return TextAreaResponseWidget(
         spec: spec.textAreaRequired,
         initialValue: initialValue?.textArea,
       );

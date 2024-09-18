@@ -20,7 +20,7 @@ class ResponseView extends StatelessWidget {
 
   static final GoRoute newRoute = GoRoute(
     name: 'respond-to-form',
-    path: ':gameId/form/respond',
+    path: '/:gameId/form/respond',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
       if (gameId == null) {
@@ -91,16 +91,12 @@ class ResponseView extends StatelessWidget {
       body: FutureBuilder(
         future: context.read<ResponseController>().load(gameId, responseId, editAuthSecret),
         builder: (context, snapshot) {
-          final ResponseController controller = context.watch<ResponseController>();
-          if (controller.form != null) {
-            return ResponseForm(
-              gameId: gameId,
-              responseId: responseId,
-              editAuthSecret: editAuthSecret,
-            );
-          } else {
-            return const CircularProgressIndicator();
-          }
+          context.watch<ResponseController>();
+          return ResponseForm(
+            gameId: gameId,
+            responseId: responseId,
+            editAuthSecret: editAuthSecret,
+          );
         },
       ),
     );

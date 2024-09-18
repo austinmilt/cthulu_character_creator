@@ -7,17 +7,17 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:provider/provider.dart';
 
-class SingleSelectWidget extends StatefulWidget {
-  const SingleSelectWidget({super.key, required this.spec, this.intialValue});
+class SingleSelectResponseWidget extends StatefulWidget {
+  const SingleSelectResponseWidget({super.key, required this.spec, this.intialValue});
 
   final model.SingleSelectFormField spec;
   final SingleSelectResponse? intialValue;
 
   @override
-  State<SingleSelectWidget> createState() => _SingleSelectWidgetState();
+  State<SingleSelectResponseWidget> createState() => _SingleSelectResponseWidgetState();
 }
 
-class _SingleSelectWidgetState extends State<SingleSelectWidget> {
+class _SingleSelectResponseWidgetState extends State<SingleSelectResponseWidget> {
   @override
   void initState() {
     super.initState();

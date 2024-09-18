@@ -1,3 +1,4 @@
+import 'package:cthulu_character_creator/components/top_center_scrollable_container.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_data.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
@@ -34,14 +35,14 @@ class ResponseFormState extends State<ResponseForm> {
     final ResponseController controller = context.watch<ResponseController>();
     return FormBuilder(
       key: _formKey,
-      child: _TopCenterScrollableContainer(
+      child: TopCenterScrollableContainer(
         maxWidth: 600,
         padding: const EdgeInsets.all(16),
         child: _FormLoaded(
           gameId: widget.gameId,
           responseId: widget.responseId,
           editAuthSecret: widget.editAuthSecret,
-          form: controller.form!,
+          form: controller.form,
           priorResponse: controller.submission,
         ),
       ),
@@ -234,50 +235,13 @@ class _FormLoadedState extends State<_FormLoaded> {
     }
     return FormBuilder(
       key: _formKey,
-      child: _TopCenterScrollableContainer(
+      child: TopCenterScrollableContainer(
         maxWidth: 600,
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: children,
-        ),
-      ),
-    );
-  }
-}
-
-class _TopCenterScrollableContainer extends StatelessWidget {
-  const _TopCenterScrollableContainer({this.child, this.maxWidth, this.padding});
-
-  final Widget? child;
-  final double? maxWidth;
-  final EdgeInsetsGeometry? padding;
-
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.topCenter,
-      child: SingleChildScrollView(
-        // wrapping the main Container (below) in a Center makes it so the Center
-        // takes up the full width of the view while enforcing a max width on
-        // the main Container. This makes the page's scrollbar (from the
-        // SingleChildScrollView) stick to the right side of the page rather than
-        // being butted up against the main Container, which is annoying on mobile
-        child: Center(
-          child: Container(
-            constraints: (maxWidth == null) ? null : BoxConstraints(maxWidth: maxWidth!),
-            padding: padding,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Flexible(
-                  child: child ?? const SizedBox(),
-                )
-              ],
-            ),
-          ),
         ),
       ),
     );
