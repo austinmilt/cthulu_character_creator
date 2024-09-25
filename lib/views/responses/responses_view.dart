@@ -1,4 +1,4 @@
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
 import 'package:cthulu_character_creator/views/responses/responses_controller.dart';
 import 'package:flutter/material.dart';

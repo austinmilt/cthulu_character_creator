@@ -1,5 +1,5 @@
 import 'package:cthulu_character_creator/api.dart';
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:flutter/material.dart';
 import 'package:cthulu_character_creator/model/form.dart' as m;
 

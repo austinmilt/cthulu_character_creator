@@ -1,6 +1,6 @@
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 
 abstract interface class Api {
   /// Loads the form form game [gameId], returning [null] if it does not exist.

@@ -10,11 +10,24 @@ class FormBuilderController with ChangeNotifier {
   late String _gameId;
   String get gameId => _gameId;
 
-  m.Form _form = [];
-  m.Form get form => _form.toList();
+  List<m.FormField?> _form = [];
 
   Future<void> load(String gameId) async {
     _form = await _api.getForm(gameId) ?? [];
     _gameId = gameId;
+  }
+
+  m.FormField? getField(int index) {
+    return (_form.length > index) ? _form[index] : null;
+  }
+
+  void setField(int index, m.FormField field) {
+    if (_form.length <= index) {
+      for (int i = 0; i < index; i++) {
+        _form[i] = null;
+      }
+    }
+    _form[index] = field;
+    notifyListeners();
   }
 }

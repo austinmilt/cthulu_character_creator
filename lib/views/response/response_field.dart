@@ -5,14 +5,20 @@ import 'package:cthulu_character_creator/fields/single_select/response_widget.da
 import 'package:cthulu_character_creator/fields/text/response_widget.dart';
 import 'package:cthulu_character_creator/fields/text_area/response_widget.dart';
 import 'package:cthulu_character_creator/model/form.dart' as model;
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:flutter/material.dart';
 
 class ResponseField extends StatelessWidget {
-  const ResponseField({super.key, required this.spec, this.initialValue});
+  const ResponseField({
+    super.key,
+    required this.spec,
+    this.initialValue,
+    required this.canEdit,
+  });
 
   final model.FormField spec;
   final FormFieldResponse? initialValue;
+  final bool canEdit;
 
   @override
   Widget build(BuildContext context) {
@@ -22,6 +28,7 @@ class ResponseField extends StatelessWidget {
       return EmailResponseWidget(
         spec: spec.emailRequired,
         initialValue: initialValue?.email,
+        canEdit: canEdit,
       );
     } else if (spec.isSingleSelect) {
       return SingleSelectResponseWidget(

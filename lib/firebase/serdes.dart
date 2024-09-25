@@ -7,7 +7,7 @@ import 'package:cthulu_character_creator/fields/text/field.dart';
 import 'package:cthulu_character_creator/fields/text_area/field.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 
 const serdes = (
   form: (

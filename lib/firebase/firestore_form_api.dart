@@ -18,7 +18,7 @@ import 'package:cthulu_character_creator/firebase/game.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // https://firebase.google.com/codelabs/firebase-get-to-know-flutter#4
