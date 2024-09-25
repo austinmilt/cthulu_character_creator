@@ -32,16 +32,44 @@ class FormBuilderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO make a new game thing
+    return FutureBuilder(
+      future: context.read<FormBuilderController>().load('coc-dragoncon-stakes'),
+      builder: (_, snapshot) {
+        if (snapshot.connectionState == ConnectionState.done) {
+          return _ViewLoaded();
+        } else {
+          return const CircularProgressIndicator();
+        }
+      },
+    );
+  }
+}
+
+class _ViewLoaded extends StatefulWidget {
+  @override
+  State<_ViewLoaded> createState() => _ViewLoadedState();
+}
+
+class _ViewLoadedState extends State<_ViewLoaded> {
+  List<bool> _toggleState = [true, false];
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      body: FutureBuilder(
-        future: context.read<FormBuilderController>().load('coc-dragoncon-stakes'),
-        builder: (_, snapshot) {
-          if (snapshot.connectionState == ConnectionState.done) {
-            return FormBuilder(gameId: 'coc-dragoncon-stakes');
-          } else {
-            return const CircularProgressIndicator();
-          }
+      floatingActionButton: ToggleButtons(
+        direction: Axis.horizontal,
+        onPressed: (int index) {
+          setState(() {
+            _toggleState = [index == 0, index == 1];
+          });
         },
+        borderRadius: const BorderRadius.all(Radius.circular(8)),
+        isSelected: _toggleState,
+        children: const [Icon(Icons.edit), Icon(Icons.preview)],
+      ),
+      body: FormBuilder(
+        gameId: 'coc-dragoncon-stakes',
+        editing: _toggleState[0],
       ),
     );
   }

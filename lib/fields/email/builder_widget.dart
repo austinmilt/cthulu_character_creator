@@ -8,17 +8,16 @@ import 'package:provider/provider.dart';
 import 'package:cthulu_character_creator/model/form.dart' as m;
 
 class EmailBuilder extends StatefulWidget {
-  const EmailBuilder({super.key, required this.fieldIndex});
+  const EmailBuilder({super.key, required this.fieldIndex, required this.editing});
 
   final int fieldIndex;
+  final bool editing;
 
   @override
   State<EmailBuilder> createState() => _EmailBuilderState();
 }
 
 class _EmailBuilderState extends State<EmailBuilder> {
-  List<bool> _toggleState = [true, false];
-
   m.FormField _getSpec(FormBuilderController controller) {
     final m.FormField? candidate = controller.getField(widget.fieldIndex);
     return m.FormField.email(
@@ -41,32 +40,16 @@ class _EmailBuilderState extends State<EmailBuilder> {
   Widget build(BuildContext context) {
     final FormBuilderController controller = context.watch<FormBuilderController>();
     final m.FormField spec = _getSpec(controller);
-    return Column(
-      children: [
-        ToggleButtons(
-          direction: Axis.horizontal,
-          onPressed: (int index) {
-            setState(() {
-              _toggleState = [index == 0, index == 1];
-            });
-          },
-          borderRadius: const BorderRadius.all(Radius.circular(8)),
-          isSelected: _toggleState,
-          children: const [Icon(Icons.edit), Icon(Icons.preview)],
-        ),
-        if (_toggleState[0])
-          _Editor(
+    return widget.editing
+        ? _Editor(
             spec: spec,
             onUpdate: (p0) => _onUpdate(p0, controller),
-          ),
-        if (_toggleState[1])
-          EmailResponseWidget(
+          )
+        : EmailResponseWidget(
             spec: spec.emailRequired,
             canEdit: false,
             initialValue: 'john.doe@gmail.com',
-          )
-      ],
-    );
+          );
   }
 }
 
@@ -83,20 +66,19 @@ class _Editor extends StatelessWidget {
     bool? required,
     int? slots,
   }) {
-    debugPrint('update');
-    final EmailFormField emailSpec = spec.emailRequired;
+    final EmailFormField subspec = spec.emailRequired;
     onUpdate(m.FormField.email(EmailFormField(
-      key: key ?? emailSpec.key,
-      title: title ?? emailSpec.title,
-      bodyMarkdown: bodyMarkdown ?? emailSpec.bodyMarkdown,
-      required: required ?? emailSpec.required,
-      slots: slots ?? emailSpec.slots,
+      key: key ?? subspec.key,
+      title: title ?? subspec.title,
+      bodyMarkdown: bodyMarkdown ?? subspec.bodyMarkdown,
+      required: required ?? subspec.required,
+      slots: slots ?? subspec.slots,
     )));
   }
 
   @override
   Widget build(BuildContext context) {
-    final EmailFormField emailSpec = spec.emailRequired;
+    final EmailFormField subspec = spec.emailRequired;
     return Column(children: [
       Wrap(
         direction: Axis.horizontal,
@@ -108,7 +90,7 @@ class _Editor extends StatelessWidget {
             child: FormBuilderTextField(
               name: 'key',
               decoration: const InputDecoration(labelText: 'key'),
-              initialValue: emailSpec.key,
+              initialValue: subspec.key,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (v) => _onUpdate(key: v),
               validator: FormBuilderValidators.compose([
@@ -122,7 +104,7 @@ class _Editor extends StatelessWidget {
             child: FormBuilderTextField(
               name: 'title',
               decoration: const InputDecoration(labelText: 'title'),
-              initialValue: emailSpec.title,
+              initialValue: subspec.title,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (v) => _onUpdate(title: v),
               validator: FormBuilderValidators.compose([
@@ -136,7 +118,7 @@ class _Editor extends StatelessWidget {
             child: FormBuilderCheckbox(
               name: 'required',
               title: const Text("required"),
-              initialValue: emailSpec.required,
+              initialValue: subspec.required,
               onChanged: (v) => _onUpdate(required: v),
               validator: FormBuilderValidators.compose([
                 FormBuilderValidators.required(),
@@ -152,7 +134,7 @@ class _Editor extends StatelessWidget {
                 helperText: "The number of times a response may be repeated; 1 slot "
                     "means each response must be unique.",
               ),
-              initialValue: emailSpec.slots?.toString(),
+              initialValue: subspec.slots?.toString(),
               keyboardType: TextInputType.number,
               autovalidateMode: AutovalidateMode.onUserInteraction,
               onChanged: (v) => _onUpdate(slots: (v == null) ? null : int.parse(v)),
@@ -167,7 +149,7 @@ class _Editor extends StatelessWidget {
       ),
       FormBuilderTextField(
         name: 'bodyMarkdown',
-        initialValue: emailSpec.bodyMarkdown,
+        initialValue: subspec.bodyMarkdown,
         decoration: const InputDecoration(labelText: 'description'),
         onChanged: (v) => _onUpdate(bodyMarkdown: v),
         validator: FormBuilderValidators.compose([
