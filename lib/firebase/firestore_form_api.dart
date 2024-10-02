@@ -30,12 +30,12 @@ class FirestoreFormApi implements Api {
   final Logger _logger;
 
   @override
-  Future<Form> getForm(String gameId) async {
+  Future<C4Form> getForm(String gameId) async {
     _logger.debug("Getting form for game $gameId");
     final snapshot = await _gameRef(gameId).get();
     final List<Map<String, dynamic>> formJson =
         (snapshot.get(_keys.game_.form) as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
-    final Form result = serdes.form.fromJson(formJson);
+    final C4Form result = serdes.form.fromJson(formJson);
     _logger.debug("Got form for game $gameId: $result");
     return result;
   }
@@ -127,11 +127,11 @@ class FirestoreFormApi implements Api {
   }
 
   @override
-  Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, Form form) async {
+  Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, C4Form form) async {
     final _Index index = _Index.prepare(_firestore, gameId);
     await index.load();
     final Map<String, Map<String, int>> result = {};
-    for (final FormField field in form) {
+    for (final C4FormField field in form) {
       // At present singleSelect is the only field type which we can check slots
       // ahead of time. All other fields are free-form and so can really only
       // be checked at submission time.
@@ -151,11 +151,11 @@ class FirestoreFormApi implements Api {
   }
 
   @override
-  Future<List<String>> validateSubmission(String gameId, Form form, FormResponse submission) async {
+  Future<List<String>> validateSubmission(String gameId, C4Form form, FormResponse submission) async {
     final List<Future<String?>> validationFutures = [];
     final _Index index = _Index.prepare(_firestore, gameId);
     await index.load();
-    for (FormField fieldWrapper in form) {
+    for (C4FormField fieldWrapper in form) {
       if (fieldWrapper.isCocSkillset) {
         final CoCSkillsetFormField field = fieldWrapper.cocSkillsetRequired;
         final CocSkillsetResponse? response = submission.fields[field.key]?.cocSkillset;

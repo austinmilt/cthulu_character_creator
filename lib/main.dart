@@ -16,7 +16,7 @@ void main() async {
     :loggerFactory,
   ) = await configureServices();
 
-  final ResponseController responseController = ResponseController(api);
+  final ResponseController responseController = MainResponseController(api);
   final ResponsesController responsesController = ResponsesController(api);
   final FormBuilderController formBuilderController = FormBuilderController(api);
 

@@ -1,39 +1,65 @@
 import 'package:cthulu_character_creator/api.dart';
 import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:flutter/material.dart';
-import 'package:cthulu_character_creator/model/form.dart' as m;
+import 'package:cthulu_character_creator/model/form.dart';
 
-class ResponseController with ChangeNotifier {
-  ResponseController(this._api);
+abstract interface class ResponseController with ChangeNotifier {
+  String get gameId;
+  C4Form get form;
+  FormResponse? get submission;
+  String get submissionId;
+  String get editAuthSecret;
+  bool get submitting;
+  bool get validating;
+  bool get canEditResponse;
+  Future<void> load(String gameId, String? responseId, String? editAuthSecret);
+  Future<void> submit(FormResponse submission);
+  Future<List<String>> validationSubmission(FormResponse submission);
+  int? slotsRemaining(String fieldKey, String fieldOption);
+  C4FormField? getField(int fieldIndex);
+  FieldResponseController getFieldController(int fieldIndex);
+}
+
+class MainResponseController with ChangeNotifier implements ResponseController {
+  MainResponseController(this._api);
 
   final Api _api;
 
   late String _gameId;
+  @override
   String get gameId => _gameId;
 
-  late m.Form _form;
-  m.Form get form => _form;
+  late C4Form _form;
+  @override
+  C4Form get form => _form;
 
   FormResponse? _submission;
+  @override
   FormResponse? get submission => _submission;
 
   late String _submissionId;
+  @override
   String get submissionId => _submissionId;
 
   late String _editAuthSecret;
+  @override
   String get editAuthSecret => _editAuthSecret;
 
   late Map<String, Map<String, int>> _slotsRemaining;
 
   bool _submitting = false;
+  @override
   bool get submitting => _submitting;
 
   bool _validating = true;
+  @override
   bool get validating => _validating;
 
   bool _canEditResponse = false;
+  @override
   bool get canEditResponse => _canEditResponse;
 
+  @override
   Future<void> load(String gameId, String? responseId, String? editAuthSecret) async {
     final List<Future> futures = [];
     futures.add(_api.getForm(gameId).then((f) async {
@@ -53,6 +79,7 @@ class ResponseController with ChangeNotifier {
     await Future.wait(futures);
   }
 
+  @override
   Future<void> submit(FormResponse submission) async {
     _submitting = true;
     notifyListeners();
@@ -69,6 +96,7 @@ class ResponseController with ChangeNotifier {
     }
   }
 
+  @override
   Future<List<String>> validationSubmission(FormResponse submission) async {
     _validating = true;
     notifyListeners();
@@ -81,7 +109,53 @@ class ResponseController with ChangeNotifier {
     }
   }
 
+  @override
   int? slotsRemaining(String fieldKey, String fieldOption) {
     return _slotsRemaining[fieldKey]?[fieldOption];
+  }
+
+  @override
+  C4FormField? getField(int fieldIndex) {
+    return _form[fieldIndex];
+  }
+
+  @override
+  FieldResponseController getFieldController(int fieldIndex) {
+    final C4FormField spec = getField(fieldIndex)!;
+    final String? key = spec.key();
+    final result = FieldResponseController(
+      spec,
+      _canEditResponse,
+      _submission?.fields[key],
+    );
+    if (key != null) {
+      result.addListener(() {
+        final FormFieldResponse? fieldResponse = result.response;
+        if (fieldResponse != null) {
+          _submission ??= FormResponse(
+            id: null,
+            editAuthSecret: editAuthSecret,
+            fields: {},
+          );
+          _submission!.fields[key] = fieldResponse;
+        }
+      });
+    }
+    return result;
+  }
+}
+
+class FieldResponseController with ChangeNotifier {
+  FieldResponseController(this.spec, this.canEdit, [this._response]);
+
+  final C4FormField spec;
+
+  final bool canEdit;
+
+  FormFieldResponse? _response;
+  FormFieldResponse? get response => _response;
+  set response(FormFieldResponse? newResponse) {
+    _response = newResponse;
+    notifyListeners();
   }
 }

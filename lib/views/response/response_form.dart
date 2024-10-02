@@ -3,11 +3,11 @@ import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
 import 'package:cthulu_character_creator/views/response/response_controller.dart';
-import 'package:cthulu_character_creator/views/response/response_field.dart';
+import 'package:cthulu_character_creator/views/response/response_field_widget.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:provider/provider.dart';
-import 'package:cthulu_character_creator/model/form.dart' as form_model;
+import 'package:cthulu_character_creator/model/form.dart';
 
 class ResponseForm extends StatefulWidget {
   const ResponseForm({
@@ -61,7 +61,7 @@ class _FormLoaded extends StatefulWidget {
 
   final String gameId;
   final String? responseId;
-  final form_model.Form form;
+  final C4Form form;
   final FormResponse? priorResponse;
   final String? editAuthSecret;
 
@@ -73,7 +73,7 @@ class _FormLoadedState extends State<_FormLoaded> {
   final _formKey = GlobalKey<FormBuilderState>();
   bool _submitting = false;
   late final Logger _logger;
-  late final List<List<form_model.FormField>> _fields;
+  late final List<List<C4FormField>> _fields;
 
   @override
   void initState() {
@@ -119,7 +119,7 @@ class _FormLoadedState extends State<_FormLoaded> {
       editAuthSecret: widget.editAuthSecret,
       fields: {},
     );
-    for (form_model.FormField spec in widget.form) {
+    for (C4FormField spec in widget.form) {
       if (spec.isCocSkillset) {
         final String key = spec.cocSkillsetRequired.key;
         if (formDataMap[key] != null) {
@@ -180,12 +180,12 @@ class _FormLoadedState extends State<_FormLoaded> {
     }
   }
 
-  List<List<form_model.FormField>> _prepareEntries(form_model.Form form, FormResponse? startingValues) {
-    final List<List<form_model.FormField>> result = [];
-    List<form_model.FormField> currentGroupOfEntries = [];
+  List<List<C4FormField>> _prepareEntries(C4Form form, FormResponse? startingValues) {
+    final List<List<C4FormField>> result = [];
+    List<C4FormField> currentGroupOfEntries = [];
     String? lastGroup;
     for (int i = 0; i < form.length; i++) {
-      final form_model.FormField entry = form[i];
+      final C4FormField entry = form[i];
       // detect when a new group has started. Note this grouping preserves
       // the overall ordering of entries at the expense that non-contiguous
       // entries with the same group ID will wind up in different sections, e.g.
@@ -203,28 +203,21 @@ class _FormLoadedState extends State<_FormLoaded> {
 
   @override
   Widget build(BuildContext context) {
-    final bool canEdit = context.watch<ResponseController>().canEditResponse;
+    final ResponseController controller = context.watch<ResponseController>();
     final List<Widget> children = [];
-    for (List<form_model.FormField> group in _fields) {
+    int index = 0;
+    for (List<C4FormField> group in _fields) {
       if (group.length == 1) {
-        final form_model.FormField field = group.first;
-        final String? fieldKey = field.key();
-        final FormFieldResponse? response = (fieldKey == null) ? null : widget.priorResponse?.fields[fieldKey];
-        children.add(_section(ResponseField(
-          spec: group.first,
-          initialValue: response,
-          canEdit: canEdit,
-        )));
+        final FieldResponseController fieldController = controller.getFieldController(index++);
+        children.add(_section(ResponseFieldWidget(controller: fieldController)));
       } else {
         children.add(_section(Column(
           mainAxisAlignment: MainAxisAlignment.start,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: group
               .map(
-                (field) => ResponseField(
-                  spec: field,
-                  initialValue: (field.key() == null) ? null : widget.priorResponse?.fields[field.key()],
-                  canEdit: canEdit,
+                (field) => ResponseFieldWidget(
+                  controller: controller.getFieldController(index++),
                 ),
               )
               .toList(),

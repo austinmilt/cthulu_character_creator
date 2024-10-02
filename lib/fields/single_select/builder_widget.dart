@@ -1,5 +1,5 @@
-import 'package:cthulu_character_creator/fields/email/field.dart';
-import 'package:cthulu_character_creator/fields/email/response_widget.dart';
+import 'package:cthulu_character_creator/fields/single_select/field.dart';
+import 'package:cthulu_character_creator/fields/single_select/response_widget.dart';
 import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:cthulu_character_creator/views/builder/form_builder_controller.dart';
 import 'package:cthulu_character_creator/views/response/response_controller.dart';
@@ -8,28 +8,25 @@ import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 
-class EmailBuilder extends StatefulWidget {
-  const EmailBuilder({
-    super.key,
-    required this.controller,
-  });
+class SingleSelectBuilder extends StatefulWidget {
+  const SingleSelectBuilder({super.key, required this.controller});
 
   final FieldBuilderController controller;
 
   @override
-  State<EmailBuilder> createState() => _EmailBuilderState();
+  State<SingleSelectBuilder> createState() => _SingleSelectBuilderState();
 }
 
-class _EmailBuilderState extends State<EmailBuilder> {
+class _SingleSelectBuilderState extends State<SingleSelectBuilder> {
   // C4FormField _getSpec(FormBuilderController controller) {
-  //   final C4FormField? candidate = controller.getField(widget.fieldIndex);
-  //   return C4FormField.email(
-  //     EmailFormField(
-  //       key: candidate?.email?.key ?? 'email-${widget.fieldIndex}',
-  //       title: candidate?.email?.title,
-  //       bodyMarkdown: candidate?.email?.bodyMarkdown,
-  //       required: candidate?.email?.required ?? true,
-  //       slots: candidate?.email?.slots,
+  //   return C4FormField.singleSelect(
+  //     SingleSelectFormField(
+  //       key: candidate?.singleSelect?.key ?? 'single-select-${widget.fieldIndex}',
+  //       title: candidate?.singleSelect?.title,
+  //       bodyMarkdown: candidate?.singleSelect?.bodyMarkdown,
+  //       required: candidate?.singleSelect?.required ?? true,
+  //       slots: candidate?.singleSelect?.slots,
+  //       options: candidate?.singleSelect?.options ?? [],
   //     ),
   //     candidate?.group,
   //   );
@@ -41,13 +38,13 @@ class _EmailBuilderState extends State<EmailBuilder> {
     return widget.controller.editing
         ? _Editor(
             spec: spec,
-            onUpdate: (p0) => widget.controller.spec = p0,
+            onUpdate: (s) => widget.controller.spec = s,
           )
-        : EmailResponseWidget(
+        : SingleSelectResponseWidget(
             controller: FieldResponseController(
               spec,
               true,
-              FormFieldResponse.email('john.doe@gmail.com'),
+              FormFieldResponse.singleSelect(spec.singleSelectRequired.options.first),
             ),
           );
   }
@@ -65,20 +62,22 @@ class _Editor extends StatelessWidget {
     String? bodyMarkdown,
     bool? required,
     int? slots,
+    List<String>? options,
   }) {
-    final EmailFormField subspec = spec.emailRequired;
-    onUpdate(C4FormField.email(EmailFormField(
+    final SingleSelectFormField subspec = spec.singleSelectRequired;
+    onUpdate(C4FormField.singleSelect(SingleSelectFormField(
       key: key ?? subspec.key,
       title: title ?? subspec.title,
       bodyMarkdown: bodyMarkdown ?? subspec.bodyMarkdown,
-      required: required ?? subspec.required,
       slots: slots ?? subspec.slots,
+      required: required ?? subspec.required,
+      options: options ?? subspec.options,
     )));
   }
 
   @override
   Widget build(BuildContext context) {
-    final EmailFormField subspec = spec.emailRequired;
+    final SingleSelectFormField subspec = spec.singleSelectRequired;
     return Column(children: [
       Wrap(
         direction: Axis.horizontal,

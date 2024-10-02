@@ -62,15 +62,13 @@ class _ViewLoadedState extends State<_ViewLoaded> {
           setState(() {
             _toggleState = [index == 0, index == 1];
           });
+          context.read<FormBuilderController>().editing = index == 0;
         },
         borderRadius: const BorderRadius.all(Radius.circular(8)),
         isSelected: _toggleState,
         children: const [Icon(Icons.edit), Icon(Icons.preview)],
       ),
-      body: FormBuilder(
-        gameId: 'coc-dragoncon-stakes',
-        editing: _toggleState[0],
-      ),
+      body: FormBuilder(gameId: 'coc-dragoncon-stakes'),
     );
   }
 }

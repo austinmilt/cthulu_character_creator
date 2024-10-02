@@ -20,15 +20,15 @@ const serdes = (
   ),
 );
 
-List<dynamic> _formToJson(Form form) {
+List<dynamic> _formToJson(C4Form form) {
   return form.map(_formFieldEntryToJson).toList();
 }
 
-Form _formFromJson(List<Map<String, dynamic>> json) {
+C4Form _formFromJson(List<Map<String, dynamic>> json) {
   return json.map(_formFieldEntryFromJson).toList();
 }
 
-Map<String, dynamic> _formFieldEntryToJson(FormField entry) {
+Map<String, dynamic> _formFieldEntryToJson(C4FormField entry) {
   final Map<String, dynamic> result;
   if (entry.isInfo) {
     result = _infoToJson(entry.infoRequired);
@@ -49,18 +49,18 @@ Map<String, dynamic> _formFieldEntryToJson(FormField entry) {
   return result;
 }
 
-FormField _formFieldEntryFromJson(Map<String, dynamic> json) {
+C4FormField _formFieldEntryFromJson(Map<String, dynamic> json) {
   final String? group = json['group'];
-  if (json.containsKey("info")) return FormField.info(_infoFromJson(json["info"]), group);
-  if (json.containsKey("email")) return FormField.email(_emailFromJson(json["email"]), group);
+  if (json.containsKey("info")) return C4FormField.info(_infoFromJson(json["info"]), group);
+  if (json.containsKey("email")) return C4FormField.email(_emailFromJson(json["email"]), group);
   if (json.containsKey("singleSelect")) {
-    return FormField.singleSelect(_singleSelectFromJson(json["singleSelect"]), group);
+    return C4FormField.singleSelect(_singleSelectFromJson(json["singleSelect"]), group);
   }
   if (json.containsKey("cocSkillset")) {
-    return FormField.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]), group);
+    return C4FormField.cocSkillset(_cocSkillsetSelectFromJson(json["cocSkillset"]), group);
   }
-  if (json.containsKey("text")) return FormField.text(_textFromJson(json["text"]), group);
-  if (json.containsKey("textArea")) return FormField.textArea(_textAreaFromJson(json["textArea"]), group);
+  if (json.containsKey("text")) return C4FormField.text(_textFromJson(json["text"]), group);
+  if (json.containsKey("textArea")) return C4FormField.textArea(_textAreaFromJson(json["textArea"]), group);
   throw UnimplementedError("Dont know how to deserialize $json to FormFieldEntry");
 }
 
