@@ -16,6 +16,16 @@ class FormBuilder extends StatefulWidget {
 }
 
 class _FormBuilderState extends State<FormBuilder> {
+  Widget _card(Widget child) {
+    return Card.outlined(
+      elevation: 1,
+      child: Padding(
+        padding: const EdgeInsets.all(20),
+        child: child,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final FormBuilderController controller = context.watch<FormBuilderController>();
@@ -25,26 +35,30 @@ class _FormBuilderState extends State<FormBuilder> {
       final C4FormField? field = partialForm[i];
       if (field != null) {
         final FieldBuilderController fieldController = controller.getFieldController(i);
-        fieldWidgets.add(BuilderFieldWidget(controller: fieldController));
+        fieldWidgets.add(_card(BuilderFieldWidget(controller: fieldController)));
       }
     }
-    fieldWidgets.add(
-      IconButton.filled(
-        onPressed: () => controller.addField(
-          C4FormField.info(
-            // TODO choose the field type
-            InformationFormField(title: 'title', bodyMarkdown: 'body'),
+    if (controller.editing) {
+      fieldWidgets.add(
+        Padding(
+          padding: const EdgeInsets.all(20),
+          child: IconButton.filled(
+            onPressed: () => controller.addField(
+              C4FormField.info(
+                // TODO choose the field type
+                InformationFormField(title: 'title', bodyMarkdown: 'body'),
+              ),
+            ),
+            icon: const Icon(Icons.add),
           ),
         ),
-        icon: const Icon(Icons.add),
-      ),
-    );
+      );
+    }
+
     return TopCenterScrollableContainer(
       maxWidth: 600,
       padding: const EdgeInsets.all(16),
-      child: Column(
-        children: fieldWidgets,
-      ),
+      child: Column(children: fieldWidgets),
     );
   }
 }

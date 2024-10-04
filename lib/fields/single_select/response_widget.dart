@@ -5,7 +5,6 @@ import 'package:cthulu_character_creator/views/response/response_controller.dart
 import 'package:flutter/material.dart';
 import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:form_builder_validators/form_builder_validators.dart';
-import 'package:provider/provider.dart';
 
 class SingleSelectResponseWidget extends StatefulWidget {
   const SingleSelectResponseWidget({super.key, required this.controller});
@@ -22,8 +21,7 @@ class _SingleSelectResponseWidgetState extends State<SingleSelectResponseWidget>
     for (final String option in spec.options) {
       final String label;
       final int? slots = spec.slots;
-      // TODO should this be a field in the field controller rather than the top response controller?
-      final int? slotsRemaining = context.watch<ResponseController>().slotsRemaining(spec.key, option);
+      final int? slotsRemaining = widget.controller.getSlotsRemaining(option);
       if (slots != null) {
         if (slotsRemaining != null) {
           label = '$option ($slotsRemaining/$slots)';

@@ -123,11 +123,7 @@ class MainResponseController with ChangeNotifier implements ResponseController {
   FieldResponseController getFieldController(int fieldIndex) {
     final C4FormField spec = getField(fieldIndex)!;
     final String? key = spec.key();
-    final result = FieldResponseController(
-      spec,
-      _canEditResponse,
-      _submission?.fields[key],
-    );
+    final result = FieldResponseController(spec, _canEditResponse, _submission?.fields[key], _slotsRemaining[key]);
     if (key != null) {
       result.addListener(() {
         final FormFieldResponse? fieldResponse = result.response;
@@ -146,11 +142,16 @@ class MainResponseController with ChangeNotifier implements ResponseController {
 }
 
 class FieldResponseController with ChangeNotifier {
-  FieldResponseController(this.spec, this.canEdit, [this._response]);
+  FieldResponseController(this.spec, this.canEdit, [this._response, this._slotsRemaining]);
 
   final C4FormField spec;
 
   final bool canEdit;
+
+  final Map<String, int>? _slotsRemaining;
+  int? getSlotsRemaining(String value) {
+    return _slotsRemaining?[value];
+  }
 
   FormFieldResponse? _response;
   FormFieldResponse? get response => _response;

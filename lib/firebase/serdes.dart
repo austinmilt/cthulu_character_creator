@@ -1,12 +1,12 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
-import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/slot/slot.dart';
 import 'package:cthulu_character_creator/fields/email/field.dart';
 import 'package:cthulu_character_creator/fields/info/field.dart';
 import 'package:cthulu_character_creator/fields/single_select/field.dart';
 import 'package:cthulu_character_creator/fields/text/field.dart';
 import 'package:cthulu_character_creator/fields/text_area/field.dart';
 import 'package:cthulu_character_creator/model/form.dart';
-import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/skill/skill.dart';
 import 'package:cthulu_character_creator/model/form_response.dart';
 
 const serdes = (
@@ -192,7 +192,7 @@ SkillSlot _slotFromJson(dynamic json) {
   }
 }
 
-Map<String, dynamic> _textToJson(TextFormField field) {
+Map<String, dynamic> _textToJson(C4TextFormField field) {
   final Map<String, dynamic> result = {
     "key": field.key,
     "required": field.required,
@@ -204,8 +204,8 @@ Map<String, dynamic> _textToJson(TextFormField field) {
   return result;
 }
 
-TextFormField _textFromJson(Map<String, dynamic> json) {
-  return TextFormField(
+C4TextFormField _textFromJson(Map<String, dynamic> json) {
+  return C4TextFormField(
     key: json["key"],
     title: json["title"],
     bodyMarkdown: _decodeMarkdown(json["bodyMarkdown"]),

@@ -12,7 +12,7 @@ class TextResponseWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final model.TextFormField spec = controller.spec.textRequired;
+    final model.C4TextFormField spec = controller.spec.textRequired;
     return Column(
       mainAxisAlignment: MainAxisAlignment.start,
       crossAxisAlignment: CrossAxisAlignment.start,

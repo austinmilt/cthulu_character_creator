@@ -169,7 +169,7 @@ class FirestoreFormApi implements Api {
         final SingleSelectResponse? response = submission.fields[field.key]?.singleSelect;
         validationFutures.add(_validateSingleSelect(submission.id, field, response, index));
       } else if (fieldWrapper.isText) {
-        final TextFormField field = fieldWrapper.textRequired;
+        final C4TextFormField field = fieldWrapper.textRequired;
         final TextResponse? response = submission.fields[field.key]?.text;
         validationFutures.add(_validateText(submission.id, field, response, index));
       } else if (fieldWrapper.isTextArea) {
@@ -239,7 +239,7 @@ class FirestoreFormApi implements Api {
 
   Future<String?> _validateText(
     String? submissionId,
-    TextFormField field,
+    C4TextFormField field,
     TextResponse? response,
     _Index index,
   ) async {

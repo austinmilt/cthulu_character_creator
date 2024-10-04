@@ -60,19 +60,16 @@ class _Editor extends StatelessWidget {
   Widget build(BuildContext context) {
     final InformationFormField subspec = spec.infoRequired;
     return Column(children: [
-      ConstrainedBox(
-        constraints: BoxConstraints.loose(const Size(100, double.infinity)),
-        child: FormBuilderTextField(
-          name: 'title',
-          decoration: const InputDecoration(labelText: 'title'),
-          initialValue: subspec.title,
-          autovalidateMode: AutovalidateMode.onUserInteraction,
-          onChanged: (v) => _onUpdate(title: v),
-          validator: FormBuilderValidators.compose([
-            FormBuilderValidators.required(),
-            FormBuilderValidators.maxLength(40),
-          ]),
-        ),
+      FormBuilderTextField(
+        name: 'title',
+        decoration: const InputDecoration(labelText: 'title'),
+        initialValue: subspec.title,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        onChanged: (v) => _onUpdate(title: v),
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+          FormBuilderValidators.maxLength(40),
+        ]),
       ),
       const SizedBox(height: 18),
       FormBuilderTextField(
@@ -80,6 +77,8 @@ class _Editor extends StatelessWidget {
         initialValue: subspec.bodyMarkdown,
         decoration: const InputDecoration(labelText: 'description'),
         onChanged: (v) => _onUpdate(bodyMarkdown: v),
+        minLines: 1,
+        maxLines: 20,
         validator: FormBuilderValidators.compose([
           FormBuilderValidators.required(),
           FormBuilderValidators.maxLength(10000),

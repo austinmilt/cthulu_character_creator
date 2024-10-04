@@ -1,11 +1,11 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
-import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/slot/slot.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/views/response/response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'skill.dart';
+import 'skill/skill.dart';
 
 class SkillSelector extends StatefulWidget {
   const SkillSelector({

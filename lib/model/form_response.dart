@@ -1,5 +1,5 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/response.dart';
-import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/skill/skill.dart';
 import 'package:cthulu_character_creator/fields/email/response.dart';
 import 'package:cthulu_character_creator/fields/single_select/response.dart';
 import 'package:cthulu_character_creator/fields/text/response.dart';

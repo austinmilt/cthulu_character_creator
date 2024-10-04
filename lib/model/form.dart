@@ -23,7 +23,7 @@ class C4FormField {
   final EmailFormField? email;
   final SingleSelectFormField? singleSelect;
   final CoCSkillsetFormField? cocSkillset;
-  final TextFormField? text;
+  final C4TextFormField? text;
   final TextAreaFormField? textArea;
 
   factory C4FormField.info(InformationFormField field, [String? group]) {
@@ -54,12 +54,12 @@ class C4FormField {
   bool get isCocSkillset => cocSkillset != null;
   CoCSkillsetFormField get cocSkillsetRequired => cocSkillset!;
 
-  factory C4FormField.text(TextFormField field, [String? group]) {
+  factory C4FormField.text(C4TextFormField field, [String? group]) {
     return C4FormField._(text: field, group: group);
   }
 
   bool get isText => text != null;
-  TextFormField get textRequired => text!;
+  C4TextFormField get textRequired => text!;
 
   factory C4FormField.textArea(TextAreaFormField field, [String? group]) {
     return C4FormField._(textArea: field, group: group);

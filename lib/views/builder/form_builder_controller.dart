@@ -45,6 +45,7 @@ class FormBuilderController with ChangeNotifier {
     final result = FieldBuilderController._(field, _editing);
     result.addListener(() {
       _form[index] = result._spec;
+      notifyListeners();
     });
     return result;
   }

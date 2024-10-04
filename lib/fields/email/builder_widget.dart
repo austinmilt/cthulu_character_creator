@@ -80,72 +80,58 @@ class _Editor extends StatelessWidget {
   Widget build(BuildContext context) {
     final EmailFormField subspec = spec.emailRequired;
     return Column(children: [
-      Wrap(
-        direction: Axis.horizontal,
-        spacing: 16,
-        runSpacing: 10,
-        children: [
-          ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size(100, double.infinity)),
-            child: FormBuilderTextField(
-              name: 'key',
-              decoration: const InputDecoration(labelText: 'key'),
-              initialValue: subspec.key,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: (v) => _onUpdate(key: v),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.maxLength(20),
-              ]),
-            ),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size(100, double.infinity)),
-            child: FormBuilderTextField(
-              name: 'title',
-              decoration: const InputDecoration(labelText: 'title'),
-              initialValue: subspec.title,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: (v) => _onUpdate(title: v),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.maxLength(40),
-              ]),
-            ),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size(150, double.infinity)),
-            child: FormBuilderCheckbox(
-              name: 'required',
-              title: const Text("required"),
-              initialValue: subspec.required,
-              onChanged: (v) => _onUpdate(required: v),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-              ]),
-            ),
-          ),
-          ConstrainedBox(
-            constraints: BoxConstraints.loose(const Size(100, double.infinity)),
-            child: FormBuilderTextField(
-              name: 'slots',
-              decoration: const InputDecoration(
-                labelText: 'slots',
-                helperText: "The number of times a response may be repeated; 1 slot "
-                    "means each response must be unique.",
-              ),
-              initialValue: subspec.slots?.toString(),
-              keyboardType: TextInputType.number,
-              autovalidateMode: AutovalidateMode.onUserInteraction,
-              onChanged: (v) => _onUpdate(slots: (v == null) ? null : int.parse(v)),
-              validator: FormBuilderValidators.compose([
-                FormBuilderValidators.required(),
-                FormBuilderValidators.positiveNumber(),
-                FormBuilderValidators.max(100)
-              ]),
-            ),
-          ),
-        ],
+      FormBuilderTextField(
+        name: 'key',
+        decoration: const InputDecoration(
+          labelText: 'key',
+          helperText: "The unique identifying key of this field in your form used to label responses.",
+          helperMaxLines: 20,
+        ),
+        initialValue: subspec.key,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        onChanged: (v) => _onUpdate(key: v),
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+          FormBuilderValidators.maxLength(20),
+        ]),
+      ),
+      FormBuilderTextField(
+        name: 'title',
+        decoration: const InputDecoration(labelText: 'title'),
+        initialValue: subspec.title,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        onChanged: (v) => _onUpdate(title: v),
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+          FormBuilderValidators.maxLength(40),
+        ]),
+      ),
+      FormBuilderCheckbox(
+        name: 'required',
+        title: const Text("required"),
+        initialValue: subspec.required,
+        onChanged: (v) => _onUpdate(required: v),
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+        ]),
+      ),
+      FormBuilderTextField(
+        name: 'slots',
+        decoration: const InputDecoration(
+          labelText: 'slots',
+          helperText: "The number of times a response may be repeated; 1 slot "
+              "means each response must be unique.",
+          helperMaxLines: 20,
+        ),
+        initialValue: subspec.slots?.toString(),
+        keyboardType: TextInputType.number,
+        autovalidateMode: AutovalidateMode.onUserInteraction,
+        onChanged: (v) => _onUpdate(slots: (v == null) ? null : int.parse(v)),
+        validator: FormBuilderValidators.compose([
+          FormBuilderValidators.required(),
+          FormBuilderValidators.positiveNumber(),
+          FormBuilderValidators.max(100),
+        ]),
       ),
       FormBuilderTextField(
         name: 'bodyMarkdown',
