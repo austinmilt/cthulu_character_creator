@@ -142,6 +142,88 @@ class _Editor extends StatelessWidget {
           FormBuilderValidators.maxLength(10000),
         ]),
       ),
+      const SizedBox(height: 24),
+      _OptionsBuilder(
+        options: subspec.options,
+        onUpdate: (v) => _onUpdate(options: v),
+      )
     ]);
+  }
+}
+
+class _OptionsBuilder extends StatelessWidget {
+  const _OptionsBuilder({required this.options, required this.onUpdate});
+
+  final List<String> options;
+  final void Function(List<String>) onUpdate;
+
+  void _onUpdate(int index, String newValue) {
+    onUpdate(List.generate(options.length, (i) => (i == index) ? newValue : options[i]));
+  }
+
+  void _addOption() {
+    onUpdate(options + ["NEW"]);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        const Text('Slots'),
+        const SizedBox(height: 8),
+        Wrap(
+          children: List.generate(
+            options.length + 1,
+            (i) => (i < options.length)
+                ? Padding(
+                    padding: const EdgeInsets.only(top: 4),
+                    child: _OptionBuilder(
+                      option: options[i],
+                      onUpdate: (v) => _onUpdate(i, v),
+                    ),
+                  )
+                : Padding(
+                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                    child: SizedBox(
+                      width: double.infinity,
+                      child: IconButton.outlined(
+                        onPressed: _addOption,
+                        icon: const Icon(Icons.add),
+                      ),
+                    ),
+                  ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _OptionBuilder extends StatelessWidget {
+  const _OptionBuilder({required this.option, required this.onUpdate});
+
+  final String option;
+  final void Function(String) onUpdate;
+
+  void _onUpdate(String? value) {
+    if (value != null) {
+      onUpdate(value);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FormBuilderTextField(
+      name: 'option',
+      keyboardType: TextInputType.text,
+      initialValue: option,
+      autovalidateMode: AutovalidateMode.onUserInteraction,
+      onChanged: _onUpdate,
+      validator: FormBuilderValidators.compose([
+        FormBuilderValidators.required(),
+        FormBuilderValidators.maxLength(100),
+        FormBuilderValidators.minLength(1),
+      ]),
+    );
   }
 }
