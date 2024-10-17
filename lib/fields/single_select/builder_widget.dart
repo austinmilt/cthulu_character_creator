@@ -171,28 +171,27 @@ class _OptionsBuilder extends StatelessWidget {
       children: [
         const Text('Slots'),
         const SizedBox(height: 8),
-        Wrap(
-          children: List.generate(
-            options.length + 1,
-            (i) => (i < options.length)
-                ? Padding(
-                    padding: const EdgeInsets.only(top: 4),
-                    child: _OptionBuilder(
-                      option: options[i],
-                      onUpdate: (v) => _onUpdate(i, v),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: IconButton.outlined(
-                        onPressed: _addOption,
-                        icon: const Icon(Icons.add),
-                      ),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: options.length + 1,
+          itemBuilder: (context, i) => (i < options.length)
+              ? Padding(
+                  padding: const EdgeInsets.only(top: 4),
+                  child: _OptionBuilder(
+                    option: options[i],
+                    onUpdate: (v) => _onUpdate(i, v),
+                  ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: IconButton.outlined(
+                      onPressed: _addOption,
+                      icon: const Icon(Icons.add),
                     ),
                   ),
-          ),
+                ),
         ),
       ],
     );

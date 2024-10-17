@@ -23,30 +23,29 @@ class SkillsBuilderWidget extends StatelessWidget {
       children: [
         const Text('Skill list'),
         const SizedBox(height: 8),
-        Wrap(
-          children: List.generate(
-            skills.length + 1,
-            (i) => (i < skills.length)
-                ? Card.outlined(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: _SkillBuilderWidget(
-                        skill: skills[i],
-                        onUpdate: (v) => _onUpdate(i, v),
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: IconButton.outlined(
-                        onPressed: _addSkill,
-                        icon: const Icon(Icons.add),
-                      ),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: skills.length + 1,
+          itemBuilder: (context, i) => (i < skills.length)
+              ? Card.outlined(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _SkillBuilderWidget(
+                      skill: skills[i],
+                      onUpdate: (v) => _onUpdate(i, v),
                     ),
                   ),
-          ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: IconButton.outlined(
+                      onPressed: _addSkill,
+                      icon: const Icon(Icons.add),
+                    ),
+                  ),
+                ),
         ),
       ],
     );

@@ -23,30 +23,29 @@ class SkillSlotsBuilderWidget extends StatelessWidget {
       children: [
         const Text('Slots'),
         const SizedBox(height: 8),
-        Wrap(
-          children: List.generate(
-            slots.length + 1,
-            (i) => (i < slots.length)
-                ? Card.outlined(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: _SlotBuilderWidget(
-                        slot: slots[i],
-                        onUpdate: (v) => _onUpdate(i, v),
-                      ),
-                    ),
-                  )
-                : Padding(
-                    padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
-                    child: SizedBox(
-                      width: double.infinity,
-                      child: IconButton.outlined(
-                        onPressed: _addSlot,
-                        icon: const Icon(Icons.add),
-                      ),
+        ListView.builder(
+          shrinkWrap: true,
+          itemCount: slots.length + 1,
+          itemBuilder: (context, i) => (i < slots.length)
+              ? Card.outlined(
+                  child: Padding(
+                    padding: const EdgeInsets.all(16),
+                    child: _SlotBuilderWidget(
+                      slot: slots[i],
+                      onUpdate: (v) => _onUpdate(i, v),
                     ),
                   ),
-          ),
+                )
+              : Padding(
+                  padding: const EdgeInsets.only(left: 20, right: 20, top: 8),
+                  child: SizedBox(
+                    width: double.infinity,
+                    child: IconButton.outlined(
+                      onPressed: _addSlot,
+                      icon: const Icon(Icons.add),
+                    ),
+                  ),
+                ),
         ),
       ],
     );

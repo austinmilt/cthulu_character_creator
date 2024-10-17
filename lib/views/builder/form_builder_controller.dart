@@ -27,6 +27,8 @@ class FormBuilderController with ChangeNotifier {
     notifyListeners();
   }
 
+  final Map<int, FieldBuilderController> _fieldControllers = {};
+
   Future<void> load(String gameId) async {
     _form = await _api.getForm(gameId) ?? [];
     _gameId = gameId;
@@ -37,16 +39,30 @@ class FormBuilderController with ChangeNotifier {
     notifyListeners();
   }
 
+  void removeField(int index) {
+    final C4FormField? field = _getField(index);
+    if (field == null) {
+      throw StateError('Tried to remove a field (index=$index) that doesnt exist');
+    }
+    _fieldControllers.remove(index)?.dispose();
+    notifyListeners();
+  }
+
   FieldBuilderController getFieldController(int index) {
     final C4FormField? field = _getField(index);
     if (field == null) {
       throw StateError('Tried to get a controller for a field (index=$index) that doesnt exist yet');
     }
-    final result = FieldBuilderController._(field, _editing);
-    result.addListener(() {
-      _form[index] = result._spec;
-      notifyListeners();
-    });
+    FieldBuilderController? result = _fieldControllers[index];
+    if (result == null) {
+      result = FieldBuilderController._(field, _editing);
+      result.addListener(() {
+        _form[index] = result!._spec;
+        notifyListeners();
+      });
+      _fieldControllers[index] = result;
+    }
+    result.editing = _editing;
     return result;
   }
 
@@ -65,7 +81,7 @@ class FieldBuilderController with ChangeNotifier {
     notifyListeners();
   }
 
-  final bool editing;
+  bool editing;
 }
 
 /// Implementation of the response controller that mocks context for previewing
