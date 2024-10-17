@@ -44,6 +44,7 @@ class FormBuilderController with ChangeNotifier {
     if (field == null) {
       throw StateError('Tried to remove a field (index=$index) that doesnt exist');
     }
+    _form.removeAt(index);
     _fieldControllers.remove(index)?.dispose();
     notifyListeners();
   }
