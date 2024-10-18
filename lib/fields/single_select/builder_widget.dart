@@ -165,6 +165,15 @@ class _OptionsBuilder extends StatelessWidget {
     onUpdate(options + ["NEW"]);
   }
 
+  void _onRemove(int index) {
+    options.removeAt(index);
+    final List<String> newOptions = [];
+    for (int i = 0; i < options.length; i++) {
+      if (i != index) newOptions.add(options[i]);
+    }
+    onUpdate(newOptions);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -172,14 +181,29 @@ class _OptionsBuilder extends StatelessWidget {
         const Text('Slots'),
         const SizedBox(height: 8),
         ListView.builder(
+          key: Key(options.join()),
           shrinkWrap: true,
           itemCount: options.length + 1,
           itemBuilder: (context, i) => (i < options.length)
               ? Padding(
                   padding: const EdgeInsets.only(top: 4),
-                  child: _OptionBuilder(
-                    option: options[i],
-                    onUpdate: (v) => _onUpdate(i, v),
+                  child: Stack(
+                    children: [
+                      _OptionBuilder(
+                        option: options[i],
+                        onUpdate: (v) => _onUpdate(i, v),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: IconButton(
+                            onPressed: () => _onRemove(i),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 )
               : Padding(

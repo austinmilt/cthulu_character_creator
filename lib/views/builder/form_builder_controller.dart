@@ -49,6 +49,9 @@ class FormBuilderController with ChangeNotifier {
     notifyListeners();
   }
 
+  // TODO remove field stuff for each item in skillsets and single select
+  // TODO save form functionality
+
   FieldBuilderController getFieldController(int index) {
     final C4FormField? field = _getField(index);
     if (field == null) {
