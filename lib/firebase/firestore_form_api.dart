@@ -41,6 +41,15 @@ class FirestoreFormApi implements Api {
   }
 
   @override
+  Future<void>? saveForm(String gameId, C4Form form) async {
+    _logger.debug("Saving form for game $gameId");
+
+    /// TODO Authorization
+    await _gameRef('example').set({_keys.game_.form: serdes.form.toJson(form)});
+    _logger.debug("Saved form for game $gameId: $form");
+  }
+
+  @override
   Future<FormResponse?> getSubmission(String gameId, String submissionId) async {
     _logger.debug("Getting response for game $gameId with id $submissionId");
     final snapshot = await _responseRef(gameId, submissionId).get();

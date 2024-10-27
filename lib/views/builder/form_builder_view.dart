@@ -81,6 +81,7 @@ class _ViewLoadedState extends State<_ViewLoaded> {
         mainAxisSize: MainAxisSize.min,
         children: [
           InkWell(
+            // TODO indicate this will wipe out all existing responses (and then wipe them out)
             onTap: () => controller.save(),
             child: Container(
                 decoration: BoxDecoration(

@@ -35,7 +35,7 @@ class FormBuilderController with ChangeNotifier {
   }
 
   Future<void> save() async {
-    print('saving');
+    await _api.saveForm(gameId, _form.nonNulls.toList());
   }
 
   void addField(C4FormField field) {
