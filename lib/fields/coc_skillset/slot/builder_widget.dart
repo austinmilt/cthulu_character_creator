@@ -17,6 +17,14 @@ class SkillSlotsBuilderWidget extends StatelessWidget {
     onUpdate(slots + [SkillSlot.modify(10)]);
   }
 
+  void _onRemove(int index) {
+    final List<SkillSlot> newSlots = [];
+    for (int i = 0; i < slots.length; i++) {
+      if (i != index) newSlots.add(slots[i]);
+    }
+    onUpdate(newSlots);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -24,16 +32,32 @@ class SkillSlotsBuilderWidget extends StatelessWidget {
         const Text('Slots'),
         const SizedBox(height: 8),
         ListView.builder(
+          // update the key to force a re-render when we remove a skill
+          key: Key(slots.join()),
           shrinkWrap: true,
           itemCount: slots.length + 1,
           itemBuilder: (context, i) => (i < slots.length)
               ? Card.outlined(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _SlotBuilderWidget(
-                      slot: slots[i],
-                      onUpdate: (v) => _onUpdate(i, v),
-                    ),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _SlotBuilderWidget(
+                          slot: slots[i],
+                          onUpdate: (v) => _onUpdate(i, v),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: IconButton(
+                            onPressed: () => _onRemove(i),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 )
               : Padding(
