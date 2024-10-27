@@ -18,20 +18,6 @@ class SingleSelectBuilder extends StatefulWidget {
 }
 
 class _SingleSelectBuilderState extends State<SingleSelectBuilder> {
-  // C4FormField _getSpec(FormBuilderController controller) {
-  //   return C4FormField.singleSelect(
-  //     SingleSelectFormField(
-  //       key: candidate?.singleSelect?.key ?? 'single-select-${widget.fieldIndex}',
-  //       title: candidate?.singleSelect?.title,
-  //       bodyMarkdown: candidate?.singleSelect?.bodyMarkdown,
-  //       required: candidate?.singleSelect?.required ?? true,
-  //       slots: candidate?.singleSelect?.slots,
-  //       options: candidate?.singleSelect?.options ?? [],
-  //     ),
-  //     candidate?.group,
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final C4FormField spec = widget.controller.spec;
@@ -181,6 +167,7 @@ class _OptionsBuilder extends StatelessWidget {
         const Text('Slots'),
         const SizedBox(height: 8),
         ListView.builder(
+          // update the key to force a re-render when we remove a skill
           key: Key(options.join()),
           shrinkWrap: true,
           itemCount: options.length + 1,

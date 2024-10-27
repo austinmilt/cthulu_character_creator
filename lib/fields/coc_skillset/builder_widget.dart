@@ -23,7 +23,7 @@ class CocSkillsetBuilder extends StatelessWidget {
     return controller.editing
         ? _Editor(
             spec: spec,
-            onUpdate: (p0) => controller.spec = p0,
+            onUpdate: (s) => controller.spec = s,
           )
         : CocSkillsetWidget(
             controller: FieldResponseController(

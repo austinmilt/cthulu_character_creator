@@ -38,7 +38,9 @@ class FormBuilderView extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.done) {
           return _ViewLoaded();
         } else {
-          return const CircularProgressIndicator();
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         }
       },
     );

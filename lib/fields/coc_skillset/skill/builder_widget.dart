@@ -17,6 +17,14 @@ class SkillsBuilderWidget extends StatelessWidget {
     onUpdate(skills + [Skill("NEW", 0)]);
   }
 
+  void _onRemove(int index) {
+    final List<Skill> newSkills = [];
+    for (int i = 0; i < skills.length; i++) {
+      if (i != index) newSkills.add(skills[i]);
+    }
+    onUpdate(newSkills);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -24,16 +32,32 @@ class SkillsBuilderWidget extends StatelessWidget {
         const Text('Skill list'),
         const SizedBox(height: 8),
         ListView.builder(
+          // update the key to force a re-render when we remove a skill
+          key: Key(skills.join()),
           shrinkWrap: true,
           itemCount: skills.length + 1,
           itemBuilder: (context, i) => (i < skills.length)
               ? Card.outlined(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: _SkillBuilderWidget(
-                      skill: skills[i],
-                      onUpdate: (v) => _onUpdate(i, v),
-                    ),
+                  child: Stack(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: _SkillBuilderWidget(
+                          skill: skills[i],
+                          onUpdate: (v) => _onUpdate(i, v),
+                        ),
+                      ),
+                      Align(
+                        alignment: Alignment.topRight,
+                        child: Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: IconButton(
+                            onPressed: () => _onRemove(i),
+                            icon: const Icon(Icons.close),
+                          ),
+                        ),
+                      )
+                    ],
                   ),
                 )
               : Padding(
