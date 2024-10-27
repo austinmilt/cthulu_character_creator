@@ -34,6 +34,10 @@ class FormBuilderController with ChangeNotifier {
     _gameId = gameId;
   }
 
+  Future<void> save() async {
+    print('saving');
+  }
+
   void addField(C4FormField field) {
     _form.add(field);
     notifyListeners();

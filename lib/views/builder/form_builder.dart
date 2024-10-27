@@ -12,9 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 class FormBuilder extends StatefulWidget {
-  const FormBuilder({super.key, required this.gameId});
-
-  final String gameId;
+  const FormBuilder({super.key});
 
   @override
   State<FormBuilder> createState() => _FormBuilderState();

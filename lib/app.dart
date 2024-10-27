@@ -25,7 +25,8 @@ class MyApp extends StatelessWidget {
 
 GoRouter _router() {
   return GoRouter(
-    initialLocation: FormBuilderView.route.path,
+    // TODO change to "home page" with my games and responses
+    initialLocation: FormBuilderView.route.path.replaceAll(":gameId", 'coc-dragoncon-stakes'),
     routes: <RouteBase>[
       FormBuilderView.route,
       ResponseView.newRoute,
