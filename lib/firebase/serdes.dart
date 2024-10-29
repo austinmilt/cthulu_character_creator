@@ -8,8 +8,14 @@ import 'package:cthulu_character_creator/fields/text_area/field.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/fields/coc_skillset/skill/skill.dart';
 import 'package:cthulu_character_creator/model/form_response.dart';
+import 'package:cthulu_character_creator/model/game.dart';
+import 'package:cthulu_character_creator/model/game_system.dart';
 
 const serdes = (
+  game: (
+    toJson: _gameToJson,
+    fromJson: _gameFromJson,
+  ),
   form: (
     toJson: _formToJson,
     fromJson: _formFromJson,
@@ -19,6 +25,25 @@ const serdes = (
     fromJson: _formResponseFromJson,
   ),
 );
+
+Map<String, dynamic> _gameToJson(Game game) {
+  return {
+    'id': game.id,
+    'gameSystem': game.gameSystem.name,
+    'auth': game.auth,
+    // we put a placeholder in for the form within the game document so that it
+    // can be read as empty the first time the form is loaded
+    'form': [],
+  };
+}
+
+Game _gameFromJson(Map<String, dynamic> json) {
+  return Game(
+    id: json['id'],
+    gameSystem: GameSystem.fromName(json['gameSystem']),
+    auth: json['auth'],
+  );
+}
 
 List<dynamic> _formToJson(C4Form form) {
   return form.map(_formFieldEntryToJson).toList();
@@ -65,10 +90,11 @@ C4FormField _formFieldEntryFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _infoToJson(InformationFormField field) {
-  return {
+  final Map<String, dynamic> inner = {
     "title": field.title,
     "bodyMarkdown": field.bodyMarkdown,
   };
+  return {"info": inner};
 }
 
 InformationFormField _infoFromJson(Map<String, dynamic> json) {
@@ -79,14 +105,14 @@ InformationFormField _infoFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _emailToJson(EmailFormField field) {
-  final Map<String, dynamic> result = {
+  final Map<String, dynamic> inner = {
     "key": field.key,
     "required": field.required,
   };
-  _putFieldIfPresent('title', field.title, result);
-  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
-  _putFieldIfPresent('slots', field.slots, result);
-  return result;
+  _putFieldIfPresent('title', field.title, inner);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, inner);
+  _putFieldIfPresent('slots', field.slots, inner);
+  return {"email": inner};
 }
 
 EmailFormField _emailFromJson(Map<String, dynamic> json) {
@@ -100,15 +126,15 @@ EmailFormField _emailFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _singleSelectToJson(SingleSelectFormField field) {
-  final Map<String, dynamic> result = {
+  final Map<String, dynamic> inner = {
     "key": field.key,
     "required": field.required,
     "options": field.options,
   };
-  _putFieldIfPresent('title', field.title, result);
-  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
-  _putFieldIfPresent('slots', field.slots, result);
-  return result;
+  _putFieldIfPresent('title', field.title, inner);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, inner);
+  _putFieldIfPresent('slots', field.slots, inner);
+  return {"singleSelect": inner};
 }
 
 SingleSelectFormField _singleSelectFromJson(Map<String, dynamic> json) {
@@ -123,15 +149,15 @@ SingleSelectFormField _singleSelectFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _cocSkillsetToJson(CoCSkillsetFormField field) {
-  final Map<String, dynamic> result = {
+  final Map<String, dynamic> inner = {
     "key": field.key,
     "required": field.required,
     "skills": field.skills.map((s) => _skillToJson(s)).toList(),
     "slots": field.slots.map((s) => _slotToJson(s)).toList(),
   };
-  _putFieldIfPresent('title', field.title, result);
-  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
-  return result;
+  _putFieldIfPresent('title', field.title, inner);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, inner);
+  return {"cocSkillset": inner};
 }
 
 CoCSkillsetFormField _cocSkillsetSelectFromJson(Map<String, dynamic> json) {
@@ -193,15 +219,15 @@ SkillSlot _slotFromJson(dynamic json) {
 }
 
 Map<String, dynamic> _textToJson(C4TextFormField field) {
-  final Map<String, dynamic> result = {
+  final Map<String, dynamic> inner = {
     "key": field.key,
     "required": field.required,
   };
-  _putFieldIfPresent('title', field.title, result);
-  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
-  _putFieldIfPresent('label', field.label, result);
-  _putFieldIfPresent('help', field.help, result);
-  return result;
+  _putFieldIfPresent('title', field.title, inner);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, inner);
+  _putFieldIfPresent('label', field.label, inner);
+  _putFieldIfPresent('help', field.help, inner);
+  return {"text": inner};
 }
 
 C4TextFormField _textFromJson(Map<String, dynamic> json) {
@@ -217,15 +243,15 @@ C4TextFormField _textFromJson(Map<String, dynamic> json) {
 }
 
 Map<String, dynamic> _textAreaToJson(TextAreaFormField field) {
-  final Map<String, dynamic> result = {
+  final Map<String, dynamic> inner = {
     "key": field.key,
     "required": field.required,
   };
-  _putFieldIfPresent('title', field.title, result);
-  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, result);
-  _putFieldIfPresent('label', field.label, result);
-  _putFieldIfPresent('help', field.help, result);
-  return result;
+  _putFieldIfPresent('title', field.title, inner);
+  _putFieldIfPresent('bodyMarkdown', field.bodyMarkdown, inner);
+  _putFieldIfPresent('label', field.label, inner);
+  _putFieldIfPresent('help', field.help, inner);
+  return {"textArea": inner};
 }
 
 TextAreaFormField _textAreaFromJson(Map<String, dynamic> json) {

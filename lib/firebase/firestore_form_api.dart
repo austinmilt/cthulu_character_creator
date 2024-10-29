@@ -49,7 +49,7 @@ class FirestoreFormApi implements Api {
       throw ApiError.unauthorized(gameId);
     }
 
-    await _gameRef('example').set({_keys.game_.form: serdes.form.toJson(form)});
+    await _gameRef(gameId).set({_keys.game_.form: serdes.form.toJson(form)});
     _logger.debug("Saved form for game $gameId: $form");
   }
 
@@ -147,7 +147,7 @@ class FirestoreFormApi implements Api {
       throw ApiError.gameExists(gameId);
     }
     final Game game = Game(id: gameId, gameSystem: system, auth: myRandomAlpha(10));
-    await gameDoc.set(game.toJson());
+    await gameDoc.set(serdes.game.toJson(game));
     _logger.debug("Created game $gameId with system ${system.name}");
     return game;
   }

@@ -48,11 +48,15 @@ class FormBuilderView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Future<void> future = context.read<FormBuilderController>().load(gameId, authSecret);
     return FutureBuilder(
-      future: context.read<FormBuilderController>().load(gameId, authSecret),
+      future: future,
       builder: (_, snapshot) {
-        if (snapshot.connectionState == ConnectionState.done) {
-          return _ViewLoaded(gameId: gameId);
+        if (snapshot.hasError) {
+          // TODO error page
+          return Text("${snapshot.error}");
+        } else if (snapshot.connectionState == ConnectionState.done) {
+          return const _ViewLoaded();
         } else {
           return const Center(
             child: CircularProgressIndicator(),
@@ -64,9 +68,7 @@ class FormBuilderView extends StatelessWidget {
 }
 
 class _ViewLoaded extends StatefulWidget {
-  const _ViewLoaded({required this.gameId});
-
-  final String gameId;
+  const _ViewLoaded();
 
   @override
   State<_ViewLoaded> createState() => _ViewLoadedState();

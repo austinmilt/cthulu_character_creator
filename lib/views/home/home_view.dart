@@ -94,10 +94,14 @@ class _NewGameFormState extends State<_NewGameForm> {
   void _onSubmit() {
     setState(() {
       _submitting = true;
-      _onSubmitMain().then((_) {
-        setState(() {
-          _submitting = false;
-        });
+      _onSubmitMain().then((game) {
+        if (mounted && (game != null)) {
+          FormBuilderView.navigate(context, game.id, game.auth);
+        } else {
+          setState(() {
+            _submitting = false;
+          });
+        }
       }).onError((e, s) {
         _logger.error('Error submitting form', e, s);
         setState(() {
@@ -107,14 +111,14 @@ class _NewGameFormState extends State<_NewGameForm> {
     });
   }
 
-  Future<void> _onSubmitMain() async {
+  Future<Game?> _onSubmitMain() async {
     final bool? formIsValid = _formKey.currentState?.saveAndValidate();
     if (formIsValid == false) {
       // user has not filled in all required fields with valid values.
       // If [formIsValid] is null then there's no data yet, which we will
       // balk about below
       ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Fill all required responses.')));
-      return;
+      return null;
     }
 
     final Map<String, dynamic>? formDataMap = _formKey.currentState?.value;
@@ -128,7 +132,7 @@ class _NewGameFormState extends State<_NewGameForm> {
     try {
       final Game game = await context.read<HomeController>().createGame(gameName, system);
       if (mounted) {
-        FormBuilderView.navigate(context, game.id, game.auth);
+        return game;
       }
     } on ApiError catch (e) {
       if (mounted) {
