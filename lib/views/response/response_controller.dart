@@ -7,8 +7,6 @@ abstract interface class ResponseController with ChangeNotifier {
   String get gameId;
   C4Form get form;
   FormResponse? get submission;
-  String get submissionId;
-  String get editAuthSecret;
   bool get submitting;
   bool get validating;
   bool get canEditResponse;
@@ -36,14 +34,6 @@ class MainResponseController with ChangeNotifier implements ResponseController {
   FormResponse? _submission;
   @override
   FormResponse? get submission => _submission;
-
-  late String _submissionId;
-  @override
-  String get submissionId => _submissionId;
-
-  late String _editAuthSecret;
-  @override
-  String get editAuthSecret => _editAuthSecret;
 
   late Map<String, Map<String, int>> _slotsRemaining;
 
@@ -77,6 +67,7 @@ class MainResponseController with ChangeNotifier implements ResponseController {
     _canEditResponse = newSubmission || editingSubmission;
 
     await Future.wait(futures);
+    _gameId = gameId;
   }
 
   @override
@@ -86,9 +77,11 @@ class MainResponseController with ChangeNotifier implements ResponseController {
 
     try {
       final response = await _api.submitForm(_gameId, submission);
-      _submission = submission;
-      _editAuthSecret = response.editAuthSecret;
-      _submissionId = response.id;
+      _submission = FormResponse(
+        id: response.id,
+        editAuthSecret: response.editAuthSecret,
+        fields: submission.fields,
+      );
       _canEditResponse = true;
     } finally {
       _submitting = false;
@@ -130,7 +123,7 @@ class MainResponseController with ChangeNotifier implements ResponseController {
         if (fieldResponse != null) {
           _submission ??= FormResponse(
             id: null,
-            editAuthSecret: editAuthSecret,
+            editAuthSecret: submission?.editAuthSecret,
             fields: {},
           );
           _submission!.fields[key] = fieldResponse;

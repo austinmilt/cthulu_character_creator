@@ -10,16 +10,7 @@ import 'package:provider/provider.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 
 class ResponseForm extends StatefulWidget {
-  const ResponseForm({
-    super.key,
-    required this.gameId,
-    this.responseId,
-    this.editAuthSecret,
-  });
-
-  final String gameId;
-  final String? responseId;
-  final String? editAuthSecret;
+  const ResponseForm({super.key});
 
   @override
   ResponseFormState createState() {
@@ -39,9 +30,9 @@ class ResponseFormState extends State<ResponseForm> {
         maxWidth: 600,
         padding: const EdgeInsets.all(16),
         child: _FormLoaded(
-          gameId: widget.gameId,
-          responseId: widget.responseId,
-          editAuthSecret: widget.editAuthSecret,
+          gameId: controller.gameId,
+          responseId: controller.submission?.id,
+          editAuthSecret: controller.submission?.editAuthSecret,
           form: controller.form,
           priorResponse: controller.submission,
         ),

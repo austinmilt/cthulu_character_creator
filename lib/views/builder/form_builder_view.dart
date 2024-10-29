@@ -1,8 +1,11 @@
 import 'package:cthulu_character_creator/views/builder/form_builder.dart';
 import 'package:cthulu_character_creator/views/builder/form_builder_controller.dart';
+import 'package:cthulu_character_creator/views/response/response_view.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:universal_html/html.dart' as html;
 
 class FormBuilderView extends StatelessWidget {
   const FormBuilderView({
@@ -77,6 +80,19 @@ class _ViewLoaded extends StatefulWidget {
 class _ViewLoadedState extends State<_ViewLoaded> {
   List<bool> _toggleState = [true, false];
 
+  void _onShare(BuildContext context) {
+    final FormBuilderController controller = context.read<FormBuilderController>();
+    showDialog(
+      context: context,
+      builder: (context) {
+        return _CopyUrl(
+          gameId: controller.gameId,
+          editAuthSecret: controller.editAuthSecret,
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final FormBuilderController controller = context.read<FormBuilderController>();
@@ -86,19 +102,39 @@ class _ViewLoadedState extends State<_ViewLoaded> {
         crossAxisAlignment: CrossAxisAlignment.center,
         mainAxisSize: MainAxisSize.min,
         children: [
-          InkWell(
-            // TODO indicate this will wipe out all existing responses (and then wipe them out)
-            onTap: () => controller.save(),
-            child: Container(
-                decoration: BoxDecoration(
-                  border: Border.all(),
-                  borderRadius: BorderRadius.circular(8),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              InkWell(
+                // TODO indicate this will wipe out all existing responses (and then wipe them out)
+                onTap: () => controller.save(),
+                child: Container(
+                    decoration: BoxDecoration(
+                      border: Border.all(),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: const EdgeInsets.all(6),
+                    child: const Icon(
+                      Icons.save,
+                      size: 28,
+                    )),
+              ),
+              const SizedBox(width: 4),
+              InkWell(
+                onTap: () => _onShare(context),
+                child: Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  padding: const EdgeInsets.all(6),
+                  child: const Icon(
+                    Icons.share,
+                    size: 28,
+                  ),
                 ),
-                padding: const EdgeInsets.all(10),
-                child: const Icon(
-                  Icons.save,
-                  size: 32,
-                )),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
           ToggleButtons(
@@ -119,6 +155,83 @@ class _ViewLoadedState extends State<_ViewLoaded> {
         ],
       ),
       body: const FormBuilder(),
+    );
+  }
+}
+
+class _CopyUrl extends StatelessWidget {
+  const _CopyUrl({
+    required this.gameId,
+    this.editAuthSecret,
+  });
+
+  final String gameId;
+  final String? editAuthSecret;
+
+  bool _canShareEdit() {
+    return (editAuthSecret != null);
+  }
+
+  String _editUrl(BuildContext context) {
+    final String path = FormBuilderView.route.path.replaceFirst(":gameId", gameId);
+    return "${_urlOrigin(context)}$path?s=$editAuthSecret";
+  }
+
+  bool _canShareResponse() {
+    return true;
+  }
+
+  String _responseUrl(BuildContext context) {
+    final String path = ResponseView.newRoute.path.replaceFirst(":gameId", gameId);
+    return "${_urlOrigin(context)}$path";
+  }
+
+  String _urlOrigin(BuildContext context) {
+    return "${html.window.location.origin}/#";
+  }
+
+  void _copyToClipboard(String value) {
+    Clipboard.setData(ClipboardData(text: value));
+  }
+
+  Widget _option(BuildContext context, String label, String url) {
+    final String displayUrl = (url.length > 50) ? "...${url.substring(url.length - 50)}" : url;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Align(alignment: Alignment.centerLeft, child: Text(displayUrl)),
+        const SizedBox(height: 8),
+        Align(
+          alignment: Alignment.centerRight,
+          child: FilledButton.icon(
+            onPressed: () => _copyToClipboard(url),
+            icon: const Icon(Icons.copy),
+            label: Text(label),
+          ),
+        ),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      title: const Text("Share"),
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (_canShareResponse())
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _option(context, 'Respond', _responseUrl(context)),
+            ),
+          if (_canShareEdit())
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _option(context, 'Edit', _editUrl(context)),
+            ),
+        ],
+      ),
     );
   }
 }

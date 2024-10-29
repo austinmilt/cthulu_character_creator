@@ -18,6 +18,7 @@ class FormBuilderController with ChangeNotifier {
   String get gameId => _gameId;
 
   late String _edithAuthSecret;
+  String get editAuthSecret => _edithAuthSecret;
 
   List<C4FormField?> _form = [];
   List<C4FormField?> get partialForm => _form.toList();
@@ -103,9 +104,6 @@ class _MockResponseController with ChangeNotifier implements ResponseController 
   bool get canEditResponse => true;
 
   @override
-  String get editAuthSecret => "dummy-editAuthSecret";
-
-  @override
   C4Form get form => _builderController.partialForm.where((t) => t != null).map<C4FormField>((e) => e!).toList();
 
   @override
@@ -119,9 +117,6 @@ class _MockResponseController with ChangeNotifier implements ResponseController 
 
   @override
   FormResponse? get submission => null;
-
-  @override
-  String get submissionId => "dummy-submissionId";
 
   @override
   Future<void> submit(FormResponse submission) async {}

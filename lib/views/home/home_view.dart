@@ -103,7 +103,7 @@ class _NewGameFormState extends State<_NewGameForm> {
           });
         }
       }).onError((e, s) {
-        _logger.error('Error submitting form', e, s);
+        _logger.error('Error saving form', e, s);
         setState(() {
           _submitting = false;
         });
@@ -131,9 +131,7 @@ class _NewGameFormState extends State<_NewGameForm> {
 
     try {
       final Game game = await context.read<HomeController>().createGame(gameName, system);
-      if (mounted) {
-        return game;
-      }
+      return mounted ? game : null;
     } on ApiError catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

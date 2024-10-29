@@ -91,12 +91,13 @@ class ResponseView extends StatelessWidget {
       body: FutureBuilder(
         future: context.read<ResponseController>().load(gameId, responseId, editAuthSecret),
         builder: (context, snapshot) {
-          context.watch<ResponseController>();
-          return ResponseForm(
-            gameId: gameId,
-            responseId: responseId,
-            editAuthSecret: editAuthSecret,
-          );
+          if (snapshot.hasError) {
+            return Text(snapshot.error.toString());
+          } else if (snapshot.connectionState == ConnectionState.done) {
+            return const ResponseForm();
+          } else {
+            return const Center(child: CircularProgressIndicator());
+          }
         },
       ),
     );
