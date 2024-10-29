@@ -5,10 +5,10 @@ import 'package:cthulu_character_creator/fields/single_select/field.dart';
 import 'package:cthulu_character_creator/fields/text/field.dart';
 import 'package:cthulu_character_creator/fields/text_area/field.dart';
 
-typedef Form = List<FormField>;
+typedef C4Form = List<C4FormField>;
 
-class FormField {
-  FormField._({
+class C4FormField {
+  C4FormField._({
     this.group,
     this.info,
     this.email,
@@ -23,46 +23,46 @@ class FormField {
   final EmailFormField? email;
   final SingleSelectFormField? singleSelect;
   final CoCSkillsetFormField? cocSkillset;
-  final TextFormField? text;
+  final C4TextFormField? text;
   final TextAreaFormField? textArea;
 
-  factory FormField.info(InformationFormField field, [String? group]) {
-    return FormField._(info: field, group: group);
+  factory C4FormField.info(InformationFormField field, [String? group]) {
+    return C4FormField._(info: field, group: group);
   }
 
   bool get isInfo => info != null;
   InformationFormField get infoRequired => info!;
 
-  factory FormField.email(EmailFormField field, [String? group]) {
-    return FormField._(email: field, group: group);
+  factory C4FormField.email(EmailFormField field, [String? group]) {
+    return C4FormField._(email: field, group: group);
   }
 
   bool get isEmail => email != null;
   EmailFormField get emailRequired => email!;
 
-  factory FormField.singleSelect(SingleSelectFormField field, [String? group]) {
-    return FormField._(singleSelect: field, group: group);
+  factory C4FormField.singleSelect(SingleSelectFormField field, [String? group]) {
+    return C4FormField._(singleSelect: field, group: group);
   }
 
   bool get isSingleSelect => singleSelect != null;
   SingleSelectFormField get singleSelectRequired => singleSelect!;
 
-  factory FormField.cocSkillset(CoCSkillsetFormField field, [String? group]) {
-    return FormField._(cocSkillset: field, group: group);
+  factory C4FormField.cocSkillset(CoCSkillsetFormField field, [String? group]) {
+    return C4FormField._(cocSkillset: field, group: group);
   }
 
   bool get isCocSkillset => cocSkillset != null;
   CoCSkillsetFormField get cocSkillsetRequired => cocSkillset!;
 
-  factory FormField.text(TextFormField field, [String? group]) {
-    return FormField._(text: field, group: group);
+  factory C4FormField.text(C4TextFormField field, [String? group]) {
+    return C4FormField._(text: field, group: group);
   }
 
   bool get isText => text != null;
-  TextFormField get textRequired => text!;
+  C4TextFormField get textRequired => text!;
 
-  factory FormField.textArea(TextAreaFormField field, [String? group]) {
-    return FormField._(textArea: field, group: group);
+  factory C4FormField.textArea(TextAreaFormField field, [String? group]) {
+    return C4FormField._(textArea: field, group: group);
   }
 
   bool get isTextArea => textArea != null;

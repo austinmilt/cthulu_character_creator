@@ -1,5 +1,5 @@
-import 'package:cthulu_character_creator/fields/coc_skillset/skill.dart';
-import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/skill/skill.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/slot/slot.dart';
 
 class CoCSkillsetFormField {
   CoCSkillsetFormField({

@@ -12,13 +12,13 @@ import 'package:cthulu_character_creator/fields/text/field.dart';
 import 'package:cthulu_character_creator/fields/text/response.dart';
 import 'package:cthulu_character_creator/fields/text_area/field.dart';
 import 'package:cthulu_character_creator/fields/text_area/response.dart';
-import 'package:cthulu_character_creator/firebase/crypto.dart';
+import 'package:cthulu_character_creator/crypto.dart';
 import 'package:cthulu_character_creator/firebase/serdes.dart';
-import 'package:cthulu_character_creator/firebase/game.dart';
+import 'package:cthulu_character_creator/model/game.dart';
 import 'package:cthulu_character_creator/logging.dart';
 import 'package:cthulu_character_creator/model/form.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 // https://firebase.google.com/codelabs/firebase-get-to-know-flutter#4
@@ -30,14 +30,40 @@ class FirestoreFormApi implements Api {
   final Logger _logger;
 
   @override
-  Future<Form> getForm(String gameId) async {
+  Future<C4Form> getForm(String gameId) async {
     _logger.debug("Getting form for game $gameId");
     final snapshot = await _gameRef(gameId).get();
     final List<Map<String, dynamic>> formJson =
         (snapshot.get(_keys.game_.form) as List<dynamic>).map((e) => e as Map<String, dynamic>).toList();
-    final Form result = serdes.form.fromJson(formJson);
+    final C4Form result = serdes.form.fromJson(formJson);
     _logger.debug("Got form for game $gameId: $result");
     return result;
+  }
+
+  @override
+  Future<void>? saveForm(String gameId, C4Form form, String editAuthSecret) async {
+    _logger.debug("Saving form for game $gameId");
+    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSaveForm(gameId, editAuthSecret);
+    if (!userIsAuthorizedToSubmit) {
+      _logger.warn("User not authorized to save form for $gameId");
+      throw ApiError.unauthorized(gameId);
+    }
+
+    await _gameRef(gameId).set({_keys.game_.form: serdes.form.toJson(form)});
+    _logger.debug("Saved form for game $gameId: $form");
+  }
+
+  Future<bool> _userHasAuthorityToSaveForm(String gameId, String authSecret) async {
+    final AggregateQuerySnapshot isAuthorizedQuery = await _gamesRef()
+        .where(Filter.and(
+          Filter(_keys.game_.id, isEqualTo: gameId),
+          Filter(_keys.game_.auth, isNotEqualTo: authSecret),
+        ))
+        .limit(1)
+        .count()
+        .get();
+
+    return (isAuthorizedQuery.count == null) || (isAuthorizedQuery.count == 0);
   }
 
   @override
@@ -56,7 +82,7 @@ class FirestoreFormApi implements Api {
 
   @override
   Future<({String id, String editAuthSecret})> submitForm(String gameId, FormResponse submission) async {
-    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSubmit(gameId, submission);
+    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSubmitResponse(gameId, submission);
     if (!userIsAuthorizedToSubmit) {
       _logger.warn("User not authorized to submit for game $gameId and submission $submission");
       throw ApiError.unauthorized(gameId);
@@ -80,7 +106,7 @@ class FirestoreFormApi implements Api {
     return myRandomAlpha(10);
   }
 
-  Future<bool> _userHasAuthorityToSubmit(String gameId, FormResponse submission) async {
+  Future<bool> _userHasAuthorityToSubmitResponse(String gameId, FormResponse submission) async {
     final bool isEdit = submission.id != null;
     if (isEdit) {
       final String id = submission.id!;
@@ -121,17 +147,17 @@ class FirestoreFormApi implements Api {
       throw ApiError.gameExists(gameId);
     }
     final Game game = Game(id: gameId, gameSystem: system, auth: myRandomAlpha(10));
-    await gameDoc.set(game.toJson());
+    await gameDoc.set(serdes.game.toJson(game));
     _logger.debug("Created game $gameId with system ${system.name}");
     return game;
   }
 
   @override
-  Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, Form form) async {
+  Future<Map<String, Map<String, int>>> getSlotsRemaining(String gameId, C4Form form) async {
     final _Index index = _Index.prepare(_firestore, gameId);
     await index.load();
     final Map<String, Map<String, int>> result = {};
-    for (final FormField field in form) {
+    for (final C4FormField field in form) {
       // At present singleSelect is the only field type which we can check slots
       // ahead of time. All other fields are free-form and so can really only
       // be checked at submission time.
@@ -151,11 +177,11 @@ class FirestoreFormApi implements Api {
   }
 
   @override
-  Future<List<String>> validateSubmission(String gameId, Form form, FormResponse submission) async {
+  Future<List<String>> validateSubmission(String gameId, C4Form form, FormResponse submission) async {
     final List<Future<String?>> validationFutures = [];
     final _Index index = _Index.prepare(_firestore, gameId);
     await index.load();
-    for (FormField fieldWrapper in form) {
+    for (C4FormField fieldWrapper in form) {
       if (fieldWrapper.isCocSkillset) {
         final CoCSkillsetFormField field = fieldWrapper.cocSkillsetRequired;
         final CocSkillsetResponse? response = submission.fields[field.key]?.cocSkillset;
@@ -169,7 +195,7 @@ class FirestoreFormApi implements Api {
         final SingleSelectResponse? response = submission.fields[field.key]?.singleSelect;
         validationFutures.add(_validateSingleSelect(submission.id, field, response, index));
       } else if (fieldWrapper.isText) {
-        final TextFormField field = fieldWrapper.textRequired;
+        final C4TextFormField field = fieldWrapper.textRequired;
         final TextResponse? response = submission.fields[field.key]?.text;
         validationFutures.add(_validateText(submission.id, field, response, index));
       } else if (fieldWrapper.isTextArea) {
@@ -239,7 +265,7 @@ class FirestoreFormApi implements Api {
 
   Future<String?> _validateText(
     String? submissionId,
-    TextFormField field,
+    C4TextFormField field,
     TextResponse? response,
     _Index index,
   ) async {

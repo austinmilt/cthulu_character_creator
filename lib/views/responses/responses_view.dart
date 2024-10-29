@@ -1,12 +1,12 @@
-import 'package:cthulu_character_creator/model/form_data.dart';
-import 'package:cthulu_character_creator/views/character_creator/character_creator_view.dart';
-import 'package:cthulu_character_creator/views/submissions/submissions_controller.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
+import 'package:cthulu_character_creator/views/response/response_view.dart';
+import 'package:cthulu_character_creator/views/responses/responses_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class SubmissionsView extends StatelessWidget {
-  const SubmissionsView({
+class ResponsesView extends StatelessWidget {
+  const ResponsesView({
     super.key,
     required this.gameId,
     required this.auth,
@@ -17,7 +17,7 @@ class SubmissionsView extends StatelessWidget {
 
   static final GoRoute route = GoRoute(
     name: 'view-submissions',
-    path: '/submissions/:gameId',
+    path: '/:gameId/responses',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
       final String? auth = state.uri.queryParameters['s'];
@@ -27,7 +27,7 @@ class SubmissionsView extends StatelessWidget {
       if (auth == null) {
         throw StateError("Not authorized to view this.");
       }
-      return SubmissionsView(gameId: gameId, auth: auth);
+      return ResponsesView(gameId: gameId, auth: auth);
     },
   );
 
@@ -51,7 +51,7 @@ class SubmissionsView extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: FutureBuilder(
-        future: context.read<SubmissionsController>().load(gameId, auth),
+        future: context.read<ResponsesController>().load(gameId, auth),
         builder: (_, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
             return _Submissions();
@@ -67,23 +67,24 @@ class SubmissionsView extends StatelessWidget {
 class _Submissions extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    final SubmissionsController controller = context.watch<SubmissionsController>();
+    final ResponsesController controller = context.watch<ResponsesController>();
     final List<FormResponseSummary> summaries = controller.summaries;
     return _TopCenterContainer(
-        maxWidth: 600,
-        padding: const EdgeInsets.all(16),
-        child: ListView.builder(
-          itemCount: summaries.length,
-          itemBuilder: (context, index) => ListTile(
-            title: Text(summaries[index].id),
-            onTap: () => CharacterCreatorView.navigate(
-              context,
-              controller.gameId,
-              summaries[index].id,
-              null,
-            ),
+      maxWidth: 600,
+      padding: const EdgeInsets.all(16),
+      child: ListView.builder(
+        itemCount: summaries.length,
+        itemBuilder: (context, index) => ListTile(
+          title: Text(summaries[index].id),
+          onTap: () => ResponseView.navigate(
+            context,
+            controller.gameId,
+            summaries[index].id,
+            null,
           ),
-        ));
+        ),
+      ),
+    );
   }
 }
 

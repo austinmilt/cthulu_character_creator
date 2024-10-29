@@ -1,9 +1,9 @@
 import 'package:cthulu_character_creator/api.dart';
-import 'package:cthulu_character_creator/model/form_data.dart';
+import 'package:cthulu_character_creator/model/form_response.dart';
 import 'package:flutter/material.dart';
 
-class SubmissionsController with ChangeNotifier {
-  SubmissionsController(this._api);
+class ResponsesController with ChangeNotifier {
+  ResponsesController(this._api);
 
   final Api _api;
 

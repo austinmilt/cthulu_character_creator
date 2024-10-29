@@ -1,11 +1,11 @@
 import 'package:cthulu_character_creator/fields/coc_skillset/field.dart';
-import 'package:cthulu_character_creator/fields/coc_skillset/slot.dart';
+import 'package:cthulu_character_creator/fields/coc_skillset/slot/slot.dart';
 import 'package:cthulu_character_creator/logging.dart';
-import 'package:cthulu_character_creator/views/character_creator/form_controller.dart';
+import 'package:cthulu_character_creator/views/response/response_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'skill.dart';
+import 'skill/skill.dart';
 
 class SkillSelector extends StatefulWidget {
   const SkillSelector({
@@ -328,7 +328,7 @@ class _SkillChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final int totalPercentage = skill.basePercentage + skill.percentageModifier;
     final String label = "${skill.name} (${(totalPercentage).toString().padLeft(2, '0')}%)";
-    final bool canEdit = context.watch<FormController>().canEditResponse;
+    final bool canEdit = context.watch<ResponseController>().canEditResponse;
     return InkWell(
       onTap: canEdit ? onTap : null,
       child: Container(
