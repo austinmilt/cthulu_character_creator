@@ -6,9 +6,8 @@ abstract interface class Api {
   /// Loads the form for game [gameId], returning [null] if it does not exist.
   Future<C4Form?> getForm(String gameId);
 
-  /// Saves the [form] for game [gameId]
-  /// TODO Authorization
-  Future<void>? saveForm(String gameId, C4Form form);
+  /// Saves the [form] for game [gameId] using [authSecret].
+  Future<void>? saveForm(String gameId, C4Form form, String authSecret);
 
   /// Loads the form submission for [gameId] with id [submissionId], returning [null] if it does not exist.
   Future<FormResponse?> getSubmission(String gameId, String submissionId);

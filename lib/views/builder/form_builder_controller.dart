@@ -17,6 +17,8 @@ class FormBuilderController with ChangeNotifier {
   late String _gameId;
   String get gameId => _gameId;
 
+  late String _edithAuthSecret;
+
   List<C4FormField?> _form = [];
   List<C4FormField?> get partialForm => _form.toList();
 
@@ -29,13 +31,14 @@ class FormBuilderController with ChangeNotifier {
 
   final Map<int, FieldBuilderController> _fieldControllers = {};
 
-  Future<void> load(String gameId) async {
+  Future<void> load(String gameId, String authSecret) async {
     _form = await _api.getForm(gameId) ?? [];
     _gameId = gameId;
+    _edithAuthSecret = authSecret;
   }
 
   Future<void> save() async {
-    await _api.saveForm(gameId, _form.nonNulls.toList());
+    await _api.saveForm(gameId, _form.nonNulls.toList(), _edithAuthSecret);
   }
 
   void addField(C4FormField field) {
@@ -52,9 +55,6 @@ class FormBuilderController with ChangeNotifier {
     _fieldControllers.remove(index)?.dispose();
     notifyListeners();
   }
-
-  // TODO remove field stuff for each item in skillsets and single select
-  // TODO save form functionality
 
   FieldBuilderController getFieldController(int index) {
     final C4FormField? field = _getField(index);

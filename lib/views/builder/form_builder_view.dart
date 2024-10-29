@@ -5,24 +5,28 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class FormBuilderView extends StatelessWidget {
-  const FormBuilderView({super.key, required this.gameId});
+  const FormBuilderView({
+    super.key,
+    required this.gameId,
+    required this.authSecret,
+  });
 
   final String gameId;
+  final String authSecret;
 
   static final GoRoute route = GoRoute(
     name: 'build-form',
-    path: '/:gameId/form',
+    path: '/:gameId/form/build',
     builder: (context, state) {
       final String? gameId = state.pathParameters['gameId'];
-      // final String? auth = state.uri.queryParameters['s'];
+      final String? auth = state.uri.queryParameters['s'];
       if (gameId == null) {
         throw StateError('Tried to navigate to submissions view without a game ID');
       }
-      // TODO add auth (see responses_view)
-      // if (auth == null) {
-      //   throw StateError("Not authorized to view this.");
-      // }
-      return FormBuilderView(gameId: gameId);
+      if (auth == null) {
+        throw StateError("Not authorized to view this.");
+      }
+      return FormBuilderView(gameId: gameId, authSecret: auth);
     },
   );
 
@@ -45,7 +49,7 @@ class FormBuilderView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-      future: context.read<FormBuilderController>().load(gameId),
+      future: context.read<FormBuilderController>().load(gameId, authSecret),
       builder: (_, snapshot) {
         if (snapshot.connectionState == ConnectionState.done) {
           return _ViewLoaded(gameId: gameId);

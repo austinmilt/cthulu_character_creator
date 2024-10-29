@@ -41,12 +41,29 @@ class FirestoreFormApi implements Api {
   }
 
   @override
-  Future<void>? saveForm(String gameId, C4Form form) async {
+  Future<void>? saveForm(String gameId, C4Form form, String editAuthSecret) async {
     _logger.debug("Saving form for game $gameId");
+    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSaveForm(gameId, editAuthSecret);
+    if (!userIsAuthorizedToSubmit) {
+      _logger.warn("User not authorized to save form for $gameId");
+      throw ApiError.unauthorized(gameId);
+    }
 
-    /// TODO Authorization
     await _gameRef('example').set({_keys.game_.form: serdes.form.toJson(form)});
     _logger.debug("Saved form for game $gameId: $form");
+  }
+
+  Future<bool> _userHasAuthorityToSaveForm(String gameId, String authSecret) async {
+    final AggregateQuerySnapshot isAuthorizedQuery = await _gamesRef()
+        .where(Filter.and(
+          Filter(_keys.game_.id, isEqualTo: gameId),
+          Filter(_keys.game_.auth, isNotEqualTo: authSecret),
+        ))
+        .limit(1)
+        .count()
+        .get();
+
+    return (isAuthorizedQuery.count == null) || (isAuthorizedQuery.count == 0);
   }
 
   @override
@@ -65,7 +82,7 @@ class FirestoreFormApi implements Api {
 
   @override
   Future<({String id, String editAuthSecret})> submitForm(String gameId, FormResponse submission) async {
-    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSubmit(gameId, submission);
+    final bool userIsAuthorizedToSubmit = await _userHasAuthorityToSubmitResponse(gameId, submission);
     if (!userIsAuthorizedToSubmit) {
       _logger.warn("User not authorized to submit for game $gameId and submission $submission");
       throw ApiError.unauthorized(gameId);
@@ -89,7 +106,7 @@ class FirestoreFormApi implements Api {
     return myRandomAlpha(10);
   }
 
-  Future<bool> _userHasAuthorityToSubmit(String gameId, FormResponse submission) async {
+  Future<bool> _userHasAuthorityToSubmitResponse(String gameId, FormResponse submission) async {
     final bool isEdit = submission.id != null;
     if (isEdit) {
       final String id = submission.id!;
