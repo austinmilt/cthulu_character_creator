@@ -1,4 +1,5 @@
 import 'package:cthulu_character_creator/views/builder/form_builder_view.dart';
+import 'package:cthulu_character_creator/views/home/home_view.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
 import 'package:cthulu_character_creator/views/responses/responses_view.dart';
 import 'package:flutter/material.dart';
@@ -25,13 +26,13 @@ class MyApp extends StatelessWidget {
 
 GoRouter _router() {
   return GoRouter(
-    // TODO change to "home page" with my games and responses
-    initialLocation: FormBuilderView.route.path.replaceAll(":gameId", 'coc-dragoncon-stakes'),
+    initialLocation: HomeView.route.path,
     routes: <RouteBase>[
       FormBuilderView.route,
       ResponseView.newRoute,
       ResponseView.existingRoute,
       ResponsesView.route,
+      HomeView.route,
     ],
     redirect: (context, state) {
       return null;

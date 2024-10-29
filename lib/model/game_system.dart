@@ -1,5 +1,9 @@
 enum GameSystem {
-  callOfCthulu;
+  callOfCthulu("Call of Cthulu");
+
+  const GameSystem(this.displayName);
+
+  final String displayName;
 
   static GameSystem fromName(String name) {
     final GameSystem? result = _map[name];

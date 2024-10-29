@@ -17,17 +17,6 @@ class InfoBuilder extends StatefulWidget {
 }
 
 class _InfoBuilderState extends State<InfoBuilder> {
-  // C4FormField _getSpec(FormBuilderController controller) {
-  //   final C4FormField? candidate = controller.getField(widget.fieldIndex);
-  //   return C4FormField.info(
-  //     InformationFormField(
-  //       title: candidate?.info?.title,
-  //       bodyMarkdown: candidate?.info?.bodyMarkdown,
-  //     ),
-  //     candidate?.group,
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final C4FormField spec = widget.controller.spec;

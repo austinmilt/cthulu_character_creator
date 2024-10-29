@@ -21,20 +21,6 @@ class EmailBuilder extends StatefulWidget {
 }
 
 class _EmailBuilderState extends State<EmailBuilder> {
-  // C4FormField _getSpec(FormBuilderController controller) {
-  //   final C4FormField? candidate = controller.getField(widget.fieldIndex);
-  //   return C4FormField.email(
-  //     EmailFormField(
-  //       key: candidate?.email?.key ?? 'email-${widget.fieldIndex}',
-  //       title: candidate?.email?.title,
-  //       bodyMarkdown: candidate?.email?.bodyMarkdown,
-  //       required: candidate?.email?.required ?? true,
-  //       slots: candidate?.email?.slots,
-  //     ),
-  //     candidate?.group,
-  //   );
-  // }
-
   @override
   Widget build(BuildContext context) {
     final C4FormField spec = widget.controller.spec;

@@ -1,4 +1,5 @@
 import 'package:cthulu_character_creator/model/form.dart';
+import 'package:cthulu_character_creator/model/game.dart';
 import 'package:cthulu_character_creator/model/game_system.dart';
 import 'package:cthulu_character_creator/model/form_response.dart';
 
@@ -24,7 +25,7 @@ abstract interface class Api {
   /// setup for its game system.
   ///
   /// Throws [ApiError] if the game already exists.
-  Future<void> createGame(String gameName, GameSystem system);
+  Future<Game> createGame(String gameName, GameSystem system);
 
   /// Gets the count of remaining slots for each field in the [form]. Fields
   /// with unlimited capacity and free-form answers will be excluded from the result.
