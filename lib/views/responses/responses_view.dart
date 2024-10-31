@@ -54,7 +54,11 @@ class ResponsesView extends StatelessWidget {
         future: context.read<ResponsesController>().load(gameId, auth),
         builder: (_, snapshot) {
           if (snapshot.connectionState == ConnectionState.done) {
-            return _Submissions();
+            if (context.watch<ResponsesController>().summaries.isEmpty) {
+              return const Center(child: Text("No responses yet"));
+            } else {
+              return _Submissions();
+            }
           } else {
             return const Center(child: CircularProgressIndicator());
           }
