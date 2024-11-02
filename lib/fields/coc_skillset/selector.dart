@@ -80,7 +80,7 @@ class _SkillSelectorState extends State<SkillSelector> {
       if (initialMatch != null) {
         if (matchingSlot != null) {
           _bucketMap.putIfAbsent("${matchingSlot.$1}", () => []).add(initialMatch);
-          unclaimedSlots.removeAt(matchingSlot.$1);
+          unclaimedSlots.removeWhere((r) => r.$1 == matchingSlot!.$1);
         } else {
           _bucketMap.putIfAbsent("u", () => []).add(initialMatch);
           // intialMatch already removed from unmapped intial vales above

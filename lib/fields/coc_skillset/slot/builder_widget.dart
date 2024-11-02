@@ -18,11 +18,8 @@ class SkillSlotsBuilderWidget extends StatelessWidget {
   }
 
   void _onRemove(int index) {
-    final List<SkillSlot> newSlots = [];
-    for (int i = 0; i < slots.length; i++) {
-      if (i != index) newSlots.add(slots[i]);
-    }
-    onUpdate(newSlots);
+    slots.removeAt(index);
+    onUpdate(slots);
   }
 
   @override
@@ -33,7 +30,7 @@ class SkillSlotsBuilderWidget extends StatelessWidget {
         const SizedBox(height: 8),
         ListView.builder(
           // update the key to force a re-render when we remove a skill
-          key: Key(slots.join()),
+          key: Key(slots.length.toString()),
           shrinkWrap: true,
           itemCount: slots.length + 1,
           itemBuilder: (context, i) => (i < slots.length)
