@@ -207,7 +207,8 @@ class _CopyUrl extends StatelessWidget {
   }
 
   String _urlOrigin(BuildContext context) {
-    return "${html.window.location.origin}/#";
+    final String href = html.window.location.href;
+    return href.substring(0, href.indexOf("#") + 1);
   }
 
   void _copyToClipboard(String value) {
