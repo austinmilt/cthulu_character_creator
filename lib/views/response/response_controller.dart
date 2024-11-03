@@ -59,7 +59,15 @@ class MainResponseController with ChangeNotifier implements ResponseController {
       }
     }));
     if (responseId != null) {
-      futures.add(_api.getSubmission(gameId, responseId).then((s) => _submission = s));
+      futures.add(_api.getSubmission(gameId, responseId).then((s) {
+        _submission = (s == null)
+            ? null
+            : FormResponse(
+                id: s.id ?? responseId,
+                editAuthSecret: s.editAuthSecret ?? editAuthSecret,
+                fields: s.fields,
+              );
+      }));
     }
 
     final bool newSubmission = (responseId == null) && (editAuthSecret == null);
@@ -76,7 +84,12 @@ class MainResponseController with ChangeNotifier implements ResponseController {
     notifyListeners();
 
     try {
-      final response = await _api.submitForm(_gameId, submission);
+      final FormResponse submissionWithAuth = FormResponse(
+        id: submission.id ?? _submission?.id,
+        editAuthSecret: submission.editAuthSecret ?? _submission?.editAuthSecret,
+        fields: submission.fields,
+      );
+      final response = await _api.submitForm(_gameId, submissionWithAuth);
       _submission = FormResponse(
         id: response.id,
         editAuthSecret: response.editAuthSecret,
