@@ -11,6 +11,11 @@ class FormResponse {
   String? id;
   String? editAuthSecret;
   final Map<String, FormFieldResponse> fields;
+
+  @override
+  String toString() {
+    return "FormResponse[id=$id, editAuthSecret=$editAuthSecret, fields=$fields]";
+  }
 }
 
 class FormFieldResponse {
@@ -62,6 +67,25 @@ class FormFieldResponse {
 
   bool get isTextArea => textArea != null;
   String get textAreaRequired => textArea!;
+
+  @override
+  String toString() {
+    final String subField;
+    if (isEmail) {
+      subField = "email=$email";
+    } else if (isSingleSelect) {
+      subField = "singleSelect=$singleSelect";
+    } else if (isCocSkillset) {
+      subField = "cocSkillset=$cocSkillset";
+    } else if (isText) {
+      subField = "text=$text";
+    } else if (isTextArea) {
+      subField = "textArea=$textArea";
+    } else {
+      throw StateError("Unhandled field type");
+    }
+    return "FormFieldResponse[$subField]";
+  }
 }
 
 class FormResponseSummary {

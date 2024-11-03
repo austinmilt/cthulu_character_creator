@@ -1,6 +1,7 @@
 import 'package:cthulu_character_creator/views/builder/form_builder.dart';
 import 'package:cthulu_character_creator/views/builder/form_builder_controller.dart';
 import 'package:cthulu_character_creator/views/response/response_view.dart';
+import 'package:cthulu_character_creator/views/responses/responses_view.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:go_router/go_router.dart';
@@ -95,6 +96,7 @@ class _ViewLoadedState extends State<_ViewLoaded> {
 
   @override
   Widget build(BuildContext context) {
+    final ThemeData theme = Theme.of(context);
     final FormBuilderController controller = context.read<FormBuilderController>();
     return Scaffold(
       floatingActionButton: Column(
@@ -105,32 +107,41 @@ class _ViewLoadedState extends State<_ViewLoaded> {
           Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              InkWell(
-                // TODO indicate this will wipe out all existing responses (and then wipe them out)
-                onTap: () => controller.save(),
-                child: Container(
-                    decoration: BoxDecoration(
-                      border: Border.all(),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: theme.buttonTheme.colorScheme?.primary ?? Colors.black),
+                ),
+                child: InkWell(
+                  // TODO indicate this will wipe out all existing responses (and then wipe them out)
+                  onTap: () => controller.save(),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
                     padding: const EdgeInsets.all(6),
-                    child: const Icon(
+                    child: Icon(
                       Icons.save,
                       size: 28,
-                    )),
+                      color: theme.buttonTheme.colorScheme?.primary,
+                    ),
+                  ),
+                ),
               ),
               const SizedBox(width: 4),
-              InkWell(
-                onTap: () => _onShare(context),
-                child: Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  padding: const EdgeInsets.all(6),
-                  child: const Icon(
-                    Icons.share,
-                    size: 28,
+              DecoratedBox(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: theme.buttonTheme.colorScheme?.primary ?? Colors.black),
+                ),
+                child: InkWell(
+                  onTap: () => _onShare(context),
+                  borderRadius: BorderRadius.circular(8),
+                  child: Padding(
+                    padding: const EdgeInsets.all(6),
+                    child: Icon(
+                      Icons.link,
+                      size: 28,
+                      color: theme.buttonTheme.colorScheme?.primary,
+                    ),
                   ),
                 ),
               ),
@@ -186,6 +197,15 @@ class _CopyUrl extends StatelessWidget {
     return "${_urlOrigin(context)}$path";
   }
 
+  bool _canShareResponses() {
+    return editAuthSecret != null;
+  }
+
+  String _responsesUrl(BuildContext context) {
+    final String path = ResponsesView.route.path.replaceFirst(":gameId", gameId);
+    return "${_urlOrigin(context)}$path?s=$editAuthSecret";
+  }
+
   String _urlOrigin(BuildContext context) {
     return "${html.window.location.origin}/#";
   }
@@ -216,7 +236,7 @@ class _CopyUrl extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: const Text("Share"),
+      title: const Text("Links"),
       content: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -229,6 +249,11 @@ class _CopyUrl extends StatelessWidget {
             Padding(
               padding: const EdgeInsets.only(top: 20),
               child: _option(context, 'Edit', _editUrl(context)),
+            ),
+          if (_canShareResponses())
+            Padding(
+              padding: const EdgeInsets.only(top: 20),
+              child: _option(context, 'Responses', _responsesUrl(context)),
             ),
         ],
       ),

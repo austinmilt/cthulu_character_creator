@@ -20,6 +20,9 @@ class SingleSelectBuilder extends StatefulWidget {
 class _SingleSelectBuilderState extends State<SingleSelectBuilder> {
   @override
   Widget build(BuildContext context) {
+    // TODO try to reduce the number of propagating updates that might be causing
+    // the cursor to lose focus when you type in a slot
+    print('update');
     final C4FormField spec = widget.controller.spec;
     return widget.controller.editing
         ? _Editor(
@@ -144,7 +147,10 @@ class _OptionsBuilder extends StatelessWidget {
   final void Function(List<String>) onUpdate;
 
   void _onUpdate(int index, String newValue) {
-    onUpdate(List.generate(options.length, (i) => (i == index) ? newValue : options[i]));
+    onUpdate(List.generate(
+      options.length,
+      (i) => (i == index) ? newValue : options[i],
+    ));
   }
 
   void _addOption() {
@@ -153,11 +159,7 @@ class _OptionsBuilder extends StatelessWidget {
 
   void _onRemove(int index) {
     options.removeAt(index);
-    final List<String> newOptions = [];
-    for (int i = 0; i < options.length; i++) {
-      if (i != index) newOptions.add(options[i]);
-    }
-    onUpdate(newOptions);
+    onUpdate(options);
   }
 
   @override
@@ -168,7 +170,7 @@ class _OptionsBuilder extends StatelessWidget {
         const SizedBox(height: 8),
         ListView.builder(
           // update the key to force a re-render when we remove a skill
-          key: Key(options.join()),
+          key: Key(options.length.toString()),
           shrinkWrap: true,
           itemCount: options.length + 1,
           itemBuilder: (context, i) => (i < options.length)
